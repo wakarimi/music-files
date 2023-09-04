@@ -34,6 +34,10 @@ func DirScan(c *gin.Context) {
 		return
 	}
 
+	dirScanOne(c, dir)
+}
+
+func dirScanOne(c *gin.Context, dir models.Directory) {
 	foundMusics, err := searchMusicsFromDirectory(dir)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, types.Error{
@@ -50,7 +54,7 @@ func DirScan(c *gin.Context) {
 		return
 	}
 
-	currentMusics, err := repository.GetAllMusicFilesByDirId(dirId)
+	currentMusics, err := repository.GetAllMusicFilesByDirId(dir.DirId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, types.Error{
 			Error: "Failed to get music list",
@@ -58,7 +62,7 @@ func DirScan(c *gin.Context) {
 		return
 	}
 
-	currentCovers, err := repository.GetAllCoverFilesByDirId(dirId)
+	currentCovers, err := repository.GetAllCoverFilesByDirId(dir.DirId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, types.Error{
 			Error: "Failed to get cover list",

@@ -17,7 +17,7 @@ func SetupRouter() *gin.Engine {
 			dirs.POST("/", handlers.DirAdd)
 			dirs.DELETE("/:dirId", handlers.DirRemove)
 			dirs.POST("/:dirId/scan", handlers.DirScan)
-			dirs.POST("/scan-all")
+			dirs.POST("/scan-all", handlers.DirScanAll)
 		}
 
 		tracks := api.Group("/tracks")
