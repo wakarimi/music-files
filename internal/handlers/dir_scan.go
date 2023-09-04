@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 func DirScan(c *gin.Context) {
@@ -72,30 +73,30 @@ func dirScanOne(c *gin.Context, dir models.Directory) {
 
 	for _, fm := range foundMusics {
 		if !musicExistsInDB(fm, currentMusics) {
-			repository.InsertMusicFile(fm)
+			_, err = repository.InsertMusicFile(fm)
 		}
 	}
 	for _, cm := range currentMusics {
 		if !musicExistsInList(cm, foundMusics) {
-			repository.DeleteMusicFile(cm.MusicFileId)
+			err = repository.DeleteMusicFile(cm.MusicFileId)
 		}
 	}
 
 	for _, fc := range foundCovers {
 		if !coverExistsInDB(fc, currentCovers) {
-			repository.InsertCoverFile(fc)
+			_, err = repository.InsertCoverFile(fc)
 		}
 	}
 	for _, cc := range currentCovers {
 		if !coverExistsInList(cc, foundCovers) {
-			repository.DeleteCoverFile(cc.CoverFileId)
+			err = repository.DeleteCoverFile(cc.CoverFileId)
 		}
 	}
 }
 
 func musicExistsInDB(music models.MusicFile, list []models.MusicFile) bool {
 	for _, m := range list {
-		if m.Path == music.Path {
+		if m.DirId == music.DirId && m.Path == music.Path {
 			return true
 		}
 	}
@@ -104,7 +105,7 @@ func musicExistsInDB(music models.MusicFile, list []models.MusicFile) bool {
 
 func coverExistsInDB(cover models.CoverFile, list []models.CoverFile) bool {
 	for _, c := range list {
-		if c.Path == cover.Path {
+		if c.DirId == cover.DirId && c.Path == cover.Path {
 			return true
 		}
 	}
@@ -129,10 +130,11 @@ func searchMusicsFromDirectory(dir models.Directory) (musicFiles []models.MusicF
 			return nil
 		}
 
+		relativePath := strings.TrimPrefix(path, dir.Path)
 		if utils.IsMusicFile(filepath.Ext(path)) {
 			musicFiles = append(musicFiles, models.MusicFile{
 				DirId:  dir.DirId,
-				Path:   path,
+				Path:   relativePath,
 				Size:   info.Size(),
 				Format: filepath.Ext(path),
 			})
@@ -156,10 +158,11 @@ func searchCoversFromDirectory(dir models.Directory) (coverFiles []models.CoverF
 			return nil
 		}
 
+		relativePath := strings.TrimPrefix(path, dir.Path)
 		if utils.IsImageFile(filepath.Ext(path)) {
 			coverFiles = append(coverFiles, models.CoverFile{
 				DirId:  dir.DirId,
-				Path:   path,
+				Path:   relativePath,
 				Size:   info.Size(),
 				Format: filepath.Ext(path),
 			})
