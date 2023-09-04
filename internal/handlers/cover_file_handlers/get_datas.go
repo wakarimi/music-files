@@ -1,4 +1,4 @@
-package cover_handlers
+package cover_file_handlers
 
 import "github.com/gin-gonic/gin"
 

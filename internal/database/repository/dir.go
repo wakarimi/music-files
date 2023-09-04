@@ -2,6 +2,7 @@ package repository
 
 import (
 	"music-files/internal/database"
+	"music-files/internal/models"
 )
 
 func InsertDir(path string) (dirId int, err error) {
@@ -41,4 +42,27 @@ func DeleteDir(path string) (err error) {
 	`
 	_, err = database.Db.Exec(query, path)
 	return err
+}
+
+func GetAllDirs() (dirs []models.Directory, err error) {
+	query := `
+		SELECT dir_id, path, date_added, last_scanned
+		FROM directories
+	`
+
+	rows, err := database.Db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var dir models.Directory
+		if err := rows.Scan(&dir.DirId, &dir.Path, &dir.DateAdded, &dir.LastScanned); err != nil {
+			return nil, err
+		}
+		dirs = append(dirs, dir)
+	}
+
+	return dirs, rows.Err()
 }

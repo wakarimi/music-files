@@ -3,7 +3,7 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"music-files/internal/config"
-	"music-files/internal/handlers/cover_handlers"
+	"music-files/internal/handlers/cover_file_handlers"
 	"music-files/internal/handlers/dir_handlers"
 	"music-files/internal/handlers/music_file_handlers"
 )
@@ -30,9 +30,9 @@ func SetupRouter(cfg *config.Configuration) *gin.Engine {
 
 		covers := api.Group("/covers")
 		{
-			covers.GET("/{cover_id}/download", cover_handlers.GetFile)
-			covers.GET("/{cover_id}", cover_handlers.GetData)
-			covers.GET("/", cover_handlers.GetDatas)
+			covers.GET("/{cover_id}/download", cover_file_handlers.GetFile)
+			covers.GET("/{cover_id}", cover_file_handlers.GetData)
+			covers.GET("/", cover_file_handlers.GetDatas)
 		}
 	}
 
