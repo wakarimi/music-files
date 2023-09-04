@@ -1,15 +1,14 @@
-package handlers
+package dir_handlers
 
 import (
 	"github.com/gin-gonic/gin"
 	"log"
-	"music-files/internal/config"
 	"net/http"
 	"os"
 	"path/filepath"
 )
 
-func Scan(c *gin.Context, cfg *config.Configuration) {
+func Scan(c *gin.Context) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatal(err)
