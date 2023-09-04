@@ -1,4 +1,4 @@
-package dir_handlers
+package handlers
 
 import (
 	"github.com/gin-gonic/gin"
@@ -12,7 +12,7 @@ type DirAddRequest struct {
 	Path string `json:"path" binding:"required"`
 }
 
-func Add(c *gin.Context) {
+func DirAdd(c *gin.Context) {
 	var request DirAddRequest
 
 	if err := c.ShouldBindJSON(&request); err != nil {
