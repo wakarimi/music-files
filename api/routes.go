@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"music-files/internal/handlers"
 )
 
 func SetupRouter() *gin.Engine {
@@ -12,7 +13,7 @@ func SetupRouter() *gin.Engine {
 
 		dirs := api.Group("/dirs")
 		{
-			dirs.GET("/")
+			dirs.GET("/", handlers.DirGetAll)
 			dirs.POST("/")
 			dirs.DELETE("/{dir_id}")
 			dirs.POST("/{dir_id}/scan")
