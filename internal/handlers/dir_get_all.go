@@ -30,7 +30,7 @@ func DirGetAll(c *gin.Context) {
 		return
 	}
 
-	var dirsResponse []DirGetAllResponseOne
+	dirsResponse := make([]DirGetAllResponseOne, 0)
 	for _, dir := range dirs {
 		dirResponse := DirGetAllResponseOne{
 			DirId:       dir.DirId,
