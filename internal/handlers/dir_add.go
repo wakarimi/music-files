@@ -16,6 +16,7 @@ func DirAdd(c *gin.Context) {
 	var request DirAddRequest
 
 	if err := c.ShouldBindJSON(&request); err != nil {
+		log.Println(err)
 		c.JSON(http.StatusBadRequest, types.Error{
 			Error: err.Error(),
 		})
@@ -24,12 +25,14 @@ func DirAdd(c *gin.Context) {
 
 	exists, err := repository.DirExist(request.Path)
 	if err != nil {
+		log.Println(err)
 		c.JSON(http.StatusInternalServerError, types.Error{
 			Error: "Failed to check directory",
 		})
 		return
 	}
 	if exists {
+		log.Println(err)
 		c.JSON(http.StatusConflict, types.Error{
 			Error: "Directory already added",
 		})

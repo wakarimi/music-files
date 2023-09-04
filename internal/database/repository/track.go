@@ -5,6 +5,15 @@ import (
 	"music-files/internal/models"
 )
 
+func DeleteTracksByDirId(dirId int) (err error) {
+	query := `
+		DELETE FROM music_files
+		WHERE dir_id = $1
+	`
+	_, err = database.Db.Exec(query, dirId)
+	return err
+}
+
 func InsertMusicFile(musicFile models.MusicFile) (musicFileId int, err error) {
 	query := `
 		INSERT INTO music_files(dir_id, path, size, format) 

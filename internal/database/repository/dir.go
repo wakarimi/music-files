@@ -5,6 +5,15 @@ import (
 	"music-files/internal/models"
 )
 
+func DeleteDir(dirId int) (err error) {
+	query := `
+		DELETE FROM directories
+		WHERE dir_id = $1
+	`
+	_, err = database.Db.Exec(query, dirId)
+	return err
+}
+
 func GetAllDirs() (dirs []models.Directory, err error) {
 	query := `
 		SELECT dir_id, path, date_added, last_scanned
@@ -56,13 +65,4 @@ func DirExist(path string) (exists bool, err error) {
 	}
 
 	return count > 0, nil
-}
-
-func DeleteDir(path string) (err error) {
-	query := `
-		DELETE FROM directories
-		WHERE path = $1
-	`
-	_, err = database.Db.Exec(query, path)
-	return err
 }

@@ -5,6 +5,15 @@ import (
 	"music-files/internal/models"
 )
 
+func DeleteCoversByDirId(dirId int) (err error) {
+	query := `
+		DELETE FROM cover_files
+		WHERE dir_id = $1
+	`
+	_, err = database.Db.Exec(query, dirId)
+	return err
+}
+
 func InsertCoverFile(coverFile models.CoverFile) (coverFileId int, err error) {
 	query := `
 		INSERT INTO cover_files(dir_id, path, size, format) 

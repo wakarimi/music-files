@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/gin-gonic/gin"
+	"log"
 	"music-files/internal/database/repository"
 	"music-files/internal/handlers/types"
 	"net/http"
@@ -22,6 +23,7 @@ type DirGetAllResponse struct {
 func DirGetAll(c *gin.Context) {
 	dirs, err := repository.GetAllDirs()
 	if err != nil {
+		log.Println(err)
 		c.JSON(http.StatusInternalServerError, types.Error{
 			Error: "Failed to get all dirs",
 		})
