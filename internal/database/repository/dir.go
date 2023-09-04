@@ -33,3 +33,12 @@ func DirExist(path string) (exists bool, err error) {
 
 	return count > 0, nil
 }
+
+func DeleteDir(path string) (err error) {
+	query := `
+		DELETE FROM directories
+		WHERE path = $1
+	`
+	_, err = database.Db.Exec(query, path)
+	return err
+}
