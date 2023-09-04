@@ -14,6 +14,20 @@ func DeleteDir(dirId int) (err error) {
 	return err
 }
 
+func GetDirById(dirId int) (dir models.Directory, err error) {
+	query := `
+		SELECT dir_id, path, date_added, last_scanned
+		FROM directories
+		WHERE dir_id = $1
+	`
+	err = database.Db.QueryRow(query, dirId).Scan(&dir.DirId, &dir.Path, &dir.DateAdded, &dir.LastScanned)
+	if err != nil {
+		return models.Directory{}, err
+	}
+
+	return dir, nil
+}
+
 func GetAllDirs() (dirs []models.Directory, err error) {
 	query := `
 		SELECT dir_id, path, date_added, last_scanned

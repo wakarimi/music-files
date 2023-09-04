@@ -37,13 +37,14 @@ func DeleteCoverFile(coverFileId int) (err error) {
 	return err
 }
 
-func GetAllCoverFiles() (coverFiles []models.CoverFile, err error) {
+func GetAllCoverFilesByDirId(dirId int) (coverFiles []models.CoverFile, err error) {
 	query := `
 		SELECT cover_file_id, dir_id, path, size, format, date_added
 		FROM cover_files
+		WHERE dir_id = $1
 	`
 
-	rows, err := database.Db.Query(query)
+	rows, err := database.Db.Query(query, dirId)
 	if err != nil {
 		return nil, err
 	}

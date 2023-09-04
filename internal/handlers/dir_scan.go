@@ -1,60 +1,67 @@
-package dir_handlers
+package handlers
 
 import (
 	"github.com/gin-gonic/gin"
+	"log"
 	"music-files/internal/database/repository"
 	"music-files/internal/handlers/types"
 	"music-files/internal/models"
+	"music-files/internal/utils"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
+	"strconv"
 )
 
-func Scan(c *gin.Context) {
-	dirs, err := repository.GetAllDirs()
+func DirScan(c *gin.Context) {
+	dirIdStr := c.Param("dirId")
+
+	dirId, err := strconv.Atoi(dirIdStr)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, types.Error{
-			Error: "Failed to read directories",
+		log.Println(err)
+		c.JSON(http.StatusBadRequest, types.Error{
+			Error: "Invalid dirId format",
 		})
 		return
 	}
 
-	var foundMusics []models.MusicFile
-	var foundCovers []models.CoverFile
-
-	for _, dir := range dirs {
-		foundMusicsOneDir, err := searchMusicsFromDirectory(dir)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, types.Error{
-				Error: "Failed to get music files from directory",
-			})
-			return
-		}
-		foundMusics = append(foundMusics, foundMusicsOneDir...)
-
-		foundCoversOneDir, err := searchCoversFromDirectory(dir)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, types.Error{
-				Error: "Failed to get cover files from directory",
-			})
-			return
-		}
-		foundCovers = append(foundCovers, foundCoversOneDir...)
-	}
-
-	currentMusics, err := repository.GetAllMusicFiles()
+	dir, err := repository.GetDirById(dirId)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, types.Error{
-			Error: "Failed to get full music list",
+		log.Println(err)
+		c.JSON(http.StatusBadRequest, types.Error{
+			Error: "Failed to get directory",
 		})
 		return
 	}
 
-	currentCovers, err := repository.GetAllCoverFiles()
+	foundMusics, err := searchMusicsFromDirectory(dir)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, types.Error{
-			Error: "Failed to get full cover list",
+			Error: "Failed to get music files from directory",
+		})
+		return
+	}
+
+	foundCovers, err := searchCoversFromDirectory(dir)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, types.Error{
+			Error: "Failed to get cover files from directory",
+		})
+		return
+	}
+
+	currentMusics, err := repository.GetAllMusicFilesByDirId(dirId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, types.Error{
+			Error: "Failed to get music list",
+		})
+		return
+	}
+
+	currentCovers, err := repository.GetAllCoverFilesByDirId(dirId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, types.Error{
+			Error: "Failed to get cover list",
 		})
 		return
 	}
@@ -118,7 +125,7 @@ func searchMusicsFromDirectory(dir models.Directory) (musicFiles []models.MusicF
 			return nil
 		}
 
-		if isMusicFile(filepath.Ext(path)) {
+		if utils.IsMusicFile(filepath.Ext(path)) {
 			musicFiles = append(musicFiles, models.MusicFile{
 				DirId:  dir.DirId,
 				Path:   path,
@@ -135,17 +142,6 @@ func searchMusicsFromDirectory(dir models.Directory) (musicFiles []models.MusicF
 	return musicFiles, nil
 }
 
-func isMusicFile(path string) bool {
-	musicExtensions := []string{".aac", ".flac", ".m4a", ".mp3", ".ogg", ".opus", ".wav", ".wma"}
-	ext := strings.ToLower(filepath.Ext(path))
-	for _, musicExt := range musicExtensions {
-		if ext == musicExt {
-			return true
-		}
-	}
-	return false
-}
-
 func searchCoversFromDirectory(dir models.Directory) (coverFiles []models.CoverFile, err error) {
 	err = filepath.Walk(dir.Path, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -156,7 +152,7 @@ func searchCoversFromDirectory(dir models.Directory) (coverFiles []models.CoverF
 			return nil
 		}
 
-		if isImageFile(filepath.Ext(path)) {
+		if utils.IsImageFile(filepath.Ext(path)) {
 			coverFiles = append(coverFiles, models.CoverFile{
 				DirId:  dir.DirId,
 				Path:   path,
@@ -171,15 +167,4 @@ func searchCoversFromDirectory(dir models.Directory) (coverFiles []models.CoverF
 		return nil, err
 	}
 	return coverFiles, nil
-}
-
-func isImageFile(path string) bool {
-	imageExtensions := []string{".jpeg", ".jpg", ".png", ".gif", ".bmp", ".tif", ".tiff", ".webp", ".ico", ".svg"}
-	ext := strings.ToLower(filepath.Ext(path))
-	for _, imageExt := range imageExtensions {
-		if ext == imageExt {
-			return true
-		}
-	}
-	return false
 }

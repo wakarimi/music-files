@@ -16,7 +16,7 @@ func SetupRouter() *gin.Engine {
 			dirs.GET("/", handlers.DirGetAll)
 			dirs.POST("/", handlers.DirAdd)
 			dirs.DELETE("/:dirId", handlers.DirRemove)
-			dirs.POST("/:dirId/scan")
+			dirs.POST("/:dirId/scan", handlers.DirScan)
 			dirs.POST("/scan-all")
 		}
 
