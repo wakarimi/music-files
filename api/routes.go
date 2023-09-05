@@ -24,7 +24,7 @@ func SetupRouter() *gin.Engine {
 		{
 			tracks.GET("/:trackId", handlers.TrackGet)
 			tracks.GET("/", handlers.TrackGetAll)
-			tracks.GET("/:trackId/download")
+			tracks.GET("/:trackId/download", handlers.TrackDownload)
 		}
 
 		covers := api.Group("/covers")

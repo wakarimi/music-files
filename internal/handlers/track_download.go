@@ -11,28 +11,28 @@ import (
 	"strconv"
 )
 
-func CoverDownload(c *gin.Context) {
-	coverIdStr := c.Param("coverId")
+func TrackDownload(c *gin.Context) {
+	trackIdStr := c.Param("trackId")
 
-	coverId, err := strconv.Atoi(coverIdStr)
+	trackId, err := strconv.Atoi(trackIdStr)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusBadRequest, types.Error{
-			Error: "Invalid coverId format",
+			Error: "Invalid trackId format",
 		})
 		return
 	}
 
-	cover, err := repository.GetCoverById(coverId)
+	track, err := repository.GetTrackById(trackId)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, types.Error{
-			Error: "Failed to get cover",
+			Error: "Invalid to get track",
 		})
 		return
 	}
 
-	dir, err := repository.GetDirById(cover.DirId)
+	dir, err := repository.GetDirById(track.DirId)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, types.Error{
@@ -41,19 +41,19 @@ func CoverDownload(c *gin.Context) {
 		return
 	}
 
-	absolutePath := dir.Path + cover.Path
+	absolutePath := dir.Path + track.Path
 	file, err := os.Open(absolutePath)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, types.Error{
-			Error: "Failed to open cover file",
+			Error: "Failed to open track file",
 		})
 		return
 	}
 	defer file.Close()
 
 	c.Header("Content-Type", "application/octet-stream")
-	c.Header("Content-Disposition", "attachment; filename="+filepath.Base(cover.Path))
+	c.Header("Content-Disposition", "attachment; filename="+filepath.Base(track.Path))
 
 	c.File(absolutePath)
 }
