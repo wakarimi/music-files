@@ -29,7 +29,7 @@ func SetupRouter() *gin.Engine {
 
 		covers := api.Group("/covers")
 		{
-			covers.GET("/:coverId")
+			covers.GET("/:coverId", handlers.CoverGet)
 			covers.GET("/:coverId/download")
 		}
 	}

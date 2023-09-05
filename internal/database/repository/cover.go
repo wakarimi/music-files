@@ -5,42 +5,56 @@ import (
 	"music-files/internal/models"
 )
 
+func GetCoverById(trackId int) (cover models.Cover, err error) {
+	query := `
+		SELECT cover_id, dir_id, path, size, format, date_added
+		FROM covers
+		WHERE dir_id = $1
+	`
+	err = database.Db.QueryRow(query, trackId).Scan(&cover.CoverId, &cover.DirId, &cover.Path, &cover.Size, &cover.Format, &cover.DateAdded)
+	if err != nil {
+		return models.Cover{}, err
+	}
+
+	return cover, nil
+}
+
 func DeleteCoversByDirId(dirId int) (err error) {
 	query := `
-		DELETE FROM cover_files
+		DELETE FROM covers
 		WHERE dir_id = $1
 	`
 	_, err = database.Db.Exec(query, dirId)
 	return err
 }
 
-func InsertCoverFile(coverFile models.CoverFile) (coverFileId int, err error) {
+func InsertCover(cover models.Cover) (coverId int, err error) {
 	query := `
-		INSERT INTO cover_files(dir_id, path, size, format) 
+		INSERT INTO covers(dir_id, path, size, format) 
 		VALUES ($1, $2, $3, $4) 
-		RETURNING cover_file_id
+		RETURNING cover_id
 	`
-	err = database.Db.QueryRow(query, coverFile.DirId, coverFile.Path, coverFile.Size, coverFile.Format).Scan(&coverFileId)
+	err = database.Db.QueryRow(query, cover.DirId, cover.Path, cover.Size, cover.Format).Scan(&coverId)
 	if err != nil {
 		return 0, err
 	}
 
-	return coverFileId, nil
+	return coverId, nil
 }
 
-func DeleteCoverFile(coverFileId int) (err error) {
+func DeleteCover(coverId int) (err error) {
 	query := `
-		DELETE FROM cover_files
-		WHERE cover_file_id = $1
+		DELETE FROM covers
+		WHERE cover_id = $1
 	`
-	_, err = database.Db.Exec(query, coverFileId)
+	_, err = database.Db.Exec(query, coverId)
 	return err
 }
 
-func GetAllCoverFilesByDirId(dirId int) (coverFiles []models.CoverFile, err error) {
+func GetAllCoversByDirId(dirId int) (covers []models.Cover, err error) {
 	query := `
-		SELECT cover_file_id, dir_id, path, size, format, date_added
-		FROM cover_files
+		SELECT cover_id, dir_id, path, size, format, date_added
+		FROM covers
 		WHERE dir_id = $1
 	`
 
@@ -51,13 +65,13 @@ func GetAllCoverFilesByDirId(dirId int) (coverFiles []models.CoverFile, err erro
 	defer rows.Close()
 
 	for rows.Next() {
-		var coverFile models.CoverFile
-		if err := rows.Scan(&coverFile.CoverFileId, &coverFile.DirId, &coverFile.Path, &coverFile.Size,
-			&coverFile.Format, &coverFile.DateAdded); err != nil {
+		var cover models.Cover
+		if err := rows.Scan(&cover.CoverId, &cover.DirId, &cover.Path, &cover.Size,
+			&cover.Format, &cover.DateAdded); err != nil {
 			return nil, err
 		}
-		coverFiles = append(coverFiles, coverFile)
+		covers = append(covers, cover)
 	}
 
-	return coverFiles, rows.Err()
+	return covers, rows.Err()
 }

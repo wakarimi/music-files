@@ -1,7 +1,0 @@
-package music_file_handlers
-
-import "github.com/gin-gonic/gin"
-
-func GetFile(c *gin.Context) {
-
-}

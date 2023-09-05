@@ -63,7 +63,7 @@ func dirScanOne(c *gin.Context, dir models.Directory) {
 		return
 	}
 
-	currentCovers, err := repository.GetAllCoverFilesByDirId(dir.DirId)
+	currentCovers, err := repository.GetAllCoversByDirId(dir.DirId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, types.Error{
 			Error: "Failed to get cover list",
@@ -84,12 +84,12 @@ func dirScanOne(c *gin.Context, dir models.Directory) {
 
 	for _, fc := range foundCovers {
 		if !coverExistsInDB(fc, currentCovers) {
-			_, err = repository.InsertCoverFile(fc)
+			_, err = repository.InsertCover(fc)
 		}
 	}
 	for _, cc := range currentCovers {
 		if !coverExistsInList(cc, foundCovers) {
-			err = repository.DeleteCoverFile(cc.CoverFileId)
+			err = repository.DeleteCover(cc.CoverId)
 		}
 	}
 }
@@ -103,7 +103,7 @@ func musicExistsInDB(music models.MusicFile, list []models.MusicFile) bool {
 	return false
 }
 
-func coverExistsInDB(cover models.CoverFile, list []models.CoverFile) bool {
+func coverExistsInDB(cover models.Cover, list []models.Cover) bool {
 	for _, c := range list {
 		if c.DirId == cover.DirId && c.Path == cover.Path {
 			return true
@@ -116,7 +116,7 @@ func musicExistsInList(music models.MusicFile, list []models.MusicFile) bool {
 	return musicExistsInDB(music, list)
 }
 
-func coverExistsInList(cover models.CoverFile, list []models.CoverFile) bool {
+func coverExistsInList(cover models.Cover, list []models.Cover) bool {
 	return coverExistsInDB(cover, list)
 }
 
@@ -148,7 +148,7 @@ func searchMusicsFromDirectory(dir models.Directory) (musicFiles []models.MusicF
 	return musicFiles, nil
 }
 
-func searchCoversFromDirectory(dir models.Directory) (coverFiles []models.CoverFile, err error) {
+func searchCoversFromDirectory(dir models.Directory) (covers []models.Cover, err error) {
 	err = filepath.Walk(dir.Path, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -160,7 +160,7 @@ func searchCoversFromDirectory(dir models.Directory) (coverFiles []models.CoverF
 
 		relativePath := strings.TrimPrefix(path, dir.Path)
 		if utils.IsImageFile(filepath.Ext(path)) {
-			coverFiles = append(coverFiles, models.CoverFile{
+			covers = append(covers, models.Cover{
 				DirId:  dir.DirId,
 				Path:   relativePath,
 				Size:   info.Size(),
@@ -173,5 +173,5 @@ func searchCoversFromDirectory(dir models.Directory) (coverFiles []models.CoverF
 	if err != nil {
 		return nil, err
 	}
-	return coverFiles, nil
+	return covers, nil
 }
