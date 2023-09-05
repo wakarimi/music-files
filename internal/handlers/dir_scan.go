@@ -78,7 +78,7 @@ func dirScanOne(c *gin.Context, dir models.Directory) {
 	}
 	for _, cm := range currentMusics {
 		if !musicExistsInList(cm, foundMusics) {
-			err = repository.DeleteMusicFile(cm.MusicFileId)
+			err = repository.DeleteMusicFile(cm.TrackId)
 		}
 	}
 
@@ -94,7 +94,7 @@ func dirScanOne(c *gin.Context, dir models.Directory) {
 	}
 }
 
-func musicExistsInDB(music models.MusicFile, list []models.MusicFile) bool {
+func musicExistsInDB(music models.Track, list []models.Track) bool {
 	for _, m := range list {
 		if m.DirId == music.DirId && m.Path == music.Path {
 			return true
@@ -112,7 +112,7 @@ func coverExistsInDB(cover models.Cover, list []models.Cover) bool {
 	return false
 }
 
-func musicExistsInList(music models.MusicFile, list []models.MusicFile) bool {
+func musicExistsInList(music models.Track, list []models.Track) bool {
 	return musicExistsInDB(music, list)
 }
 
@@ -120,7 +120,7 @@ func coverExistsInList(cover models.Cover, list []models.Cover) bool {
 	return coverExistsInDB(cover, list)
 }
 
-func searchMusicsFromDirectory(dir models.Directory) (musicFiles []models.MusicFile, err error) {
+func searchMusicsFromDirectory(dir models.Directory) (musicFiles []models.Track, err error) {
 	err = filepath.Walk(dir.Path, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -132,7 +132,7 @@ func searchMusicsFromDirectory(dir models.Directory) (musicFiles []models.MusicF
 
 		relativePath := strings.TrimPrefix(path, dir.Path)
 		if utils.IsMusicFile(filepath.Ext(path)) {
-			musicFiles = append(musicFiles, models.MusicFile{
+			musicFiles = append(musicFiles, models.Track{
 				DirId:  dir.DirId,
 				Path:   relativePath,
 				Size:   info.Size(),

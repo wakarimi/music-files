@@ -17,13 +17,15 @@ CREATE TABLE "covers"
     FOREIGN KEY ("dir_id") REFERENCES "directories" ("dir_id")
 );
 
-CREATE TABLE "music_files"
+CREATE TABLE "tracks"
 (
-    "music_file_id" SERIAL PRIMARY KEY,
-    "dir_id"        INTEGER     NOT NULL,
-    "path"          TEXT        NOT NULL,
-    "size"          BIGINT      NOT NULL,
-    "format"        TEXT        NOT NULL,
-    "date_added"    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY ("dir_id") REFERENCES "directories" ("dir_id")
+    "track_id"   SERIAL PRIMARY KEY,
+    "dir_id"     INTEGER     NOT NULL,
+    "cover_id"   INTEGER,
+    "path"       TEXT        NOT NULL,
+    "size"       BIGINT      NOT NULL,
+    "format"     TEXT        NOT NULL,
+    "date_added" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY ("dir_id") REFERENCES "directories" ("dir_id"),
+    FOREIGN KEY ("cover_id") REFERENCES "covers" ("cover_id")
 );
