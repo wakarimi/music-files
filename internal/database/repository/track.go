@@ -5,6 +5,20 @@ import (
 	"music-files/internal/models"
 )
 
+func GetTrackById(trackId int) (track models.Track, err error) {
+	query := `
+		SELECT track_id, dir_id, cover_id, path, size, format, date_added
+		FROM tracks
+		WHERE track_id = $1
+	`
+	err = database.Db.QueryRow(query, trackId).Scan(&track.TrackId, &track.DirId, &track.CoverId, &track.Path, &track.Size, &track.Format, &track.DateAdded)
+	if err != nil {
+		return models.Track{}, err
+	}
+
+	return track, nil
+}
+
 func DeleteTracksByDirId(dirId int) (err error) {
 	query := `
 		DELETE FROM tracks
@@ -39,7 +53,7 @@ func DeleteMusicFile(musicFileId int) (err error) {
 
 func GetAllMusicFilesByDirId(dirId int) (musicFiles []models.Track, err error) {
 	query := `
-		SELECT track_id, dir_id, path, size, format, date_added
+		SELECT track_id, dir_id, cover_id, path, size, format, date_added
 		FROM tracks
 		WHERE dir_id = $1
 	`
