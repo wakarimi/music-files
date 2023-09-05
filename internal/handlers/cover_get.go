@@ -32,8 +32,8 @@ func CoverGet(c *gin.Context) {
 	cover, err := repository.GetCoverById(coverId)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, types.Error{
-			Error: "Invalid coverId format",
+		c.JSON(http.StatusInternalServerError, types.Error{
+			Error: "Failed to get cover",
 		})
 		return
 	}
