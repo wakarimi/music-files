@@ -96,6 +96,15 @@ func dirScanOne(c *gin.Context, dir models.Directory) {
 			err = repository.DeleteTrackById(cm.TrackId)
 		}
 	}
+
+	err = repository.UpdateLastScanned(dir.DirId)
+	if err != nil {
+		log.Println("Failed to update last scanned date:", err)
+		c.JSON(http.StatusInternalServerError, types.Error{
+			Error: "Failed to update last scanned date",
+		})
+		return
+	}
 }
 
 func musicExistsInDB(music models.Track, list []models.Track) bool {

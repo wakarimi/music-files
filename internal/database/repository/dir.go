@@ -80,3 +80,13 @@ func DirExist(path string) (exists bool, err error) {
 
 	return count > 0, nil
 }
+
+func UpdateLastScanned(dirId int) error {
+	query := `
+		UPDATE directories
+		SET last_scanned = CURRENT_TIMESTAMP
+		WHERE dir_id = $1
+	`
+	_, err := database.Db.Exec(query, dirId)
+	return err
+}
