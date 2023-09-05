@@ -14,6 +14,7 @@ type TrackGetAllResponseOne struct {
 	DirId     int       `json:"dirId"`
 	CoverId   *int      `json:"coverId,omitempty"`
 	Path      string    `json:"path"`
+	Name      string    `json:"name"`
 	Size      int64     `json:"size"`
 	Format    string    `json:"format"`
 	DateAdded time.Time `json:"dateAdded"`
@@ -40,6 +41,7 @@ func TrackGetAll(c *gin.Context) {
 			DirId:     track.TrackId,
 			CoverId:   track.CoverId,
 			Path:      track.Path,
+			Name:      track.Name,
 			Size:      track.Size,
 			Format:    track.Format,
 			DateAdded: track.DateAdded,

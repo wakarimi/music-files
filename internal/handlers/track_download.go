@@ -41,7 +41,7 @@ func TrackDownload(c *gin.Context) {
 		return
 	}
 
-	absolutePath := dir.Path + track.Path
+	absolutePath := dir.Path + track.Path + "/" + track.Name
 	file, err := os.Open(absolutePath)
 	if err != nil {
 		log.Println(err)

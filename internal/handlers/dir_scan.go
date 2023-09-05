@@ -78,7 +78,7 @@ func dirScanOne(c *gin.Context, dir models.Directory) {
 	}
 	for _, cm := range currentMusics {
 		if !musicExistsInList(cm, foundMusics) {
-			err = repository.DeleteTrack(cm.TrackId)
+			err = repository.DeleteTrackById(cm.TrackId)
 		}
 	}
 
@@ -130,11 +130,12 @@ func searchMusicsFromDirectory(dir models.Directory) (musicFiles []models.Track,
 			return nil
 		}
 
-		relativePath := strings.TrimPrefix(path, dir.Path)
+		relativeDir := filepath.Dir(strings.TrimPrefix(path, dir.Path))
 		if utils.IsMusicFile(filepath.Ext(path)) {
 			musicFiles = append(musicFiles, models.Track{
 				DirId:  dir.DirId,
-				Path:   relativePath,
+				Path:   relativeDir,
+				Name:   info.Name(),
 				Size:   info.Size(),
 				Format: filepath.Ext(path),
 			})
@@ -158,11 +159,12 @@ func searchCoversFromDirectory(dir models.Directory) (covers []models.Cover, err
 			return nil
 		}
 
-		relativePath := strings.TrimPrefix(path, dir.Path)
+		relativeDir := filepath.Dir(strings.TrimPrefix(path, dir.Path))
 		if utils.IsImageFile(filepath.Ext(path)) {
 			covers = append(covers, models.Cover{
 				DirId:  dir.DirId,
-				Path:   relativePath,
+				Path:   relativeDir,
+				Name:   info.Name(),
 				Size:   info.Size(),
 				Format: filepath.Ext(path),
 			})

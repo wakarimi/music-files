@@ -41,7 +41,7 @@ func CoverDownload(c *gin.Context) {
 		return
 	}
 
-	absolutePath := dir.Path + cover.Path
+	absolutePath := dir.Path + cover.Path + "/" + cover.Name
 	file, err := os.Open(absolutePath)
 	if err != nil {
 		log.Println(err)

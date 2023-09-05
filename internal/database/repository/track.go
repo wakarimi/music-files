@@ -7,11 +7,12 @@ import (
 
 func GetTrackById(trackId int) (track models.Track, err error) {
 	query := `
-		SELECT track_id, dir_id, cover_id, path, size, format, date_added
+		SELECT track_id, dir_id, cover_id, path, name, size, format, date_added
 		FROM tracks
 		WHERE track_id = $1
 	`
-	err = database.Db.QueryRow(query, trackId).Scan(&track.TrackId, &track.DirId, &track.CoverId, &track.Path, &track.Size, &track.Format, &track.DateAdded)
+	err = database.Db.QueryRow(query, trackId).Scan(&track.TrackId, &track.DirId, &track.CoverId, &track.Path,
+		&track.Name, &track.Size, &track.Format, &track.DateAdded)
 	if err != nil {
 		return models.Track{}, err
 	}
@@ -21,7 +22,7 @@ func GetTrackById(trackId int) (track models.Track, err error) {
 
 func GetTracks() (tracks []models.Track, err error) {
 	query := `
-		SELECT track_id, dir_id, cover_id, path, size, format, date_added
+		SELECT track_id, dir_id, cover_id, path, name, size, format, date_added
 		FROM tracks
 	`
 
@@ -33,7 +34,8 @@ func GetTracks() (tracks []models.Track, err error) {
 
 	for rows.Next() {
 		var track models.Track
-		if err := rows.Scan(&track.TrackId, &track.DirId, &track.CoverId, &track.Path, &track.Size, &track.Format, &track.DateAdded); err != nil {
+		if err := rows.Scan(&track.TrackId, &track.DirId, &track.CoverId, &track.Path, &track.Name, &track.Size,
+			&track.Format, &track.DateAdded); err != nil {
 			return nil, err
 		}
 		tracks = append(tracks, track)
@@ -53,11 +55,12 @@ func DeleteTracksByDirId(dirId int) (err error) {
 
 func InsertTrack(track models.Track) (trackId int, err error) {
 	query := `
-		INSERT INTO tracks(dir_id, path, size, format) 
-		VALUES ($1, $2, $3, $4) 
+		INSERT INTO tracks(dir_id, cover_id, path, name, size, format) 
+		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING track_id
 	`
-	err = database.Db.QueryRow(query, track.DirId, track.Path, track.Size, track.Format).Scan(&trackId)
+	err = database.Db.QueryRow(query, track.DirId, track.CoverId, track.Path, track.Name, track.Size, track.Format).
+		Scan(&trackId)
 	if err != nil {
 		return 0, err
 	}
@@ -65,7 +68,7 @@ func InsertTrack(track models.Track) (trackId int, err error) {
 	return trackId, nil
 }
 
-func DeleteTrack(trackId int) (err error) {
+func DeleteTrackById(trackId int) (err error) {
 	query := `
 		DELETE FROM tracks
 		WHERE track_id = $1
@@ -76,7 +79,7 @@ func DeleteTrack(trackId int) (err error) {
 
 func GetTracksByDirId(dirId int) (tracks []models.Track, err error) {
 	query := `
-		SELECT track_id, dir_id, cover_id, path, size, format, date_added
+		SELECT track_id, dir_id, cover_id, path, name, size, format, date_added
 		FROM tracks
 		WHERE dir_id = $1
 	`
@@ -89,7 +92,7 @@ func GetTracksByDirId(dirId int) (tracks []models.Track, err error) {
 
 	for rows.Next() {
 		var track models.Track
-		if err := rows.Scan(&track.TrackId, &track.DirId, &track.Path, &track.Size,
+		if err := rows.Scan(&track.TrackId, &track.DirId, &track.CoverId, &track.Path, &track.Name, &track.Size,
 			&track.Format, &track.DateAdded); err != nil {
 			return nil, err
 		}

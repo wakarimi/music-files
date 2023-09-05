@@ -5,13 +5,14 @@ import (
 	"music-files/internal/models"
 )
 
-func GetCoverById(trackId int) (cover models.Cover, err error) {
+func GetCoverById(coverId int) (cover models.Cover, err error) {
 	query := `
-		SELECT cover_id, dir_id, path, size, format, date_added
+		SELECT cover_id, dir_id, path, name, size, format, date_added
 		FROM covers
-		WHERE dir_id = $1
+		WHERE cover_id = $1
 	`
-	err = database.Db.QueryRow(query, trackId).Scan(&cover.CoverId, &cover.DirId, &cover.Path, &cover.Size, &cover.Format, &cover.DateAdded)
+	err = database.Db.QueryRow(query, coverId).Scan(&cover.CoverId, &cover.DirId, &cover.Path, &cover.Name, &cover.Size,
+		&cover.Format, &cover.DateAdded)
 	if err != nil {
 		return models.Cover{}, err
 	}
@@ -30,11 +31,11 @@ func DeleteCoversByDirId(dirId int) (err error) {
 
 func InsertCover(cover models.Cover) (coverId int, err error) {
 	query := `
-		INSERT INTO covers(dir_id, path, size, format) 
-		VALUES ($1, $2, $3, $4) 
+		INSERT INTO covers(dir_id, path, name, size, format) 
+		VALUES ($1, $2, $3, $4, $5) 
 		RETURNING cover_id
 	`
-	err = database.Db.QueryRow(query, cover.DirId, cover.Path, cover.Size, cover.Format).Scan(&coverId)
+	err = database.Db.QueryRow(query, cover.DirId, cover.Path, cover.Name, cover.Size, cover.Format).Scan(&coverId)
 	if err != nil {
 		return 0, err
 	}
@@ -53,7 +54,7 @@ func DeleteCover(coverId int) (err error) {
 
 func GetAllCoversByDirId(dirId int) (covers []models.Cover, err error) {
 	query := `
-		SELECT cover_id, dir_id, path, size, format, date_added
+		SELECT cover_id, dir_id, path, name, size, format, date_added
 		FROM covers
 		WHERE dir_id = $1
 	`
@@ -66,8 +67,8 @@ func GetAllCoversByDirId(dirId int) (covers []models.Cover, err error) {
 
 	for rows.Next() {
 		var cover models.Cover
-		if err := rows.Scan(&cover.CoverId, &cover.DirId, &cover.Path, &cover.Size,
-			&cover.Format, &cover.DateAdded); err != nil {
+		if err := rows.Scan(&cover.CoverId, &cover.DirId, &cover.Path, &cover.Name, &cover.Size, &cover.Format,
+			&cover.DateAdded); err != nil {
 			return nil, err
 		}
 		covers = append(covers, cover)
