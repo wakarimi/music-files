@@ -20,6 +20,21 @@ func GetCoverById(coverId int) (cover models.Cover, err error) {
 	return cover, nil
 }
 
+func GetCoverByPath(path string) (cover models.Cover, err error) {
+	query := `
+		SELECT cover_id, dir_id, path, name, size, format, date_added
+		FROM covers
+		WHERE path = $1
+	`
+	err = database.Db.QueryRow(query, path).Scan(&cover.CoverId, &cover.DirId, &cover.Path, &cover.Name, &cover.Size,
+		&cover.Format, &cover.DateAdded)
+	if err != nil {
+		return models.Cover{}, err
+	}
+
+	return cover, nil
+}
+
 func DeleteCoversByDirId(dirId int) (err error) {
 	query := `
 		DELETE FROM covers

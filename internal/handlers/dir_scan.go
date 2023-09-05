@@ -71,17 +71,6 @@ func dirScanOne(c *gin.Context, dir models.Directory) {
 		return
 	}
 
-	for _, fm := range foundMusics {
-		if !musicExistsInDB(fm, currentMusics) {
-			_, err = repository.InsertTrack(fm)
-		}
-	}
-	for _, cm := range currentMusics {
-		if !musicExistsInList(cm, foundMusics) {
-			err = repository.DeleteTrackById(cm.TrackId)
-		}
-	}
-
 	for _, fc := range foundCovers {
 		if !coverExistsInDB(fc, currentCovers) {
 			_, err = repository.InsertCover(fc)
@@ -90,6 +79,21 @@ func dirScanOne(c *gin.Context, dir models.Directory) {
 	for _, cc := range currentCovers {
 		if !coverExistsInList(cc, foundCovers) {
 			err = repository.DeleteCover(cc.CoverId)
+		}
+	}
+
+	for _, fm := range foundMusics {
+		if !musicExistsInDB(fm, currentMusics) {
+			cover, err := repository.GetCoverByPath(fm.Path)
+			if err == nil {
+				fm.CoverId = &cover.CoverId
+			}
+			_, err = repository.InsertTrack(fm)
+		}
+	}
+	for _, cm := range currentMusics {
+		if !musicExistsInList(cm, foundMusics) {
+			err = repository.DeleteTrackById(cm.TrackId)
 		}
 	}
 }
