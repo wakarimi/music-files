@@ -55,7 +55,7 @@ func dirScanOne(c *gin.Context, dir models.Directory) {
 		return
 	}
 
-	currentMusics, err := repository.GetAllMusicFilesByDirId(dir.DirId)
+	currentMusics, err := repository.GetTracksByDirId(dir.DirId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, types.Error{
 			Error: "Failed to get music list",
@@ -73,12 +73,12 @@ func dirScanOne(c *gin.Context, dir models.Directory) {
 
 	for _, fm := range foundMusics {
 		if !musicExistsInDB(fm, currentMusics) {
-			_, err = repository.InsertMusicFile(fm)
+			_, err = repository.InsertTrack(fm)
 		}
 	}
 	for _, cm := range currentMusics {
 		if !musicExistsInList(cm, foundMusics) {
-			err = repository.DeleteMusicFile(cm.TrackId)
+			err = repository.DeleteTrack(cm.TrackId)
 		}
 	}
 

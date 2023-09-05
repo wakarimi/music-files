@@ -19,6 +19,29 @@ func GetTrackById(trackId int) (track models.Track, err error) {
 	return track, nil
 }
 
+func GetTracks() (tracks []models.Track, err error) {
+	query := `
+		SELECT track_id, dir_id, cover_id, path, size, format, date_added
+		FROM tracks
+	`
+
+	rows, err := database.Db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var track models.Track
+		if err := rows.Scan(&track.TrackId, &track.DirId, &track.CoverId, &track.Path, &track.Size, &track.Format, &track.DateAdded); err != nil {
+			return nil, err
+		}
+		tracks = append(tracks, track)
+	}
+
+	return tracks, rows.Err()
+}
+
 func DeleteTracksByDirId(dirId int) (err error) {
 	query := `
 		DELETE FROM tracks
@@ -28,30 +51,30 @@ func DeleteTracksByDirId(dirId int) (err error) {
 	return err
 }
 
-func InsertMusicFile(musicFile models.Track) (musicFileId int, err error) {
+func InsertTrack(track models.Track) (trackId int, err error) {
 	query := `
 		INSERT INTO tracks(dir_id, path, size, format) 
 		VALUES ($1, $2, $3, $4) 
 		RETURNING track_id
 	`
-	err = database.Db.QueryRow(query, musicFile.DirId, musicFile.Path, musicFile.Size, musicFile.Format).Scan(&musicFileId)
+	err = database.Db.QueryRow(query, track.DirId, track.Path, track.Size, track.Format).Scan(&trackId)
 	if err != nil {
 		return 0, err
 	}
 
-	return musicFileId, nil
+	return trackId, nil
 }
 
-func DeleteMusicFile(musicFileId int) (err error) {
+func DeleteTrack(trackId int) (err error) {
 	query := `
 		DELETE FROM tracks
 		WHERE track_id = $1
 	`
-	_, err = database.Db.Exec(query, musicFileId)
+	_, err = database.Db.Exec(query, trackId)
 	return err
 }
 
-func GetAllMusicFilesByDirId(dirId int) (musicFiles []models.Track, err error) {
+func GetTracksByDirId(dirId int) (tracks []models.Track, err error) {
 	query := `
 		SELECT track_id, dir_id, cover_id, path, size, format, date_added
 		FROM tracks
@@ -65,13 +88,13 @@ func GetAllMusicFilesByDirId(dirId int) (musicFiles []models.Track, err error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var musicFile models.Track
-		if err := rows.Scan(&musicFile.TrackId, &musicFile.DirId, &musicFile.Path, &musicFile.Size,
-			&musicFile.Format, &musicFile.DateAdded); err != nil {
+		var track models.Track
+		if err := rows.Scan(&track.TrackId, &track.DirId, &track.Path, &track.Size,
+			&track.Format, &track.DateAdded); err != nil {
 			return nil, err
 		}
-		musicFiles = append(musicFiles, musicFile)
+		tracks = append(tracks, track)
 	}
 
-	return musicFiles, rows.Err()
+	return tracks, rows.Err()
 }

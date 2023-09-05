@@ -23,7 +23,7 @@ func SetupRouter() *gin.Engine {
 		tracks := api.Group("/tracks")
 		{
 			tracks.GET("/:trackId", handlers.TrackGet)
-			tracks.GET("/")
+			tracks.GET("/", handlers.TrackGetAll)
 			tracks.GET("/:trackId/download")
 		}
 
