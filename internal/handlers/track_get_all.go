@@ -38,7 +38,7 @@ func TrackGetAll(c *gin.Context) {
 	for _, track := range tracks {
 		trackResponse := TrackGetAllResponseOne{
 			TrackId:   track.TrackId,
-			DirId:     track.TrackId,
+			DirId:     track.DirId,
 			CoverId:   track.CoverId,
 			Path:      track.Path,
 			Name:      track.Name,
