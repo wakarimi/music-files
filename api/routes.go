@@ -14,9 +14,11 @@ func SetupRouter(httpServerConfig *config.HttpServer, db *sqlx.DB) *gin.Engine {
 	log.Debug().Msg("Router setup")
 	gin.SetMode(gin.ReleaseMode)
 
+	coverRepo := repository.NewCoverRepository(db)
 	dirRepo := repository.NewDirRepository(db)
+	trackRepo := repository.NewTrackRepository(db)
 
-	dirHandler := directory.NewDirHandler(dirRepo)
+	dirHandler := directory.NewDirHandler(dirRepo, coverRepo, trackRepo)
 
 	r := gin.New()
 	r.Use(middleware.ZerologMiddleware(log.Logger))
@@ -27,7 +29,7 @@ func SetupRouter(httpServerConfig *config.HttpServer, db *sqlx.DB) *gin.Engine {
 		{
 			dirs.GET("/", dirHandler.ReadAll)
 			dirs.POST("/", dirHandler.Create)
-			dirs.DELETE("/:dirId")
+			dirs.DELETE("/:dirId", dirHandler.Delete)
 			dirs.POST("/:dirId/scan")
 			dirs.POST("/scan-all")
 		}
