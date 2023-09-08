@@ -12,7 +12,7 @@ type createRequest struct {
 	Path string `json:"path" bind:"required"`
 }
 
-func (h *DirHandler) Create(c *gin.Context) {
+func (h *Handler) Create(c *gin.Context) {
 	log.Debug().Msg("Creating new directory")
 
 	var request createRequest

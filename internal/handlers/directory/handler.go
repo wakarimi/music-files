@@ -2,15 +2,15 @@ package directory
 
 import "music-files/internal/database/repository"
 
-type DirHandler struct {
+type Handler struct {
 	DirRepo   repository.DirRepositoryInterface
 	CoverRepo repository.CoverRepositoryInterface
 	TrackRepo repository.TrackRepositoryInterface
 }
 
-func NewDirHandler(dirRepo repository.DirRepositoryInterface,
+func NewHandler(dirRepo repository.DirRepositoryInterface,
 	coverRepo repository.CoverRepositoryInterface,
-	trackRepo repository.TrackRepositoryInterface) (h *DirHandler) {
+	trackRepo repository.TrackRepositoryInterface) (h *Handler) {
 
-	return &DirHandler{dirRepo, coverRepo, trackRepo}
+	return &Handler{dirRepo, coverRepo, trackRepo}
 }

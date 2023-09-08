@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func (h *DirHandler) Delete(c *gin.Context) {
+func (h *Handler) Delete(c *gin.Context) {
 	log.Debug().Msg("Creating new directory")
 
 	dirIdStr := c.Param("dirId")

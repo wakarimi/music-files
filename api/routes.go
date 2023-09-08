@@ -6,7 +6,9 @@ import (
 	"github.com/rs/zerolog/log"
 	"music-files/internal/config"
 	"music-files/internal/database/repository"
+	"music-files/internal/handlers/cover"
 	"music-files/internal/handlers/directory"
+	"music-files/internal/handlers/track"
 	"music-files/internal/middleware"
 )
 
@@ -18,7 +20,9 @@ func SetupRouter(httpServerConfig *config.HttpServer, db *sqlx.DB) *gin.Engine {
 	dirRepo := repository.NewDirRepository(db)
 	trackRepo := repository.NewTrackRepository(db)
 
-	dirHandler := directory.NewDirHandler(dirRepo, coverRepo, trackRepo)
+	coverHandler := cover.NewHandler(coverRepo)
+	dirHandler := directory.NewHandler(dirRepo, coverRepo, trackRepo)
+	trackHandler := track.NewHandler(trackRepo)
 
 	r := gin.New()
 	r.Use(middleware.ZerologMiddleware(log.Logger))
@@ -35,14 +39,14 @@ func SetupRouter(httpServerConfig *config.HttpServer, db *sqlx.DB) *gin.Engine {
 		}
 		tracks := api.Group("/tracks")
 		{
-			tracks.GET("/:trackId")
-			tracks.GET("/")
-			tracks.GET("/:trackId/download")
+			tracks.GET("/:trackId", trackHandler.Read)
+			tracks.GET("/", trackHandler.ReadAll)
+			tracks.GET("/:trackId/download", trackHandler.Download)
 		}
 		covers := api.Group("/covers")
 		{
-			covers.GET("/:coverId")
-			covers.GET("/:coverId/download")
+			covers.GET("/:coverId", coverHandler.Read)
+			covers.GET("/:coverId/download", coverHandler.Download)
 		}
 	}
 

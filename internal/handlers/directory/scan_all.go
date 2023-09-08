@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func (h *DirHandler) ScanAll(c *gin.Context) {
+func (h *Handler) ScanAll(c *gin.Context) {
 	log.Info().Msg("Scanning all directories")
 
 	dirs, err := h.DirRepo.ReadAll()

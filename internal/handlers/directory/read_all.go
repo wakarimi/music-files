@@ -19,7 +19,7 @@ type readAllResponse struct {
 	Dirs []readAllResponseItem `json:"directories"`
 }
 
-func (h *DirHandler) ReadAll(c *gin.Context) {
+func (h *Handler) ReadAll(c *gin.Context) {
 	log.Info().Msg("Fetching all directories")
 
 	dirs, err := h.DirRepo.ReadAll()

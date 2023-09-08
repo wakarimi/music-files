@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-func (h *DirHandler) Scan(c *gin.Context) {
+func (h *Handler) Scan(c *gin.Context) {
 	log.Debug().Msg("Creating new directory")
 
 	dirIdStr := c.Param("dirId")
@@ -43,7 +43,7 @@ func (h *DirHandler) Scan(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func (h *DirHandler) dirScan(c *gin.Context, dir models.Directory) {
+func (h *Handler) dirScan(c *gin.Context, dir models.Directory) {
 	foundTracks, err := h.searchTracksFromDirectory(dir)
 	if err != nil {
 		log.Error().Err(err).Int("dirId", dir.DirId).Msg("Failed to get tracks from directory")
@@ -141,7 +141,7 @@ func (h *DirHandler) dirScan(c *gin.Context, dir models.Directory) {
 	}
 }
 
-func (h *DirHandler) searchTracksFromDirectory(dir models.Directory) (tracks []models.Track, err error) {
+func (h *Handler) searchTracksFromDirectory(dir models.Directory) (tracks []models.Track, err error) {
 	err = filepath.Walk(dir.Path, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -171,7 +171,7 @@ func (h *DirHandler) searchTracksFromDirectory(dir models.Directory) (tracks []m
 	return tracks, nil
 }
 
-func (h *DirHandler) searchCoversFromDirectory(dir models.Directory) (covers []models.Cover, err error) {
+func (h *Handler) searchCoversFromDirectory(dir models.Directory) (covers []models.Cover, err error) {
 	err = filepath.Walk(dir.Path, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -201,7 +201,7 @@ func (h *DirHandler) searchCoversFromDirectory(dir models.Directory) (covers []m
 	return covers, nil
 }
 
-func (h *DirHandler) isTrackInList(track models.Track, trackList []models.Track) bool {
+func (h *Handler) isTrackInList(track models.Track, trackList []models.Track) bool {
 	for _, trackListItem := range trackList {
 		if trackListItem.DirId == track.DirId && trackListItem.RelativePath == track.RelativePath {
 			return true
@@ -210,7 +210,7 @@ func (h *DirHandler) isTrackInList(track models.Track, trackList []models.Track)
 	return false
 }
 
-func (h *DirHandler) isCoverInList(cover models.Cover, coverList []models.Cover) bool {
+func (h *Handler) isCoverInList(cover models.Cover, coverList []models.Cover) bool {
 	for _, coverListItem := range coverList {
 		if coverListItem.DirId == cover.DirId && coverListItem.RelativePath == cover.RelativePath {
 			return true
