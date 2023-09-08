@@ -1,21 +1,27 @@
 package config
 
 import (
+	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
 	"strings"
 )
 
 type Configuration struct {
-	DatabaseConfiguration
-	HttpServerConfiguration
+	Database
+	HttpServer
+	Logger
 }
 
-type DatabaseConfiguration struct {
-	DatabaseConnectionString string
+type Database struct {
+	ConnectionString string
 }
 
-type HttpServerConfiguration struct {
+type HttpServer struct {
 	Port string
+}
+
+type Logger struct {
+	Level zerolog.Level
 }
 
 func LoadConfiguration() (config *Configuration, err error) {
@@ -23,13 +29,36 @@ func LoadConfiguration() (config *Configuration, err error) {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	config = &Configuration{
-		DatabaseConfiguration{
-			DatabaseConnectionString: viper.GetString("WAKARIMI_MUSIC_FILES_DB_STRING"),
+		Database{
+			ConnectionString: viper.GetString("WAKARIMI_MUSIC_FILES_DB_STRING"),
 		},
-		HttpServerConfiguration{
+		HttpServer{
 			Port: viper.GetString("HTTP_SERVER_PORT"),
+		},
+		Logger{
+			Level: loadLoggingLevel(),
 		},
 	}
 
 	return config, nil
+}
+
+func loadLoggingLevel() zerolog.Level {
+	levelStr := viper.GetString("LOGGING_LEVEL")
+	switch levelStr {
+	case "TRACE":
+		return zerolog.TraceLevel
+	case "DEBUG":
+		return zerolog.DebugLevel
+	case "INFO":
+		return zerolog.InfoLevel
+	case "WARN":
+		return zerolog.WarnLevel
+	case "ERROR":
+		return zerolog.ErrorLevel
+	case "FATAL":
+		return zerolog.FatalLevel
+	default:
+		return zerolog.DebugLevel
+	}
 }

@@ -2,35 +2,45 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"music-files/internal/handlers"
+	"github.com/jmoiron/sqlx"
+	"github.com/rs/zerolog/log"
+	"music-files/internal/config"
+	"music-files/internal/database/repository"
+	"music-files/internal/handlers/directory"
+	"music-files/internal/middleware"
 )
 
-func SetupRouter() *gin.Engine {
-	r := gin.Default()
+func SetupRouter(httpServerConfig *config.HttpServer, db *sqlx.DB) *gin.Engine {
+	log.Debug().Msg("Router setup")
+	gin.SetMode(gin.ReleaseMode)
+
+	dirRepo := repository.NewDirRepository(db)
+
+	dirHandler := directory.NewDirHandler(dirRepo)
+
+	r := gin.New()
+	r.Use(middleware.ZerologMiddleware(log.Logger))
 
 	api := r.Group("/api/music-files-service")
 	{
-
 		dirs := api.Group("/dirs")
 		{
-			dirs.GET("/", handlers.DirGetAll)
-			dirs.POST("/", handlers.DirAdd)
-			dirs.DELETE("/:dirId", handlers.DirRemove)
-			dirs.POST("/:dirId/scan", handlers.DirScan)
-			dirs.POST("/scan-all", handlers.DirScanAll)
+			dirs.GET("/")
+			dirs.POST("/", dirHandler.Create)
+			dirs.DELETE("/:dirId")
+			dirs.POST("/:dirId/scan")
+			dirs.POST("/scan-all")
 		}
-
 		tracks := api.Group("/tracks")
 		{
-			tracks.GET("/:trackId", handlers.TrackGet)
-			tracks.GET("/", handlers.TrackGetAll)
-			tracks.GET("/:trackId/download", handlers.TrackDownload)
+			tracks.GET("/:trackId")
+			tracks.GET("/")
+			tracks.GET("/:trackId/download")
 		}
-
 		covers := api.Group("/covers")
 		{
-			covers.GET("/:coverId", handlers.CoverGet)
-			covers.GET("/:coverId/download", handlers.CoverDownload)
+			covers.GET("/:coverId")
+			covers.GET("/:coverId/download")
 		}
 	}
 
