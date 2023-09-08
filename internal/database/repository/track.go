@@ -96,10 +96,20 @@ func (r *TrackRepository) ReadAllByDirId(dirId int) (tracks []models.Track, err 
 	args := map[string]interface{}{
 		"dir_id": dirId,
 	}
-	err = r.Db.Select(&tracks, query, args)
+	rows, err := r.Db.NamedQuery(query, args)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to fetch tracks")
 		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var track models.Track
+		if err = rows.StructScan(&track); err != nil {
+			log.Error().Err(err).Msg("Failed to scan track data")
+			return nil, err
+		}
+		tracks = append(tracks, track)
 	}
 
 	log.Debug().Int("tracksCount", len(tracks)).Msg("All tracks fetched successfully")

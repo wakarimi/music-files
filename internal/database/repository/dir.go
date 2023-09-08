@@ -63,10 +63,17 @@ func (r *DirRepository) Read(dirId int) (dir models.Directory, err error) {
 	args := map[string]interface{}{
 		"dir_id": dirId,
 	}
-	err = r.Db.Get(&dir, query, args)
+	rows, err := r.Db.NamedQuery(query, args)
 	if err != nil {
 		log.Error().Err(err).Int("dirId", dirId).Msg("Failed to fetch directory")
 		return models.Directory{}, err
+	}
+	defer rows.Close()
+	if rows.Next() {
+		if err = rows.StructScan(&dir); err != nil {
+			log.Error().Err(err).Int("dirId", dirId).Msg("Failed to scan directory data")
+			return models.Directory{}, err
+		}
 	}
 
 	log.Debug().Str("path", dir.Path).Msg("Directory fetched by ID successfully")

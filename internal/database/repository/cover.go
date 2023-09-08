@@ -132,10 +132,20 @@ func (r *CoverRepository) ReadAllByDirId(dirId int) (covers []models.Cover, err 
 	args := map[string]interface{}{
 		"dir_id": dirId,
 	}
-	err = r.Db.Select(&covers, query, args)
+	rows, err := r.Db.NamedQuery(query, args)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to fetch covers")
 		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var cover models.Cover
+		if err = rows.StructScan(&cover); err != nil {
+			log.Error().Err(err).Msg("Failed to scan cover data")
+			return nil, err
+		}
+		covers = append(covers, cover)
 	}
 
 	log.Debug().Int("coversCount", len(covers)).Msg("All covers fetched successfully")

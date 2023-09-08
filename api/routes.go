@@ -30,7 +30,7 @@ func SetupRouter(httpServerConfig *config.HttpServer, db *sqlx.DB) *gin.Engine {
 			dirs.GET("/", dirHandler.ReadAll)
 			dirs.POST("/", dirHandler.Create)
 			dirs.DELETE("/:dirId", dirHandler.Delete)
-			dirs.POST("/:dirId/scan")
+			dirs.POST("/:dirId/scan", dirHandler.Scan)
 			dirs.POST("/scan-all")
 		}
 		tracks := api.Group("/tracks")
