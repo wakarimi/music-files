@@ -25,7 +25,7 @@ func SetupRouter(httpServerConfig *config.HttpServer, db *sqlx.DB) *gin.Engine {
 	{
 		dirs := api.Group("/dirs")
 		{
-			dirs.GET("/")
+			dirs.GET("/", dirHandler.ReadAll)
 			dirs.POST("/", dirHandler.Create)
 			dirs.DELETE("/:dirId")
 			dirs.POST("/:dirId/scan")
