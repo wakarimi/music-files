@@ -10,6 +10,7 @@ import (
 type TrackRepositoryInterface interface {
 	Create(track models.Track) (trackId int, err error)
 	Read(trackId int) (track models.Track, err error)
+	ReadAll() (tracks []models.Track, err error)
 	ReadAllByDirId(dirId int) (tracks []models.Track, err error)
 	Update(trackId int, track models.Track) (err error)
 	Delete(trackId int) (err error)
@@ -83,6 +84,33 @@ func (r *TrackRepository) Read(trackId int) (track models.Track, err error) {
 
 	log.Debug().Int("dirId", track.DirId).Str("relativePath", track.RelativePath).Msg("Track fetched by ID successfully")
 	return track, nil
+}
+
+func (r *TrackRepository) ReadAll() (tracks []models.Track, err error) {
+	log.Debug().Msg("Fetching all tracks")
+
+	query := `
+		SELECT *
+		FROM tracks
+	`
+	rows, err := r.Db.Queryx(query)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to fetch tracks")
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var track models.Track
+		if err = rows.StructScan(&track); err != nil {
+			log.Error().Err(err).Msg("Failed to scan track data")
+			return nil, err
+		}
+		tracks = append(tracks, track)
+	}
+
+	log.Debug().Int("tracksCount", len(tracks)).Msg("All tracks fetched successfully")
+	return tracks, nil
 }
 
 func (r *TrackRepository) ReadAllByDirId(dirId int) (tracks []models.Track, err error) {
