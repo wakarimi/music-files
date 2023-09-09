@@ -30,8 +30,8 @@ func (r *CoverRepository) Create(cover models.Cover) (coverId int, err error) {
 	log.Debug().Str("filename", cover.Filename).Msg("Creating new cover")
 
 	query := `
-		INSERT INTO covers(dir_id, relative_path, filename, extension, size, hash, date_added)
-		VALUES (:dir_id, :relative_path, :filename, :extension, :size, :hash, :date_added)
+		INSERT INTO covers(dir_id, relative_path, filename, extension, size, hash)
+		VALUES (:dir_id, :relative_path, :filename, :extension, :size, :hash)
 		RETURNING cover_id
 	`
 	rows, err := r.Db.NamedQuery(query, cover)
@@ -157,7 +157,7 @@ func (r *CoverRepository) Update(coverId int, cover models.Cover) (err error) {
 
 	query := `
 		UPDATE covers 
-		SET dir_id = :dir_id, relative_path = :relative_path, filename = :filename, extension = :extension, size = :size, hash = :hash, date_added = :date_added
+		SET dir_id = :dir_id, relative_path = :relative_path, filename = :filename, extension = :extension, size = :size, hash = :hash
 		WHERE cover_id = :cover_id
 	`
 	cover.CoverId = coverId

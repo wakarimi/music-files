@@ -29,8 +29,8 @@ func (r *TrackRepository) Create(track models.Track) (trackId int, err error) {
 	log.Debug().Str("filename", track.Filename).Msg("Creating new track")
 
 	query := `
-		INSERT INTO tracks(dir_id, cover_id, relative_path, filename, extension, size, hash, date_added)
-		VALUES (:dir_id, :cover_id, :relative_path, :filename, :extension, :size, :hash, :date_added)
+		INSERT INTO tracks(dir_id, cover_id, relative_path, filename, extension, size, hash)
+		VALUES (:dir_id, :cover_id, :relative_path, :filename, :extension, :size, :hash)
 		RETURNING track_id
 	`
 	rows, err := r.Db.NamedQuery(query, track)
