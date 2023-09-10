@@ -149,7 +149,7 @@ func (r *TrackRepository) Update(trackId int, track models.Track) (err error) {
 
 	query := `
 		UPDATE tracks 
-		SET dir_id = :dir_id, cover_id = :cover_id, relative_path = :relative_path, filename = :filename, extension = :extension, size = :size, hash = :hash, date_added = :date_added
+		SET dir_id = :dir_id, cover_id = :cover_id, relative_path = :relative_path, filename = :filename, extension = :extension, size = :size, hash = :hash
 		WHERE track_id = :track_id
 	`
 	track.TrackId = trackId
