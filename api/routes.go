@@ -22,7 +22,7 @@ func SetupRouter(httpServerConfig *config.HttpServer, db *sqlx.DB) *gin.Engine {
 
 	coverHandler := cover.NewHandler(coverRepo, dirRepo)
 	dirHandler := directory.NewHandler(dirRepo, coverRepo, trackRepo)
-	trackHandler := track.NewHandler(trackRepo)
+	trackHandler := track.NewHandler(trackRepo, dirRepo)
 
 	r := gin.New()
 	r.Use(middleware.ZerologMiddleware(log.Logger))
