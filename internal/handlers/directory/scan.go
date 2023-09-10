@@ -151,15 +151,21 @@ func (h *Handler) searchTracksFromDirectory(dir models.Directory) (tracks []mode
 			return nil
 		}
 
-		relativeDir := filepath.Dir(strings.TrimPrefix(path, dir.Path))
 		if utils.IsMusicFile(filepath.Ext(path)) {
+			relativeDir := filepath.Dir(strings.TrimPrefix(path, dir.Path))
+			fileHash, err := utils.CalculateFileHash(path)
+			if err != nil {
+				log.Error().Err(err).Str("filepath", path).Msg("Failed to calculate file hash")
+				return err
+			}
+
 			tracks = append(tracks, models.Track{
 				DirId:        dir.DirId,
 				RelativePath: relativeDir,
 				Filename:     info.Name(),
 				Extension:    filepath.Ext(path),
 				Size:         info.Size(),
-				Hash:         "MOCK",
+				Hash:         fileHash,
 			})
 		}
 		return nil
@@ -181,15 +187,21 @@ func (h *Handler) searchCoversFromDirectory(dir models.Directory) (covers []mode
 			return nil
 		}
 
-		relativeDir := filepath.Dir(strings.TrimPrefix(path, dir.Path))
 		if utils.IsImageFile(filepath.Ext(path)) {
+			relativeDir := filepath.Dir(strings.TrimPrefix(path, dir.Path))
+			fileHash, err := utils.CalculateFileHash(path)
+			if err != nil {
+				log.Error().Err(err).Str("filepath", path).Msg("Failed to calculate file hash")
+				return err
+			}
+
 			covers = append(covers, models.Cover{
 				DirId:        dir.DirId,
 				RelativePath: relativeDir,
 				Filename:     info.Name(),
 				Extension:    filepath.Ext(path),
 				Size:         info.Size(),
-				Hash:         "MOCK",
+				Hash:         fileHash,
 			})
 		}
 		return nil
