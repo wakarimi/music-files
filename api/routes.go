@@ -2,35 +2,51 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"music-files/internal/handlers"
+	"github.com/jmoiron/sqlx"
+	"github.com/rs/zerolog/log"
+	"music-files/internal/config"
+	"music-files/internal/database/repository"
+	"music-files/internal/handlers/cover"
+	"music-files/internal/handlers/directory"
+	"music-files/internal/handlers/track"
+	"music-files/internal/middleware"
 )
 
-func SetupRouter() *gin.Engine {
-	r := gin.Default()
+func SetupRouter(httpServerConfig *config.HttpServer, db *sqlx.DB) *gin.Engine {
+	log.Debug().Msg("Router setup")
+	gin.SetMode(gin.ReleaseMode)
+
+	coverRepo := repository.NewCoverRepository(db)
+	dirRepo := repository.NewDirRepository(db)
+	trackRepo := repository.NewTrackRepository(db)
+
+	coverHandler := cover.NewHandler(coverRepo, dirRepo)
+	dirHandler := directory.NewHandler(dirRepo, coverRepo, trackRepo)
+	trackHandler := track.NewHandler(trackRepo, dirRepo)
+
+	r := gin.New()
+	r.Use(middleware.ZerologMiddleware(log.Logger))
 
 	api := r.Group("/api/music-files-service")
 	{
-
 		dirs := api.Group("/dirs")
 		{
-			dirs.GET("/", handlers.DirGetAll)
-			dirs.POST("/", handlers.DirAdd)
-			dirs.DELETE("/:dirId", handlers.DirRemove)
-			dirs.POST("/:dirId/scan", handlers.DirScan)
-			dirs.POST("/scan-all", handlers.DirScanAll)
+			dirs.GET("/", dirHandler.ReadAll)
+			dirs.POST("/", dirHandler.Create)
+			dirs.DELETE("/:dirId", dirHandler.Delete)
+			dirs.POST("/:dirId/scan", dirHandler.Scan)
+			dirs.POST("/scan-all", dirHandler.ScanAll)
 		}
-
 		tracks := api.Group("/tracks")
 		{
-			tracks.GET("/:trackId", handlers.TrackGet)
-			tracks.GET("/", handlers.TrackGetAll)
-			tracks.GET("/:trackId/download", handlers.TrackDownload)
+			tracks.GET("/:trackId", trackHandler.Read)
+			tracks.GET("/", trackHandler.ReadAll)
+			tracks.GET("/:trackId/download", trackHandler.Download)
 		}
-
 		covers := api.Group("/covers")
 		{
-			covers.GET("/:coverId", handlers.CoverGet)
-			covers.GET("/:coverId/download", handlers.CoverDownload)
+			covers.GET("/:coverId", coverHandler.Read)
+			covers.GET("/:coverId/download", coverHandler.Download)
 		}
 	}
 

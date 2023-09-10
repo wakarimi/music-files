@@ -1,47 +1,47 @@
-package handlers
+package directory
 
 import (
 	"github.com/gin-gonic/gin"
-	"log"
-	"music-files/internal/database/repository"
+	"github.com/rs/zerolog/log"
 	"music-files/internal/handlers/types"
 	"net/http"
 	"time"
 )
 
-type DirGetAllResponseOne struct {
+type readAllResponseItem struct {
 	DirId       int        `json:"dirId"`
 	Path        string     `json:"path"`
-	DateAdded   time.Time  `json:"dateAdded"`
 	LastScanned *time.Time `json:"lastScanned,omitempty"`
 }
 
-type DirGetAllResponse struct {
-	Dirs []DirGetAllResponseOne `json:"dirs" binding:"required"`
+type readAllResponse struct {
+	Dirs []readAllResponseItem `json:"directories"`
 }
 
-func DirGetAll(c *gin.Context) {
-	dirs, err := repository.GetAllDirs()
+func (h *Handler) ReadAll(c *gin.Context) {
+	log.Info().Msg("Fetching all directories")
+
+	dirs, err := h.DirRepo.ReadAll()
 	if err != nil {
-		log.Println(err)
+		log.Info().Msg("Failed to get all directories")
 		c.JSON(http.StatusInternalServerError, types.Error{
 			Error: "Failed to get all dirs",
 		})
 		return
 	}
 
-	dirsResponse := make([]DirGetAllResponseOne, 0)
+	dirsResponse := make([]readAllResponseItem, 0)
 	for _, dir := range dirs {
-		dirResponse := DirGetAllResponseOne{
+		dirResponse := readAllResponseItem{
 			DirId:       dir.DirId,
 			Path:        dir.Path,
-			DateAdded:   dir.DateAdded,
 			LastScanned: dir.LastScanned,
 		}
 		dirsResponse = append(dirsResponse, dirResponse)
 	}
 
-	c.JSON(http.StatusOK, DirGetAllResponse{
+	log.Debug().Msg("All directories fetched successfully")
+	c.JSON(http.StatusOK, readAllResponse{
 		Dirs: dirsResponse,
 	})
 }

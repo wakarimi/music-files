@@ -1,92 +1,173 @@
 package repository
 
 import (
-	"music-files/internal/database"
+	"fmt"
+	"github.com/jmoiron/sqlx"
+	"github.com/rs/zerolog/log"
 	"music-files/internal/models"
 )
 
-func DeleteDir(dirId int) (err error) {
-	query := `
-		DELETE FROM directories
-		WHERE dir_id = $1
-	`
-	_, err = database.Db.Exec(query, dirId)
-	return err
+type DirRepositoryInterface interface {
+	Create(dir models.Directory) (dirId int, err error)
+	Read(dirId int) (cover models.Directory, err error)
+	ReadAll() (dirs []models.Directory, err error)
+	UpdateLastScanned(dirId int) (err error)
+	Delete(dirId int) (err error)
+	IsExistsByPath(path string) (exists bool, err error)
 }
 
-func GetDirById(dirId int) (dir models.Directory, err error) {
-	query := `
-		SELECT dir_id, path, date_added, last_scanned
-		FROM directories
-		WHERE dir_id = $1
-	`
-	err = database.Db.QueryRow(query, dirId).Scan(&dir.DirId, &dir.Path, &dir.DateAdded, &dir.LastScanned)
-	if err != nil {
-		return models.Directory{}, err
-	}
-
-	return dir, nil
+type DirRepository struct {
+	Db *sqlx.DB
 }
 
-func GetAllDirs() (dirs []models.Directory, err error) {
-	query := `
-		SELECT dir_id, path, date_added, last_scanned
-		FROM directories
-	`
+func NewDirRepository(db *sqlx.DB) DirRepositoryInterface {
+	return &DirRepository{Db: db}
+}
 
-	rows, err := database.Db.Query(query)
+func (r *DirRepository) Create(dir models.Directory) (dirId int, err error) {
+	log.Debug().Str("path", dir.Path).Msg("Creating new directory")
+
+	query := `
+		INSERT INTO directories(path)
+		VALUES (:path)
+		RETURNING dir_id
+	`
+	rows, err := r.Db.NamedQuery(query, dir)
 	if err != nil {
-		return nil, err
+		log.Error().Err(err).Str("path", dir.Path).Msg("Failed to create directory")
+		return 0, err
 	}
 	defer rows.Close()
 
-	for rows.Next() {
-		var dir models.Directory
-		if err := rows.Scan(&dir.DirId, &dir.Path, &dir.DateAdded, &dir.LastScanned); err != nil {
-			return nil, err
+	if rows.Next() {
+		if err := rows.Scan(&dirId); err != nil {
+			log.Error().Err(err).Msg("Error scanning dirId from result set")
+			return 0, err
 		}
-		dirs = append(dirs, dir)
+	} else {
+		return 0, fmt.Errorf("no id returned after directory insert")
 	}
 
-	return dirs, rows.Err()
-}
-
-func InsertDir(path string) (dirId int, err error) {
-	query := `
-		INSERT INTO directories(path)
-		VALUES ($1)
-		RETURNING dir_id
-	`
-	err = database.Db.QueryRow(query, path).Scan(&dirId)
-	if err != nil {
-		return 0, err
-	}
-
+	log.Debug().Int("dirId", dirId).Msg("Directory created successfully")
 	return dirId, nil
 }
 
-func DirExist(path string) (exists bool, err error) {
-	var count int
+func (r *DirRepository) Read(dirId int) (dir models.Directory, err error) {
+	log.Debug().Int("dirId", dirId).Msg("Fetching directory by ID")
 
 	query := `
-		SELECT COUNT(dir_id)
+		SELECT *
 		FROM directories
-		WHERE path = $1
+		WHERE dir_id = :dir_id
 	`
-	err = database.Db.Get(&count, query, path)
+	args := map[string]interface{}{
+		"dir_id": dirId,
+	}
+	rows, err := r.Db.NamedQuery(query, args)
 	if err != nil {
-		return false, err
+		log.Error().Err(err).Int("dirId", dirId).Msg("Failed to fetch directory")
+		return models.Directory{}, err
+	}
+	defer rows.Close()
+	if rows.Next() {
+		if err = rows.StructScan(&dir); err != nil {
+			log.Error().Err(err).Int("dirId", dirId).Msg("Failed to scan directory data")
+			return models.Directory{}, err
+		}
 	}
 
-	return count > 0, nil
+	log.Debug().Str("path", dir.Path).Msg("Directory fetched by ID successfully")
+	return dir, nil
 }
 
-func UpdateLastScanned(dirId int) error {
+func (r *DirRepository) ReadAll() (dirs []models.Directory, err error) {
+	log.Debug().Msg("Fetching all directories")
+
+	query := `
+		SELECT * 
+		FROM directories
+	`
+	err = r.Db.Select(&dirs, query)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to fetch directories")
+		return nil, err
+	}
+
+	log.Debug().Int("dirsCount", len(dirs)).Msg("All directories fetched successfully")
+	return dirs, nil
+}
+
+func (r *DirRepository) UpdateLastScanned(dirId int) (err error) {
+	log.Debug().Int("dirId", dirId).Msg("Updating last scanned for directory")
+
 	query := `
 		UPDATE directories
 		SET last_scanned = CURRENT_TIMESTAMP
-		WHERE dir_id = $1
+		WHERE dir_id = :dir_id
 	`
-	_, err := database.Db.Exec(query, dirId)
-	return err
+	args := map[string]interface{}{
+		"dir_id": dirId,
+	}
+	_, err = r.Db.NamedExec(query, args)
+	if err != nil {
+		log.Error().Err(err).Int("dirId", dirId).Msg("Failed to update last scanned for directory")
+		return err
+	}
+
+	log.Debug().Int("dirId", dirId).Msg("Last scanned for directory updated successfully")
+	return nil
+}
+
+func (r *DirRepository) Delete(dirId int) (err error) {
+	log.Debug().Int("dirId", dirId).Msg("Deleting directory by ID")
+
+	query := `
+		DELETE FROM directories
+		WHERE dir_id = :dir_id
+	`
+	args := map[string]interface{}{
+		"dir_id": dirId,
+	}
+	_, err = r.Db.NamedExec(query, args)
+	if err != nil {
+		log.Error().Err(err).Int("dirId", dirId).Msg("Failed to delete directory")
+		return err
+	}
+
+	log.Debug().Int("dirId", dirId).Msg("Directory deleted successfully")
+	return nil
+}
+
+func (r *DirRepository) IsExistsByPath(path string) (exists bool, err error) {
+	log.Debug().Str("path", path).Msg("Checking if directory exists")
+
+	query := `
+		SELECT EXISTS (
+			SELECT 1 
+			FROM directories
+			WHERE path = :path
+		)
+	`
+	args := map[string]interface{}{
+		"path": path,
+	}
+	row, err := r.Db.NamedQuery(query, args)
+	if err != nil {
+		log.Error().Err(err).Str("path", path).Msg("Failed to execute query to check directory existence")
+		return false, err
+	}
+	defer row.Close()
+	if row.Next() {
+		if err = row.Scan(&exists); err != nil {
+			log.Error().Err(err).Str("path", path).Msg("Failed to scan result of directory existence check")
+			return false, err
+		}
+	}
+
+	if exists {
+		log.Debug().Str("path", path).Msg("Directory exists")
+	} else {
+		log.Debug().Str("path", path).Msg("No directory found")
+	}
+	return exists, nil
 }

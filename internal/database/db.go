@@ -5,14 +5,8 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jmoiron/sqlx"
-	"log"
+	"github.com/rs/zerolog/log"
 )
-
-var Db *sqlx.DB
-
-func SetDatabase(db *sqlx.DB) {
-	Db = db
-}
 
 func ConnectDb(connectionString string) (*sqlx.DB, error) {
 	db, err := sqlx.Connect("postgres", connectionString)
@@ -28,8 +22,11 @@ func ConnectDb(connectionString string) (*sqlx.DB, error) {
 }
 
 func RunMigrations(db *sqlx.DB, migrationsPath string) error {
+	log.Debug().Msg("Migrations running")
+
 	driver, err := postgres.WithInstance(db.DB, &postgres.Config{})
 	if err != nil {
+		log.Error().Err(err).Msg("Failed to create driver")
 		return err
 	}
 
@@ -39,13 +36,15 @@ func RunMigrations(db *sqlx.DB, migrationsPath string) error {
 		driver,
 	)
 	if err != nil {
+		log.Error().Err(err).Msg("Failed to create migration")
 		return err
 	}
 
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Error().Err(err).Msg("Failed to apply migration")
 		return err
 	}
 
-	log.Println("Migrations applied successfully!")
+	log.Debug().Msg("Migrations applied successfully")
 	return nil
 }

@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -25,4 +28,14 @@ func IsImageFile(path string) bool {
 		}
 	}
 	return false
+}
+
+func CalculateFileHash(filePath string) (hash string, err error) {
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", err
+	}
+	hashBytes := sha256.Sum256(data)
+	hash = hex.EncodeToString(hashBytes[:])
+	return hash, nil
 }
