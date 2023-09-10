@@ -34,7 +34,7 @@ func loadConfiguration() *config.Configuration {
 
 func initializeLogger(level zerolog.Level) {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout}).
-		//With().Caller().Logger().
+		With().Caller().Logger().
 		With().Str("service", "music-files").Logger().
 		Level(level)
 	log.Debug().Msg("Logger initialized")

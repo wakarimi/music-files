@@ -113,7 +113,7 @@ func (r *CoverRepository) ReadByDirIdAndRelativePath(dirId int, relativePath str
 		}
 	} else {
 		err := fmt.Errorf("no cover found with dir_id: %d, relativePath: %s", dirId, relativePath)
-		log.Info().Err(err).Int("dirId", dirId).Str("relativePath", relativePath).Msg("No cover found")
+		log.Debug().Int("dirId", dirId).Str("relativePath", relativePath).Msg("No cover found")
 		return models.Cover{}, err
 	}
 

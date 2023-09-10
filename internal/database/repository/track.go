@@ -13,6 +13,7 @@ type TrackRepositoryInterface interface {
 	ReadAll() (tracks []models.Track, err error)
 	ReadAllByDirId(dirId int) (tracks []models.Track, err error)
 	Update(trackId int, track models.Track) (err error)
+	ResetCover(coverId int) (err error)
 	Delete(trackId int) (err error)
 	DeleteByDirId(dirId int) (err error)
 	IsExists(trackId int) (exists bool, err error)
@@ -160,6 +161,27 @@ func (r *TrackRepository) Update(trackId int, track models.Track) (err error) {
 	}
 
 	log.Debug().Int("trackId", trackId).Msg("Track updated successfully")
+	return nil
+}
+
+func (r *TrackRepository) ResetCover(coverId int) (err error) {
+	log.Debug().Int("coverId", coverId).Msg("Resetting cover_id for tracks")
+
+	query := `
+		UPDATE tracks
+		SET cover_id = NULL
+		WHERE cover_id = :cover_id
+	`
+	args := map[string]interface{}{
+		"cover_id": coverId,
+	}
+	_, err = r.Db.NamedExec(query, args)
+	if err != nil {
+		log.Error().Err(err).Int("coverId", coverId).Msg("Failed to reset cover for tracks")
+		return err
+	}
+
+	log.Debug().Int("coverId", coverId).Msg("cover for tracks reset successfully")
 	return nil
 }
 

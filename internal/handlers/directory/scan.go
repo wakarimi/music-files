@@ -97,12 +97,17 @@ func (h *Handler) dirScan(c *gin.Context, dir models.Directory) {
 		}
 
 		if !analogFound {
-			err = h.CoverRepo.Delete(databaseCover.CoverId)
+			err = h.TrackRepo.ResetCover(databaseCover.CoverId)
 			if err != nil {
-				log.Error().Err(err).Int("databaseCoverId", databaseCover.CoverId).Msg("Failed to delete cover")
+				log.Error().Msg("Failed to reset cover for tracks")
 			} else {
-				log.Info().Int("trackId", databaseCover.CoverId).Str("databaseCoverFilename", databaseCover.Filename).Msg("Undiscovered cover deleted")
-				deletedCoverCount++
+				err = h.CoverRepo.Delete(databaseCover.CoverId)
+				if err != nil {
+					log.Error().Err(err).Int("databaseCoverId", databaseCover.CoverId).Msg("Failed to delete cover")
+				} else {
+					log.Info().Int("trackId", databaseCover.CoverId).Str("databaseCoverFilename", databaseCover.Filename).Msg("Undiscovered cover deleted")
+					deletedCoverCount++
+				}
 			}
 		}
 	}
@@ -148,21 +153,19 @@ func (h *Handler) dirScan(c *gin.Context, dir models.Directory) {
 			if err != nil {
 				log.Error().Err(err).Str("relativePath", foundCover.RelativePath).Msg("Failed to update cover")
 			} else {
-				log.Info().Int("coverId", foundCover.CoverId).Str("relativePath", foundCover.RelativePath).Msg("Modified cover updated in database")
+				log.Info().Int("coverId", foundCover.CoverId).Str("relativePath", foundCover.RelativePath).Msg("Cover updated in database")
 				modifiedCoversCount++
 			}
 		}
 	}
 	log.Debug().Int("newCoversCount", newCoversCount).Msg("New covers added")
-	log.Debug().Int("modifiedCoversCount", modifiedCoversCount).Msg("Covers Modified")
+	log.Debug().Int("modifiedCoversCount", modifiedCoversCount).Msg("Covers modified")
 
 	newTracksCount := 0
 	modifiedTracksCount := 0
 	for _, foundTrack := range foundTracks {
 		cover, err := h.CoverRepo.ReadByDirIdAndRelativePath(dir.DirId, foundTrack.RelativePath)
-		if err != nil {
-			log.Error().Err(err).Int("dirId", dir.DirId).Str("relativePath", foundTrack.RelativePath).Msg("Failed to find relative cover")
-		} else {
+		if err == nil {
 			foundTrack.CoverId = &cover.CoverId
 		}
 
@@ -177,9 +180,9 @@ func (h *Handler) dirScan(c *gin.Context, dir models.Directory) {
 		} else {
 			err = h.TrackRepo.Update(foundTrack.TrackId, foundTrack)
 			if err != nil {
-				log.Error().Err(err).Str("filename", foundTrack.Filename).Str("relativePath", foundTrack.RelativePath).Msg("Failed to update cover")
+				log.Error().Err(err).Str("filename", foundTrack.Filename).Str("relativePath", foundTrack.RelativePath).Msg("Failed to update track")
 			} else {
-				log.Info().Int("trackId", foundTrack.TrackId).Str("filename", foundTrack.Filename).Str("relativePath", foundTrack.RelativePath).Msg("Modified cover updated in database")
+				log.Info().Int("trackId", foundTrack.TrackId).Str("filename", foundTrack.Filename).Str("relativePath", foundTrack.RelativePath).Msg("Track updated in database")
 				modifiedTracksCount++
 			}
 		}
