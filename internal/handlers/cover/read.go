@@ -6,14 +6,12 @@ import (
 	"music-files/internal/handlers/types"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 type readResponse struct {
-	CoverId   int       `json:"coverId"`
-	Extension string    `json:"extension"`
-	Size      int64     `json:"size"`
-	DateAdded time.Time `json:"dateAdded"`
+	CoverId   int    `json:"coverId"`
+	Extension string `json:"extension"`
+	Size      int64  `json:"size"`
 }
 
 func (h *Handler) Read(c *gin.Context) {
@@ -44,6 +42,5 @@ func (h *Handler) Read(c *gin.Context) {
 		CoverId:   cover.CoverId,
 		Extension: cover.Extension,
 		Size:      cover.Size,
-		DateAdded: cover.DateAdded,
 	})
 }

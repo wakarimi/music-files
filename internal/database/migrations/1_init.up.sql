@@ -15,7 +15,6 @@ CREATE TABLE "covers"
     "extension"     TEXT        NOT NULL,
     "size"          BIGINT      NOT NULL,
     "hash"          TEXT        NOT NULL,
-    "date_added"    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY ("dir_id") REFERENCES "directories" ("dir_id")
 );
 
@@ -29,7 +28,6 @@ CREATE TABLE "tracks"
     "extension"     TEXT        NOT NULL,
     "size"          BIGINT      NOT NULL,
     "hash"          TEXT        NOT NULL,
-    "date_added"    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY ("dir_id") REFERENCES "directories" ("dir_id"),
     FOREIGN KEY ("cover_id") REFERENCES "covers" ("cover_id")
 );
