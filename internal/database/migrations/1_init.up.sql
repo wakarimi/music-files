@@ -2,7 +2,6 @@ CREATE TABLE "directories"
 (
     "dir_id"       SERIAL PRIMARY KEY,
     "path"         TEXT        NOT NULL UNIQUE,
-    "date_added"   TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "last_scanned" TIMESTAMPTZ
 );
 

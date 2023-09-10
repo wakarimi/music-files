@@ -11,7 +11,6 @@ import (
 type readAllResponseItem struct {
 	DirId       int        `json:"dirId"`
 	Path        string     `json:"path"`
-	DateAdded   time.Time  `json:"dateAdded"`
 	LastScanned *time.Time `json:"lastScanned,omitempty"`
 }
 
@@ -36,7 +35,6 @@ func (h *Handler) ReadAll(c *gin.Context) {
 		dirResponse := readAllResponseItem{
 			DirId:       dir.DirId,
 			Path:        dir.Path,
-			DateAdded:   dir.DateAdded,
 			LastScanned: dir.LastScanned,
 		}
 		dirsResponse = append(dirsResponse, dirResponse)
