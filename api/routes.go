@@ -20,7 +20,7 @@ func SetupRouter(httpServerConfig *config.HttpServer, db *sqlx.DB) *gin.Engine {
 	dirRepo := repository.NewDirRepository(db)
 	trackRepo := repository.NewTrackRepository(db)
 
-	coverHandler := cover.NewHandler(coverRepo)
+	coverHandler := cover.NewHandler(coverRepo, dirRepo)
 	dirHandler := directory.NewHandler(dirRepo, coverRepo, trackRepo)
 	trackHandler := track.NewHandler(trackRepo)
 
