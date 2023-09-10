@@ -52,7 +52,7 @@ func (h *Handler) dirScan(c *gin.Context, dir models.Directory) {
 		})
 		return
 	}
-	log.Debug()
+	log.Debug().Int("foundTracksCount", len(foundTracks)).Msg("Tracks read from directory")
 
 	foundCovers, err := h.searchCoversFromDirectory(dir)
 	if err != nil {
@@ -62,6 +62,7 @@ func (h *Handler) dirScan(c *gin.Context, dir models.Directory) {
 		})
 		return
 	}
+	log.Debug().Int("foundCoversCount", len(foundCovers)).Msg("Covers read from directory")
 
 	databaseTracks, err := h.TrackRepo.ReadAllByDirId(dir.DirId)
 	if err != nil {
@@ -71,6 +72,7 @@ func (h *Handler) dirScan(c *gin.Context, dir models.Directory) {
 		})
 		return
 	}
+	log.Debug().Int("foundTracksCount", len(databaseTracks)).Msg("Tracks read from database")
 
 	databaseCovers, err := h.CoverRepo.ReadAllByDirId(dir.DirId)
 	if err != nil {
@@ -80,41 +82,79 @@ func (h *Handler) dirScan(c *gin.Context, dir models.Directory) {
 		})
 		return
 	}
+	log.Debug().Int("foundCoversCount", len(databaseCovers)).Msg("Covers read from database")
 
+	deletedTracksCount := 0
 	for _, databaseTrack := range databaseTracks {
-		if !h.isTrackInList(databaseTrack, foundTracks) {
+		analogFound := false
+		for i := range foundTracks {
+			if (databaseTrack.Hash == foundTracks[i].Hash) ||
+				((databaseTrack.DirId == foundTracks[i].DirId) && (databaseTrack.RelativePath == foundTracks[i].RelativePath) && (databaseTrack.Filename == foundTracks[i].Filename)) {
+				analogFound = true
+				foundTracks[i].TrackId = databaseTrack.TrackId
+				break
+			}
+		}
+
+		if !analogFound {
 			err = h.TrackRepo.Delete(databaseTrack.TrackId)
 			if err != nil {
 				log.Error().Err(err).Int("databaseTrackId", databaseTrack.TrackId).Msg("Failed to delete track")
 			} else {
 				log.Info().Int("trackId", databaseTrack.TrackId).Str("databaseTrackFilename", databaseTrack.Filename).Msg("Undiscovered track deleted")
+				deletedTracksCount++
 			}
 		}
 	}
+	log.Debug().Int("deletedTracksCount", deletedTracksCount).Msg("Undiscovered tracks deleted")
 
+	deletedCoverCount := 0
 	for _, databaseCover := range databaseCovers {
-		if !h.isCoverInList(databaseCover, databaseCovers) {
+		analogFound := false
+		for i := range foundCovers {
+			if (databaseCover.Hash == foundCovers[i].Hash) ||
+				((databaseCover.DirId == foundCovers[i].DirId) && (databaseCover.RelativePath == foundCovers[i].RelativePath) && (databaseCover.Filename == foundCovers[i].Filename)) {
+				analogFound = true
+				foundCovers[i].CoverId = databaseCover.CoverId
+				break
+			}
+		}
+
+		if !analogFound {
 			err = h.CoverRepo.Delete(databaseCover.CoverId)
 			if err != nil {
 				log.Error().Err(err).Int("databaseCoverId", databaseCover.CoverId).Msg("Failed to delete cover")
 			} else {
-				log.Info().Int("coverId", databaseCover.CoverId).Str("databaseCoverFilename", databaseCover.Filename).Msg("Undiscovered cover deleted")
+				log.Info().Int("trackId", databaseCover.CoverId).Str("databaseCoverFilename", databaseCover.Filename).Msg("Undiscovered cover deleted")
+				deletedCoverCount++
 			}
 		}
 	}
+	log.Debug().Int("deletedCoversCount", deletedCoverCount).Msg("Undiscovered covers deleted")
+
+	newCoversCount := 0
+	modifiedCoversCount := 0
 	for _, foundCover := range foundCovers {
-		if !h.isCoverInList(foundCover, databaseCovers) {
+		if foundCover.CoverId == 0 {
 			coverId, err := h.CoverRepo.Create(foundCover)
 			if err != nil {
 				log.Error().Err(err).Str("foundCoverRelativePath", foundCover.RelativePath).Msg("Failed to create cover")
 			} else {
 				log.Info().Int("coverId", coverId).Str("filename", foundCover.Filename).Msg("New cover added to database")
+				newCoversCount++
 			}
+		} else {
+			// TODO: Update exists cover
+			modifiedCoversCount++
 		}
 	}
+	log.Debug().Int("newCoversCount", newCoversCount).Msg("New covers added")
+	log.Debug().Int("modifiedCoversCount", modifiedCoversCount).Msg("Covers Modified")
 
+	newTracksCount := 0
+	modifiedTracksCount := 0
 	for _, foundTrack := range foundTracks {
-		if !h.isTrackInList(foundTrack, databaseTracks) {
+		if foundTrack.TrackId == 0 {
 			cover, err := h.CoverRepo.ReadByDirIdAndRelativePath(dir.DirId, foundTrack.RelativePath)
 			if err != nil {
 				log.Error().Err(err).Int("dirId", dir.DirId).Str("relativePath", foundTrack.RelativePath).Msg("Failed to find relative cover")
@@ -127,9 +167,15 @@ func (h *Handler) dirScan(c *gin.Context, dir models.Directory) {
 				log.Error().Err(err).Str("filename", foundTrack.Filename).Msg("Failed to create track")
 			} else {
 				log.Info().Int("trackId", trackId).Str("filename", foundTrack.Filename).Msg("New track added to database")
+				newTracksCount++
 			}
+		} else {
+			// TODO: Update exists track
+			modifiedTracksCount++
 		}
 	}
+	log.Debug().Int("newTracksCount", newTracksCount).Msg("New tracks added")
+	log.Debug().Int("modifiedTracksCount", modifiedTracksCount).Msg("Tracks Modified")
 
 	err = h.DirRepo.UpdateLastScanned(dir.DirId)
 	if err != nil {
@@ -211,22 +257,4 @@ func (h *Handler) searchCoversFromDirectory(dir models.Directory) (covers []mode
 		return nil, err
 	}
 	return covers, nil
-}
-
-func (h *Handler) isTrackInList(track models.Track, trackList []models.Track) bool {
-	for _, trackListItem := range trackList {
-		if trackListItem.DirId == track.DirId && trackListItem.RelativePath == track.RelativePath {
-			return true
-		}
-	}
-	return false
-}
-
-func (h *Handler) isCoverInList(cover models.Cover, coverList []models.Cover) bool {
-	for _, coverListItem := range coverList {
-		if coverListItem.DirId == cover.DirId && coverListItem.RelativePath == cover.RelativePath {
-			return true
-		}
-	}
-	return false
 }
