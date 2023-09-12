@@ -10,7 +10,7 @@ import (
 
 type readResponse struct {
 	TrackId   int    `json:"trackId"`
-	CoverId   int    `json:"coverId,omitempty"`
+	CoverId   *int   `json:"coverId,omitempty"`
 	Extension string `json:"extension"`
 	Size      int64  `json:"size"`
 }
@@ -41,7 +41,7 @@ func (h *Handler) Read(c *gin.Context) {
 	log.Debug().Int("trackId", track.TrackId).Str("relativePath", track.RelativePath).Msg("Track fetched successfully")
 	c.JSON(http.StatusOK, readResponse{
 		TrackId:   track.TrackId,
-		CoverId:   *track.CoverId,
+		CoverId:   track.CoverId,
 		Extension: track.Extension,
 		Size:      track.Size,
 	})

@@ -9,7 +9,7 @@ import (
 
 type readAllResponseItem struct {
 	TrackId   int    `json:"trackId"`
-	CoverId   int    `json:"coverId,omitempty"`
+	CoverId   *int   `json:"coverId,omitempty"`
 	Extension string `json:"extension"`
 	Size      int64  `json:"size"`
 }
@@ -34,7 +34,7 @@ func (h *Handler) ReadAll(c *gin.Context) {
 	for _, track := range tracks {
 		trackResponse := readAllResponseItem{
 			TrackId:   track.TrackId,
-			CoverId:   *track.CoverId,
+			CoverId:   track.CoverId,
 			Extension: track.Extension,
 			Size:      track.Size,
 		}
