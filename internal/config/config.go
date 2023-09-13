@@ -7,9 +7,9 @@ import (
 )
 
 type Configuration struct {
-	Database
-	HttpServer
-	Logger
+	*Database
+	*HttpServer
+	*Logger
 }
 
 type Database struct {
@@ -29,13 +29,13 @@ func LoadConfiguration() (config *Configuration, err error) {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	config = &Configuration{
-		Database{
+		&Database{
 			ConnectionString: viper.GetString("WAKARIMI_MUSIC_FILES_DB_STRING"),
 		},
-		HttpServer{
+		&HttpServer{
 			Port: viper.GetString("HTTP_SERVER_PORT"),
 		},
-		Logger{
+		&Logger{
 			Level: loadLoggingLevel(),
 		},
 	}

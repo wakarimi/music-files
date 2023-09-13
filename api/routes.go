@@ -2,9 +2,8 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/config"
+	"music-files/internal/context"
 	"music-files/internal/database/repository"
 	"music-files/internal/handlers/cover"
 	"music-files/internal/handlers/directory"
@@ -12,19 +11,19 @@ import (
 	"music-files/internal/middleware"
 )
 
-func SetupRouter(httpServerConfig *config.HttpServer, db *sqlx.DB) *gin.Engine {
+func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 	log.Debug().Msg("Router setup")
 	gin.SetMode(gin.ReleaseMode)
 
-	coverRepo := repository.NewCoverRepository(db)
-	dirRepo := repository.NewDirRepository(db)
-	trackRepo := repository.NewTrackRepository(db)
+	coverRepo := repository.NewCoverRepository(ac.Db)
+	dirRepo := repository.NewDirRepository(ac.Db)
+	trackRepo := repository.NewTrackRepository(ac.Db)
 
 	coverHandler := cover.NewHandler(coverRepo, dirRepo)
 	dirHandler := directory.NewHandler(dirRepo, coverRepo, trackRepo)
 	trackHandler := track.NewHandler(trackRepo, dirRepo)
 
-	r := gin.New()
+	r = gin.New()
 	r.Use(middleware.ZerologMiddleware(log.Logger))
 
 	api := r.Group("/api/music-files-service")
