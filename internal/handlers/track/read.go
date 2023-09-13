@@ -13,6 +13,7 @@ type readResponse struct {
 	CoverId   *int   `json:"coverId,omitempty"`
 	Extension string `json:"extension"`
 	Size      int64  `json:"size"`
+	Hash      string `json:"hash"`
 }
 
 func (h *Handler) Read(c *gin.Context) {
@@ -44,5 +45,6 @@ func (h *Handler) Read(c *gin.Context) {
 		CoverId:   track.CoverId,
 		Extension: track.Extension,
 		Size:      track.Size,
+		Hash:      track.Hash,
 	})
 }

@@ -12,6 +12,7 @@ type readAllResponseItem struct {
 	CoverId   *int   `json:"coverId,omitempty"`
 	Extension string `json:"extension"`
 	Size      int64  `json:"size"`
+	Hash      string `json:"hash"`
 }
 
 type readAllResponse struct {
@@ -37,6 +38,7 @@ func (h *Handler) ReadAll(c *gin.Context) {
 			CoverId:   track.CoverId,
 			Extension: track.Extension,
 			Size:      track.Size,
+			Hash:      track.Hash,
 		}
 		tracksResponse = append(tracksResponse, trackResponse)
 	}
