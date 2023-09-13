@@ -9,11 +9,17 @@ import (
 
 type DirRepositoryInterface interface {
 	Create(dir models.Directory) (dirId int, err error)
+	CreateTx(tx *sqlx.Tx, dir models.Directory) (dirId int, err error)
 	Read(dirId int) (cover models.Directory, err error)
+	ReadTx(tx *sqlx.Tx, dirId int) (cover models.Directory, err error)
 	ReadAll() (dirs []models.Directory, err error)
+	ReadAllTx(tx *sqlx.Tx) (dirs []models.Directory, err error)
 	UpdateLastScanned(dirId int) (err error)
+	UpdateLastScannedTx(tx *sqlx.Tx, dirId int) (err error)
 	Delete(dirId int) (err error)
+	DeleteTx(tx *sqlx.Tx, dirId int) (err error)
 	IsExistsByPath(path string) (exists bool, err error)
+	IsExistsByPathTx(tx *sqlx.Tx, path string) (exists bool, err error)
 }
 
 type DirRepository struct {
@@ -26,13 +32,21 @@ func NewDirRepository(db *sqlx.DB) DirRepositoryInterface {
 
 func (r *DirRepository) Create(dir models.Directory) (dirId int, err error) {
 	log.Debug().Str("path", dir.Path).Msg("Creating new directory")
+	return r.create(r.Db, dir)
+}
 
+func (r *DirRepository) CreateTx(tx *sqlx.Tx, dir models.Directory) (dirId int, err error) {
+	log.Debug().Str("path", dir.Path).Msg("Creating new directory transactional")
+	return r.create(tx, dir)
+}
+
+func (r *DirRepository) create(queryer Queryer, dir models.Directory) (dirId int, err error) {
 	query := `
 		INSERT INTO directories(path)
 		VALUES (:path)
 		RETURNING dir_id
 	`
-	rows, err := r.Db.NamedQuery(query, dir)
+	rows, err := queryer.NamedQuery(query, dir)
 	if err != nil {
 		log.Error().Err(err).Str("path", dir.Path).Msg("Failed to create directory")
 		return 0, err
@@ -52,9 +66,17 @@ func (r *DirRepository) Create(dir models.Directory) (dirId int, err error) {
 	return dirId, nil
 }
 
-func (r *DirRepository) Read(dirId int) (dir models.Directory, err error) {
-	log.Debug().Int("dirId", dirId).Msg("Fetching directory by ID")
+func (r *DirRepository) Read(dirId int) (cover models.Directory, err error) {
+	log.Debug().Int("dirId", dirId).Msg("Fetching directory by id")
+	return r.read(r.Db, dirId)
+}
 
+func (r *DirRepository) ReadTx(tx *sqlx.Tx, dirId int) (cover models.Directory, err error) {
+	log.Debug().Int("dirId", dirId).Msg("Fetching directory by id transactional")
+	return r.read(tx, dirId)
+}
+
+func (r *DirRepository) read(queryer Queryer, dirId int) (dir models.Directory, err error) {
 	query := `
 		SELECT *
 		FROM directories
@@ -63,7 +85,7 @@ func (r *DirRepository) Read(dirId int) (dir models.Directory, err error) {
 	args := map[string]interface{}{
 		"dir_id": dirId,
 	}
-	rows, err := r.Db.NamedQuery(query, args)
+	rows, err := queryer.NamedQuery(query, args)
 	if err != nil {
 		log.Error().Err(err).Int("dirId", dirId).Msg("Failed to fetch directory")
 		return models.Directory{}, err
@@ -76,18 +98,26 @@ func (r *DirRepository) Read(dirId int) (dir models.Directory, err error) {
 		}
 	}
 
-	log.Debug().Str("path", dir.Path).Msg("Directory fetched by ID successfully")
+	log.Debug().Str("path", dir.Path).Msg("Directory fetched by id successfully")
 	return dir, nil
 }
 
 func (r *DirRepository) ReadAll() (dirs []models.Directory, err error) {
 	log.Debug().Msg("Fetching all directories")
+	return r.readAll(r.Db)
+}
 
+func (r *DirRepository) ReadAllTx(tx *sqlx.Tx) (dirs []models.Directory, err error) {
+	log.Debug().Msg("Fetching all directories transactional")
+	return r.readAll(tx)
+}
+
+func (r *DirRepository) readAll(queryer Queryer) (dirs []models.Directory, err error) {
 	query := `
 		SELECT * 
 		FROM directories
 	`
-	err = r.Db.Select(&dirs, query)
+	err = queryer.Select(&dirs, query)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to fetch directories")
 		return nil, err
@@ -99,7 +129,15 @@ func (r *DirRepository) ReadAll() (dirs []models.Directory, err error) {
 
 func (r *DirRepository) UpdateLastScanned(dirId int) (err error) {
 	log.Debug().Int("dirId", dirId).Msg("Updating last scanned for directory")
+	return r.updateLastScanned(r.Db, dirId)
+}
 
+func (r *DirRepository) UpdateLastScannedTx(tx *sqlx.Tx, dirId int) (err error) {
+	log.Debug().Int("dirId", dirId).Msg("Updating last scanned for directory transactional")
+	return r.updateLastScanned(tx, dirId)
+}
+
+func (r *DirRepository) updateLastScanned(queryer Queryer, dirId int) (err error) {
 	query := `
 		UPDATE directories
 		SET last_scanned = CURRENT_TIMESTAMP
@@ -108,7 +146,7 @@ func (r *DirRepository) UpdateLastScanned(dirId int) (err error) {
 	args := map[string]interface{}{
 		"dir_id": dirId,
 	}
-	_, err = r.Db.NamedExec(query, args)
+	_, err = queryer.NamedExec(query, args)
 	if err != nil {
 		log.Error().Err(err).Int("dirId", dirId).Msg("Failed to update last scanned for directory")
 		return err
@@ -119,8 +157,16 @@ func (r *DirRepository) UpdateLastScanned(dirId int) (err error) {
 }
 
 func (r *DirRepository) Delete(dirId int) (err error) {
-	log.Debug().Int("dirId", dirId).Msg("Deleting directory by ID")
+	log.Debug().Int("dirId", dirId).Msg("Deleting directory by id")
+	return r.delete(r.Db, dirId)
+}
 
+func (r *DirRepository) DeleteTx(tx *sqlx.Tx, dirId int) (err error) {
+	log.Debug().Int("dirId", dirId).Msg("Deleting directory by id transactional")
+	return r.delete(tx, dirId)
+}
+
+func (r *DirRepository) delete(queryer Queryer, dirId int) (err error) {
 	query := `
 		DELETE FROM directories
 		WHERE dir_id = :dir_id
@@ -128,7 +174,7 @@ func (r *DirRepository) Delete(dirId int) (err error) {
 	args := map[string]interface{}{
 		"dir_id": dirId,
 	}
-	_, err = r.Db.NamedExec(query, args)
+	_, err = queryer.NamedExec(query, args)
 	if err != nil {
 		log.Error().Err(err).Int("dirId", dirId).Msg("Failed to delete directory")
 		return err
@@ -140,7 +186,15 @@ func (r *DirRepository) Delete(dirId int) (err error) {
 
 func (r *DirRepository) IsExistsByPath(path string) (exists bool, err error) {
 	log.Debug().Str("path", path).Msg("Checking if directory exists")
+	return r.isExistsByPath(r.Db, path)
+}
 
+func (r *DirRepository) IsExistsByPathTx(tx *sqlx.Tx, path string) (exists bool, err error) {
+	log.Debug().Str("path", path).Msg("Checking if directory exists transactional")
+	return r.isExistsByPath(tx, path)
+}
+
+func (r *DirRepository) isExistsByPath(queryer Queryer, path string) (exists bool, err error) {
 	query := `
 		SELECT EXISTS (
 			SELECT 1 
@@ -151,7 +205,7 @@ func (r *DirRepository) IsExistsByPath(path string) (exists bool, err error) {
 	args := map[string]interface{}{
 		"path": path,
 	}
-	row, err := r.Db.NamedQuery(query, args)
+	row, err := queryer.NamedQuery(query, args)
 	if err != nil {
 		log.Error().Err(err).Str("path", path).Msg("Failed to execute query to check directory existence")
 		return false, err
