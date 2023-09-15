@@ -2,10 +2,10 @@ package track
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
 	"music-files/internal/handlers/types"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strconv"
 )
@@ -24,40 +24,25 @@ func (h *Handler) Download(c *gin.Context) {
 	}
 	log.Debug().Int("trackId", trackId).Msg("Url parameter read successfully")
 
-	track, err := h.TrackRepo.Read(trackId)
+	var absolutePath string
+
+	err = h.TransactionManager.WithTransaction(func(tx *sqlx.Tx) (err error) {
+		absolutePath, err = h.TrackService.Download(tx, trackId)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to read track")
+		log.Error().Err(err).Msg("Failed to fetch track")
 		c.JSON(http.StatusInternalServerError, types.Error{
-			Error: "Failed to read track",
+			Error: "Failed to fetch track",
 		})
 		return
 	}
-	log.Debug().Str("relativePath", track.RelativePath).Msg("Track read successfully")
 
-	dir, err := h.DirRepo.Read(track.DirId)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to read dir")
-		c.JSON(http.StatusInternalServerError, types.Error{
-			Error: "Failed to read dir",
-		})
-		return
-	}
-	log.Debug().Str("path", dir.Path).Msg("Dir read successfully")
-
-	absolutePath := filepath.Join(dir.Path, track.RelativePath, track.Filename)
-	file, err := os.Open(absolutePath)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to open track file")
-		c.JSON(http.StatusInternalServerError, types.Error{
-			Error: "Failed to open track file",
-		})
-		return
-	}
-	defer file.Close()
-	log.Debug().Str("filename", file.Name()).Msg("File read successfully")
-
-	log.Debug().Msg("Track sent successfully")
+	log.Debug().Msg("Cover sent successfully")
 	c.Header("Content-Type", "application/octet-stream")
-	c.Header("Content-Disposition", "attachment; filename="+track.Filename)
+	c.Header("Content-Disposition", "attachment; filename="+filepath.Base(absolutePath))
 	c.File(absolutePath)
 }

@@ -2,8 +2,10 @@ package track
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
 	"music-files/internal/handlers/types"
+	"music-files/internal/models"
 	"net/http"
 )
 
@@ -22,7 +24,15 @@ type readAllResponse struct {
 func (h *Handler) ReadAll(c *gin.Context) {
 	log.Debug().Msg("Fetching all tracks")
 
-	tracks, err := h.TrackRepo.ReadAll()
+	var tracks []models.Track
+
+	err := h.TransactionManager.WithTransaction(func(tx *sqlx.Tx) (err error) {
+		tracks, err = h.TrackService.ReadAll(tx)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to fetch all tracks")
 		c.JSON(http.StatusInternalServerError, types.Error{

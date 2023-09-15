@@ -9,19 +9,29 @@ import (
 	"music-files/internal/handlers/directory"
 	"music-files/internal/handlers/track"
 	"music-files/internal/middleware"
+	"music-files/internal/service"
+	"music-files/internal/service/cover_service"
+	"music-files/internal/service/dir_service"
+	"music-files/internal/service/track_service"
 )
 
 func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 	log.Debug().Msg("Router setup")
 	gin.SetMode(gin.ReleaseMode)
 
+	txManager := service.NewTransactionManager(*ac.Db)
+
 	coverRepo := repository.NewCoverRepository(ac.Db)
 	dirRepo := repository.NewDirRepository(ac.Db)
 	trackRepo := repository.NewTrackRepository(ac.Db)
 
-	coverHandler := cover.NewHandler(coverRepo, dirRepo)
-	dirHandler := directory.NewHandler(dirRepo, coverRepo, trackRepo)
-	trackHandler := track.NewHandler(trackRepo, dirRepo)
+	coverService := cover_service.NewService(coverRepo, dirRepo)
+	dirService := dir_service.NewService(dirRepo, coverRepo, trackRepo)
+	trackService := track_service.NewService(trackRepo, dirRepo)
+
+	coverHandler := cover.NewHandler(txManager, *coverService, *dirService)
+	dirHandler := directory.NewHandler(txManager, *dirService, *coverService, *trackService)
+	trackHandler := track.NewHandler(txManager, *trackService, *dirService)
 
 	r = gin.New()
 	r.Use(middleware.ZerologMiddleware(log.Logger))

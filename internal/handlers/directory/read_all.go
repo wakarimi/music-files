@@ -2,8 +2,10 @@ package directory
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
 	"music-files/internal/handlers/types"
+	"music-files/internal/models"
 	"net/http"
 	"time"
 )
@@ -21,11 +23,19 @@ type readAllResponse struct {
 func (h *Handler) ReadAll(c *gin.Context) {
 	log.Info().Msg("Fetching all directories")
 
-	dirs, err := h.DirRepo.ReadAll()
+	var dirs []models.Directory
+
+	err := h.TransactionManager.WithTransaction(func(tx *sqlx.Tx) (err error) {
+		dirs, err = h.DirService.ReadAll(tx)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 	if err != nil {
-		log.Info().Msg("Failed to get all directories")
+		log.Error().Err(err).Msg("Failed to scan directory")
 		c.JSON(http.StatusInternalServerError, types.Error{
-			Error: "Failed to get all dirs",
+			Error: "Failed to scan directory",
 		})
 		return
 	}

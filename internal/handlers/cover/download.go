@@ -2,10 +2,10 @@ package cover
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
 	"music-files/internal/handlers/types"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strconv"
 )
@@ -24,40 +24,26 @@ func (h *Handler) Download(c *gin.Context) {
 	}
 	log.Debug().Int("coverId", coverId).Msg("Url parameter read successfully")
 
-	cover, err := h.CoverRepo.Read(coverId)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to read cover")
-		c.JSON(http.StatusInternalServerError, types.Error{
-			Error: "Failed to read cover",
-		})
-		return
-	}
-	log.Debug().Str("relativePath", cover.RelativePath).Msg("Cover read successfully")
+	var absolutePath string
 
-	dir, err := h.DirRepo.Read(cover.DirId)
+	err = h.TransactionManager.WithTransaction(func(tx *sqlx.Tx) (err error) {
+		absolutePath, err = h.CoverService.Download(tx, coverId)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to fetch cover")
+			return err
+		}
+		return err
+	})
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to read dir")
+		log.Error().Err(err).Msg("Failed to fetch cover")
 		c.JSON(http.StatusInternalServerError, types.Error{
-			Error: "Failed to read dir",
+			Error: "Failed to fetch cover",
 		})
 		return
 	}
-	log.Debug().Str("path", dir.Path).Msg("Dir read successfully")
-
-	absolutePath := filepath.Join(dir.Path, cover.RelativePath, cover.Filename)
-	file, err := os.Open(absolutePath)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to open cover file")
-		c.JSON(http.StatusInternalServerError, types.Error{
-			Error: "Failed to open cover file",
-		})
-		return
-	}
-	defer file.Close()
-	log.Debug().Str("filename", file.Name()).Msg("File read successfully")
 
 	log.Debug().Msg("Cover sent successfully")
 	c.Header("Content-Type", "application/octet-stream")
-	c.Header("Content-Disposition", "attachment; filename="+cover.Filename)
+	c.Header("Content-Disposition", "attachment; filename="+filepath.Base(absolutePath))
 	c.File(absolutePath)
 }
