@@ -1,12 +1,26 @@
 package track
 
-import "music-files/internal/database/repository"
+import (
+	"music-files/internal/service"
+	"music-files/internal/service/dir_service"
+	"music-files/internal/service/track_service"
+)
 
 type Handler struct {
-	TrackRepo repository.TrackRepositoryInterface
-	DirRepo   repository.DirRepositoryInterface
+	TransactionManager service.TransactionManager
+	TrackService       track_service.Service
+	DirService         dir_service.Service
 }
 
-func NewHandler(coverRepo repository.TrackRepositoryInterface, dirRepo repository.DirRepositoryInterface) (h *Handler) {
-	return &Handler{coverRepo, dirRepo}
+func NewHandler(transactionManager service.TransactionManager,
+	trackService track_service.Service,
+	dirService dir_service.Service) (h *Handler) {
+
+	h = &Handler{
+		TransactionManager: transactionManager,
+		TrackService:       trackService,
+		DirService:         dirService,
+	}
+
+	return h
 }

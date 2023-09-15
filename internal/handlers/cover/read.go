@@ -2,8 +2,10 @@ package cover
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
 	"music-files/internal/handlers/types"
+	"music-files/internal/models"
 	"net/http"
 	"strconv"
 )
@@ -28,11 +30,19 @@ func (h *Handler) Read(c *gin.Context) {
 	}
 	log.Debug().Int("coverId", coverId).Msg("Url parameter read successfully")
 
-	cover, err := h.CoverRepo.Read(coverId)
+	var cover models.Cover
+
+	err = h.TransactionManager.WithTransaction(func(tx *sqlx.Tx) (err error) {
+		cover, err = h.CoverService.Read(tx, coverId)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to read cover")
+		log.Error().Err(err).Msg("Failed to fetch cover")
 		c.JSON(http.StatusInternalServerError, types.Error{
-			Error: "Failed to read cover",
+			Error: "Failed to fetch cover",
 		})
 		return
 	}

@@ -2,6 +2,7 @@ package directory
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
 	"music-files/internal/handlers/types"
 	"net/http"
@@ -22,25 +23,13 @@ func (h *Handler) Delete(c *gin.Context) {
 	}
 	log.Debug().Int("dirId", dirId).Msg("Url parameter read successfully")
 
-	err = h.TrackRepo.DeleteByDirId(dirId)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to delete tracks associated with the directory")
-		c.JSON(http.StatusInternalServerError, types.Error{
-			Error: "Failed to delete tracks associated with the directory",
-		})
-		return
-	}
-
-	err = h.CoverRepo.DeleteByDirId(dirId)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to delete covers associated with the directory")
-		c.JSON(http.StatusInternalServerError, types.Error{
-			Error: "Failed to delete covers associated with the directory",
-		})
-		return
-	}
-
-	err = h.DirRepo.Delete(dirId)
+	err = h.TransactionManager.WithTransaction(func(tx *sqlx.Tx) (err error) {
+		err = h.DirService.Delete(tx, dirId)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to delete directory")
 		c.JSON(http.StatusInternalServerError, types.Error{

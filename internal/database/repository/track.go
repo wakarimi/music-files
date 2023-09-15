@@ -9,14 +9,23 @@ import (
 
 type TrackRepositoryInterface interface {
 	Create(track models.Track) (trackId int, err error)
+	CreateTx(tx *sqlx.Tx, track models.Track) (trackId int, err error)
 	Read(trackId int) (track models.Track, err error)
+	ReadTx(tx *sqlx.Tx, trackId int) (track models.Track, err error)
 	ReadAll() (tracks []models.Track, err error)
+	ReadAllTx(tx *sqlx.Tx) (tracks []models.Track, err error)
 	ReadAllByDirId(dirId int) (tracks []models.Track, err error)
+	ReadAllByDirIdTx(tx *sqlx.Tx, dirId int) (tracks []models.Track, err error)
 	Update(trackId int, track models.Track) (err error)
+	UpdateTx(tx *sqlx.Tx, trackId int, track models.Track) (err error)
 	ResetCover(coverId int) (err error)
+	ResetCoverTx(tx *sqlx.Tx, coverId int) (err error)
 	Delete(trackId int) (err error)
+	DeleteTx(tx *sqlx.Tx, trackId int) (err error)
 	DeleteByDirId(dirId int) (err error)
+	DeleteByDirIdTx(tx *sqlx.Tx, dirId int) (err error)
 	IsExists(trackId int) (exists bool, err error)
+	IsExistsTx(tx *sqlx.Tx, trackId int) (exists bool, err error)
 }
 
 type TrackRepository struct {
@@ -29,13 +38,21 @@ func NewTrackRepository(db *sqlx.DB) TrackRepositoryInterface {
 
 func (r *TrackRepository) Create(track models.Track) (trackId int, err error) {
 	log.Debug().Str("filename", track.Filename).Msg("Creating new track")
+	return r.create(r.Db, track)
+}
 
+func (r *TrackRepository) CreateTx(tx *sqlx.Tx, track models.Track) (trackId int, err error) {
+	log.Debug().Str("filename", track.Filename).Msg("Creating new track transactional")
+	return r.create(tx, track)
+}
+
+func (r *TrackRepository) create(queryer Queryer, track models.Track) (trackId int, err error) {
 	query := `
 		INSERT INTO tracks(dir_id, cover_id, relative_path, filename, extension, size, hash)
 		VALUES (:dir_id, :cover_id, :relative_path, :filename, :extension, :size, :hash)
 		RETURNING track_id
 	`
-	rows, err := r.Db.NamedQuery(query, track)
+	rows, err := queryer.NamedQuery(query, track)
 	if err != nil {
 		log.Error().Err(err).Str("filename", track.Filename).Msg("Failed to create track")
 		return 0, err
@@ -55,8 +72,16 @@ func (r *TrackRepository) Create(track models.Track) (trackId int, err error) {
 }
 
 func (r *TrackRepository) Read(trackId int) (track models.Track, err error) {
-	log.Debug().Int("trackId", trackId).Msg("Fetching track by ID")
+	log.Debug().Int("trackId", trackId).Msg("Fetching track by id")
+	return r.read(r.Db, trackId)
+}
 
+func (r *TrackRepository) ReadTx(tx *sqlx.Tx, trackId int) (track models.Track, err error) {
+	log.Debug().Int("trackId", trackId).Msg("Fetching track by id transactional")
+	return r.read(tx, trackId)
+}
+
+func (r *TrackRepository) read(queryer Queryer, trackId int) (track models.Track, err error) {
 	query := `
 		SELECT *
 		FROM tracks
@@ -65,7 +90,7 @@ func (r *TrackRepository) Read(trackId int) (track models.Track, err error) {
 	args := map[string]interface{}{
 		"track_id": trackId,
 	}
-	rows, err := r.Db.NamedQuery(query, args)
+	rows, err := queryer.NamedQuery(query, args)
 	if err != nil {
 		log.Error().Err(err).Int("trackId", trackId).Msg("Failed to fetch track")
 		return models.Track{}, err
@@ -83,18 +108,26 @@ func (r *TrackRepository) Read(trackId int) (track models.Track, err error) {
 		return models.Track{}, err
 	}
 
-	log.Debug().Int("dirId", track.DirId).Str("relativePath", track.RelativePath).Msg("Track fetched by ID successfully")
+	log.Debug().Int("dirId", track.DirId).Str("relativePath", track.RelativePath).Msg("Track fetched by id successfully")
 	return track, nil
 }
 
 func (r *TrackRepository) ReadAll() (tracks []models.Track, err error) {
 	log.Debug().Msg("Fetching all tracks")
+	return r.readAll(r.Db)
+}
 
+func (r *TrackRepository) ReadAllTx(tx *sqlx.Tx) (tracks []models.Track, err error) {
+	log.Debug().Msg("Fetching all tracks transactional")
+	return r.readAll(tx)
+}
+
+func (r *TrackRepository) readAll(queryer Queryer) (tracks []models.Track, err error) {
 	query := `
 		SELECT *
 		FROM tracks
 	`
-	rows, err := r.Db.Queryx(query)
+	rows, err := queryer.Queryx(query)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to fetch tracks")
 		return nil, err
@@ -115,8 +148,16 @@ func (r *TrackRepository) ReadAll() (tracks []models.Track, err error) {
 }
 
 func (r *TrackRepository) ReadAllByDirId(dirId int) (tracks []models.Track, err error) {
-	log.Debug().Msg("Fetching all tracks")
+	log.Debug().Int("dirId", dirId).Msg("Fetching all tracks in directory")
+	return r.readAllByDirId(r.Db, dirId)
+}
 
+func (r *TrackRepository) ReadAllByDirIdTx(tx *sqlx.Tx, dirId int) (tracks []models.Track, err error) {
+	log.Debug().Int("dirId", dirId).Msg("Fetching all tracks in directory transactional")
+	return r.readAllByDirId(tx, dirId)
+}
+
+func (r *TrackRepository) readAllByDirId(queryer Queryer, dirId int) (tracks []models.Track, err error) {
 	query := `
 		SELECT *
 		FROM tracks
@@ -125,7 +166,7 @@ func (r *TrackRepository) ReadAllByDirId(dirId int) (tracks []models.Track, err 
 	args := map[string]interface{}{
 		"dir_id": dirId,
 	}
-	rows, err := r.Db.NamedQuery(query, args)
+	rows, err := queryer.NamedQuery(query, args)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to fetch tracks")
 		return nil, err
@@ -147,14 +188,22 @@ func (r *TrackRepository) ReadAllByDirId(dirId int) (tracks []models.Track, err 
 
 func (r *TrackRepository) Update(trackId int, track models.Track) (err error) {
 	log.Debug().Int("trackId", trackId).Msg("Updating track")
+	return r.update(r.Db, trackId, track)
+}
 
+func (r *TrackRepository) UpdateTx(tx *sqlx.Tx, trackId int, track models.Track) (err error) {
+	log.Debug().Int("trackId", trackId).Msg("Updating track transactional")
+	return r.update(tx, trackId, track)
+}
+
+func (r *TrackRepository) update(queryer Queryer, trackId int, track models.Track) (err error) {
 	query := `
 		UPDATE tracks 
 		SET dir_id = :dir_id, cover_id = :cover_id, relative_path = :relative_path, filename = :filename, extension = :extension, size = :size, hash = :hash
 		WHERE track_id = :track_id
 	`
 	track.TrackId = trackId
-	_, err = r.Db.NamedExec(query, track)
+	_, err = queryer.NamedExec(query, track)
 	if err != nil {
 		log.Error().Err(err).Int("trackId", trackId).Msg("Failed to update track")
 		return err
@@ -166,7 +215,15 @@ func (r *TrackRepository) Update(trackId int, track models.Track) (err error) {
 
 func (r *TrackRepository) ResetCover(coverId int) (err error) {
 	log.Debug().Int("coverId", coverId).Msg("Resetting cover_id for tracks")
+	return r.resetCover(r.Db, coverId)
+}
 
+func (r *TrackRepository) ResetCoverTx(tx *sqlx.Tx, coverId int) (err error) {
+	log.Debug().Int("coverId", coverId).Msg("Resetting cover_id for tracks transactional")
+	return r.resetCover(tx, coverId)
+}
+
+func (r *TrackRepository) resetCover(queryer Queryer, coverId int) (err error) {
 	query := `
 		UPDATE tracks
 		SET cover_id = NULL
@@ -175,7 +232,7 @@ func (r *TrackRepository) ResetCover(coverId int) (err error) {
 	args := map[string]interface{}{
 		"cover_id": coverId,
 	}
-	_, err = r.Db.NamedExec(query, args)
+	_, err = queryer.NamedExec(query, args)
 	if err != nil {
 		log.Error().Err(err).Int("coverId", coverId).Msg("Failed to reset cover for tracks")
 		return err
@@ -187,7 +244,15 @@ func (r *TrackRepository) ResetCover(coverId int) (err error) {
 
 func (r *TrackRepository) Delete(trackId int) (err error) {
 	log.Debug().Int("trackId", trackId).Msg("Deleting track")
+	return r.delete(r.Db, trackId)
+}
 
+func (r *TrackRepository) DeleteTx(tx *sqlx.Tx, trackId int) (err error) {
+	log.Debug().Int("trackId", trackId).Msg("Deleting track transactional")
+	return r.delete(tx, trackId)
+}
+
+func (r *TrackRepository) delete(queryer Queryer, trackId int) (err error) {
 	query := `
 		DELETE FROM tracks
 		WHERE track_id = :track_id
@@ -195,7 +260,7 @@ func (r *TrackRepository) Delete(trackId int) (err error) {
 	args := map[string]interface{}{
 		"track_id": trackId,
 	}
-	_, err = r.Db.NamedExec(query, args)
+	_, err = queryer.NamedExec(query, args)
 	if err != nil {
 		log.Error().Err(err).Int("trackId", trackId).Msg("Failed to delete track")
 		return err
@@ -206,8 +271,16 @@ func (r *TrackRepository) Delete(trackId int) (err error) {
 }
 
 func (r *TrackRepository) DeleteByDirId(dirId int) (err error) {
-	log.Debug().Int("dirId", dirId).Msg("Deleting tracks by directory ID")
+	log.Debug().Int("dirId", dirId).Msg("Deleting tracks by directory id")
+	return r.deleteByDirId(r.Db, dirId)
+}
 
+func (r *TrackRepository) DeleteByDirIdTx(tx *sqlx.Tx, dirId int) (err error) {
+	log.Debug().Int("dirId", dirId).Msg("Deleting tracks by directory id transactional")
+	return r.deleteByDirId(tx, dirId)
+}
+
+func (r *TrackRepository) deleteByDirId(queryer Queryer, dirId int) (err error) {
 	query := `
 		DELETE FROM tracks
 		WHERE dir_id = :dir_id
@@ -215,19 +288,27 @@ func (r *TrackRepository) DeleteByDirId(dirId int) (err error) {
 	args := map[string]interface{}{
 		"dir_id": dirId,
 	}
-	_, err = r.Db.NamedExec(query, args)
+	_, err = queryer.NamedExec(query, args)
 	if err != nil {
-		log.Error().Err(err).Int("dirId", dirId).Msg("Failed to delete tracks by directory ID")
+		log.Error().Err(err).Int("dirId", dirId).Msg("Failed to delete tracks by directory id")
 		return err
 	}
 
-	log.Debug().Int("dirId", dirId).Msg("Tracks deleted by directory ID successfully")
+	log.Debug().Int("dirId", dirId).Msg("Tracks deleted by directory id successfully")
 	return nil
 }
 
 func (r *TrackRepository) IsExists(trackId int) (exists bool, err error) {
 	log.Debug().Int("trackId", trackId).Msg("Checking if track exists")
+	return r.isExists(r.Db, trackId)
+}
 
+func (r *TrackRepository) IsExistsTx(tx *sqlx.Tx, trackId int) (exists bool, err error) {
+	log.Debug().Int("trackId", trackId).Msg("Checking if track exists transactional")
+	return r.isExists(tx, trackId)
+}
+
+func (r *TrackRepository) isExists(queryer Queryer, trackId int) (exists bool, err error) {
 	query := `
 		SELECT EXISTS (
 			SELECT 1 
@@ -238,7 +319,7 @@ func (r *TrackRepository) IsExists(trackId int) (exists bool, err error) {
 	args := map[string]interface{}{
 		"track_id": trackId,
 	}
-	row, err := r.Db.NamedQuery(query, args)
+	row, err := queryer.NamedQuery(query, args)
 	if err != nil {
 		log.Error().Err(err).Int("trackId", trackId).Msg("Failed to execute query to track cover existence")
 		return false, err

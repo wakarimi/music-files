@@ -2,17 +2,20 @@ package track
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
 	"music-files/internal/handlers/types"
+	"music-files/internal/models"
 	"net/http"
 	"strconv"
 )
 
 type readResponse struct {
 	TrackId   int    `json:"trackId"`
-	CoverId   int    `json:"coverId,omitempty"`
+	CoverId   *int   `json:"coverId,omitempty"`
 	Extension string `json:"extension"`
 	Size      int64  `json:"size"`
+	Hash      string `json:"hash"`
 }
 
 func (h *Handler) Read(c *gin.Context) {
@@ -29,11 +32,19 @@ func (h *Handler) Read(c *gin.Context) {
 	}
 	log.Debug().Int("trackId", trackId).Msg("Url parameter read successfully")
 
-	track, err := h.TrackRepo.Read(trackId)
+	var track models.Track
+
+	err = h.TransactionManager.WithTransaction(func(tx *sqlx.Tx) (err error) {
+		track, err = h.TrackService.Read(tx, trackId)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to read track")
+		log.Error().Err(err).Msg("Failed to fetch track")
 		c.JSON(http.StatusInternalServerError, types.Error{
-			Error: "Failed to read track",
+			Error: "Failed to fetch track",
 		})
 		return
 	}
@@ -41,8 +52,9 @@ func (h *Handler) Read(c *gin.Context) {
 	log.Debug().Int("trackId", track.TrackId).Str("relativePath", track.RelativePath).Msg("Track fetched successfully")
 	c.JSON(http.StatusOK, readResponse{
 		TrackId:   track.TrackId,
-		CoverId:   *track.CoverId,
+		CoverId:   track.CoverId,
 		Extension: track.Extension,
 		Size:      track.Size,
+		Hash:      track.Hash,
 	})
 }

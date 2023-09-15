@@ -7,23 +7,41 @@ import (
 	"github.com/rs/zerolog/log"
 	"music-files/api"
 	"music-files/internal/config"
+	"music-files/internal/context"
 	"music-files/internal/database"
 	"os"
 )
 
+// @title Wakarimi Music Files API
+// @version 0.2
+
+// @contact.name Dmitry Kolesnikov (Zalimannard)
+// @contact.email zalimannard@mail.ru
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8023
+// @BasePath /api/music-files-service
 func main() {
 	cfg := loadConfiguration()
+
 	initializeLogger(cfg.Logger.Level)
 
 	db := initializeDatabase(cfg.Database.ConnectionString)
 	defer closeDatabase(db)
 	initializeMigrations(db)
 
-	server := initializeServer(&cfg.HttpServer, db)
-	runServer(server, cfg.HttpServer.Port)
+	ac := context.AppContext{
+		Config: cfg,
+		Db:     db,
+	}
+
+	server := initializeServer(&ac)
+	runServer(server, ac.Config.HttpServer.Port)
 }
 
-func loadConfiguration() *config.Configuration {
+func loadConfiguration() (cfg *config.Configuration) {
 	cfg, err := config.LoadConfiguration()
 	if err != nil {
 		log.Panic().Err(err).Msg("Failed to load configuration")
@@ -35,7 +53,7 @@ func loadConfiguration() *config.Configuration {
 func initializeLogger(level zerolog.Level) {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout}).
 		With().Caller().Logger().
-		With().Str("service", "music-files").Logger().
+		With().Str("service", "music_files").Logger().
 		Level(level)
 	log.Debug().Msg("Logger initialized")
 }
@@ -63,8 +81,8 @@ func initializeMigrations(db *sqlx.DB) {
 	log.Debug().Msg("Data schema actualized")
 }
 
-func initializeServer(httpServerConfig *config.HttpServer, db *sqlx.DB) *gin.Engine {
-	r := api.SetupRouter(httpServerConfig, db)
+func initializeServer(ac *context.AppContext) (r *gin.Engine) {
+	r = api.SetupRouter(ac)
 	log.Debug().Msg("Router initialized")
 	return r
 }
