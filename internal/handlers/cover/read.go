@@ -10,12 +10,31 @@ import (
 	"strconv"
 )
 
+// readResponse godoc
+// @Description Response structure containing details about a cover.
+// @Property CoverId (integer) Unique identifier for the cover.
+// @Property Format (string) The format of the cover (like jpg, png, etc.).
+// @Property WidthPx (integer) Width of the cover in pixels.
+// @Property HeightPx (integer) Height of the cover in pixels.
+// @Property SizeByte (integer) Size of the cover in bytes.
 type readResponse struct {
-	CoverId   int    `json:"coverId"`
-	Extension string `json:"extension"`
-	Size      int64  `json:"size"`
+	CoverId  int    `json:"coverId"`
+	Format   string `json:"format"`
+	WidthPx  int    `json:"widthPx"`
+	HeightPx int    `json:"heightPx"`
+	SizeByte int64  `json:"sizeByte"`
 }
 
+// Read godoc
+// @Summary Fetch data about a cover by its ID
+// @Tags Covers
+// @Accept json
+// @Produce json
+// @Param coverId path integer true "Cover Identifier"
+// @Success 200 {object} readResponse "Successfully fetched cover data"
+// @Failure 400 {object} types.ErrorResponse "Invalid coverId format"
+// @Failure 500 {object} types.ErrorResponse "Failed to fetch cover"
+// @Router /covers/{coverId} [get]
 func (h *Handler) Read(c *gin.Context) {
 	log.Debug().Msg("Fetching data about cover")
 
@@ -23,7 +42,7 @@ func (h *Handler) Read(c *gin.Context) {
 	coverId, err := strconv.Atoi(coverIdStr)
 	if err != nil {
 		log.Error().Err(err).Msg("Invalid coverId format")
-		c.JSON(http.StatusBadRequest, types.Error{
+		c.JSON(http.StatusBadRequest, types.ErrorResponse{
 			Error: "Invalid coverId format",
 		})
 		return
@@ -41,7 +60,7 @@ func (h *Handler) Read(c *gin.Context) {
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to fetch cover")
-		c.JSON(http.StatusInternalServerError, types.Error{
+		c.JSON(http.StatusInternalServerError, types.ErrorResponse{
 			Error: "Failed to fetch cover",
 		})
 		return
@@ -49,8 +68,10 @@ func (h *Handler) Read(c *gin.Context) {
 
 	log.Debug().Int("coverId", cover.CoverId).Str("relativePath", cover.RelativePath).Msg("Cover fetched successfully")
 	c.JSON(http.StatusOK, readResponse{
-		CoverId:   cover.CoverId,
-		Extension: cover.Extension,
-		Size:      cover.Size,
+		CoverId:  cover.CoverId,
+		Format:   cover.Format,
+		WidthPx:  cover.WidthPx,
+		HeightPx: cover.HeightPx,
+		SizeByte: cover.SizeByte,
 	})
 }

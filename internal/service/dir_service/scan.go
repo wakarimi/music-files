@@ -3,11 +3,18 @@ package dir_service
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
+	"github.com/wtolson/go-taglib"
+	"image"
 	"music-files/internal/models"
 	"music-files/internal/utils"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
+
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 )
 
 func (s *Service) Scan(tx *sqlx.Tx, dirId int) (err error) {
@@ -55,7 +62,7 @@ func (s *Service) dirScan(tx *sqlx.Tx, dir models.Directory) {
 	for _, databaseCover := range databaseCovers {
 		analogFound := false
 		for i := range foundCovers {
-			if (databaseCover.Hash == foundCovers[i].Hash) ||
+			if (databaseCover.HashSha256 == foundCovers[i].HashSha256) ||
 				((databaseCover.DirId == foundCovers[i].DirId) && (databaseCover.RelativePath == foundCovers[i].RelativePath) && (databaseCover.Filename == foundCovers[i].Filename)) {
 				analogFound = true
 				foundCovers[i].CoverId = databaseCover.CoverId
@@ -84,7 +91,7 @@ func (s *Service) dirScan(tx *sqlx.Tx, dir models.Directory) {
 	for _, databaseTrack := range databaseTracks {
 		analogFound := false
 		for i := range foundTracks {
-			if (databaseTrack.Hash == foundTracks[i].Hash) ||
+			if (databaseTrack.HashSha256 == foundTracks[i].HashSha256) ||
 				((databaseTrack.DirId == foundTracks[i].DirId) && (databaseTrack.RelativePath == foundTracks[i].RelativePath) && (databaseTrack.Filename == foundTracks[i].Filename)) {
 				analogFound = true
 				foundTracks[i].TrackId = databaseTrack.TrackId
@@ -176,19 +183,33 @@ func (s *Service) searchTracksFromDirectory(dir models.Directory) (tracks []mode
 
 		if utils.IsMusicFile(filepath.Ext(path)) {
 			relativeDir := filepath.Dir(strings.TrimPrefix(path, dir.Path))
-			fileHash, err := utils.CalculateFileHash(path)
+			hash, err := utils.CalculateSha256(path)
 			if err != nil {
 				log.Error().Err(err).Str("filepath", path).Msg("Failed to calculate file hash")
 				return err
 			}
 
+			fileDetails, err := taglib.Read(path)
+			if err != nil {
+				log.Error().Err(err).Str("path", path).Msg("Failed to fetch file details")
+				return nil
+			}
+
+			durationMs := int64(fileDetails.Length() / time.Millisecond)
+
+			codec, err := utils.GetAudioCodec(path)
+
 			tracks = append(tracks, models.Track{
 				DirId:        dir.DirId,
 				RelativePath: relativeDir,
 				Filename:     info.Name(),
-				Extension:    filepath.Ext(path),
-				Size:         info.Size(),
-				Hash:         fileHash,
+				DurationMs:   durationMs,
+				SizeByte:     info.Size(),
+				AudioCodec:   codec,
+				BitrateKbps:  fileDetails.Bitrate(),
+				SampleRateHz: fileDetails.Samplerate(),
+				Channels:     fileDetails.Channels(),
+				HashSha256:   hash,
 			})
 		}
 		return nil
@@ -212,19 +233,37 @@ func (s *Service) searchCoversFromDirectory(dir models.Directory) (covers []mode
 
 		if utils.IsImageFile(filepath.Ext(path)) {
 			relativeDir := filepath.Dir(strings.TrimPrefix(path, dir.Path))
-			fileHash, err := utils.CalculateFileHash(path)
+			hash, err := utils.CalculateSha256(path)
 			if err != nil {
 				log.Error().Err(err).Str("filepath", path).Msg("Failed to calculate file hash")
 				return err
 			}
 
+			f, err := os.Open(path)
+			if err != nil {
+				log.Error().Err(err).Str("filepath", path).Msg("Failed to open image file")
+				return err
+			}
+			defer f.Close()
+
+			img, _, err := image.DecodeConfig(f)
+			if err != nil {
+				log.Error().Err(err).Str("filepath", path).Msg("Failed to decode image file")
+				return err
+			}
+
+			widthPx := img.Width
+			heightPx := img.Height
+
 			covers = append(covers, models.Cover{
 				DirId:        dir.DirId,
 				RelativePath: relativeDir,
 				Filename:     info.Name(),
-				Extension:    filepath.Ext(path),
-				Size:         info.Size(),
-				Hash:         fileHash,
+				Format:       filepath.Ext(path),
+				WidthPx:      widthPx,
+				HeightPx:     heightPx,
+				SizeByte:     info.Size(),
+				HashSha256:   hash,
 			})
 		}
 		return nil

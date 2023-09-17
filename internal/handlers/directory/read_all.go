@@ -10,16 +10,32 @@ import (
 	"time"
 )
 
+// readAllResponseItem godoc
+// @Description Directory details
+// @Property DirId (integer) The unique identifier of the directory
+// @Property Path (string) Path of the directory
+// @Property LastScanned (time, optional) Timestamp of the last scan for the directory
 type readAllResponseItem struct {
 	DirId       int        `json:"dirId"`
 	Path        string     `json:"path"`
 	LastScanned *time.Time `json:"lastScanned,omitempty"`
 }
 
+// readAllResponse godoc
+// @Description List of directories
+// @Property Dirs (array) Array containing details of directories
 type readAllResponse struct {
 	Dirs []readAllResponseItem `json:"directories"`
 }
 
+// ReadAll godoc
+// @Summary Get all added directories for scanning
+// @Tags Directories
+// @Accept json
+// @Produce json
+// @Success 200 {object} readAllResponse "Successfully fetched all directories"
+// @Failure 500 {object} types.ErrorResponse "Failed to fetch directories"
+// @Router /dirs [get]
 func (h *Handler) ReadAll(c *gin.Context) {
 	log.Info().Msg("Fetching all directories")
 
@@ -34,7 +50,7 @@ func (h *Handler) ReadAll(c *gin.Context) {
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to scan directory")
-		c.JSON(http.StatusInternalServerError, types.Error{
+		c.JSON(http.StatusInternalServerError, types.ErrorResponse{
 			Error: "Failed to scan directory",
 		})
 		return

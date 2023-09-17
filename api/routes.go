@@ -3,6 +3,8 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"music-files/internal/context"
 	"music-files/internal/database/repository"
 	"music-files/internal/handlers/cover"
@@ -38,6 +40,7 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 
 	api := r.Group("/api/music-files-service")
 	{
+		api.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 		dirs := api.Group("/dirs")
 		{
 			dirs.GET("/", dirHandler.ReadAll)

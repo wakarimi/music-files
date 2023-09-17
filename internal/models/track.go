@@ -6,7 +6,11 @@ type Track struct {
 	CoverId      *int   `db:"cover_id"`
 	RelativePath string `db:"relative_path"`
 	Filename     string `db:"filename"`
-	Extension    string `db:"extension"`
-	Size         int64  `db:"size"`
-	Hash         string `db:"hash"`
+	DurationMs   int64  `db:"duration_ms"`
+	SizeByte     int64  `db:"size_byte"`
+	AudioCodec   string `db:"audio_codec"`
+	BitrateKbps  int    `db:"bitrate_kbps"`
+	SampleRateHz int    `db:"sample_rate_hz"`
+	Channels     int    `db:"channels"`
+	HashSha256   string `db:"hash_sha_256"`
 }

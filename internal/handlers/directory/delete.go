@@ -9,6 +9,17 @@ import (
 	"strconv"
 )
 
+// Delete godoc
+// @Summary Delete a directory
+// @Description Deletes a directory using its unique identifier
+// @Tags Directories
+// @Accept  json
+// @Produce  json
+// @Param dirId path int true "Directory ID"
+// @Success 204 {string} none "Successfully deleted directory"
+// @Failure 400 {object} types.ErrorResponse "Invalid dirId format"
+// @Failure 500 {object} types.ErrorResponse "Failed to delete directory"
+// @Router /dirs/{dirId} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 	log.Debug().Msg("Creating new directory")
 
@@ -16,7 +27,7 @@ func (h *Handler) Delete(c *gin.Context) {
 	dirId, err := strconv.Atoi(dirIdStr)
 	if err != nil {
 		log.Error().Err(err).Msg("Invalid dirId format")
-		c.JSON(http.StatusBadRequest, types.Error{
+		c.JSON(http.StatusBadRequest, types.ErrorResponse{
 			Error: "Invalid dirId format",
 		})
 		return
@@ -32,7 +43,7 @@ func (h *Handler) Delete(c *gin.Context) {
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to delete directory")
-		c.JSON(http.StatusInternalServerError, types.Error{
+		c.JSON(http.StatusInternalServerError, types.ErrorResponse{
 			Error: "Failed to delete directory",
 		})
 		return

@@ -8,6 +8,14 @@ import (
 	"net/http"
 )
 
+// ScanAll godoc
+// @Summary Scan all directories
+// @Tags Directories
+// @Accept json
+// @Produce json
+// @Success 200 {string} none "Directories scanned successfully"
+// @Failure 500 {object} types.ErrorResponse "Failed to scan directories"
+// @Router /dirs/scan-all [post]
 func (h *Handler) ScanAll(c *gin.Context) {
 	log.Info().Msg("Scanning all directories")
 
@@ -20,7 +28,7 @@ func (h *Handler) ScanAll(c *gin.Context) {
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to scan directory")
-		c.JSON(http.StatusInternalServerError, types.Error{
+		c.JSON(http.StatusInternalServerError, types.ErrorResponse{
 			Error: "Failed to scan directories",
 		})
 		return

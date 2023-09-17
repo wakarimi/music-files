@@ -48,8 +48,8 @@ func (r *TrackRepository) CreateTx(tx *sqlx.Tx, track models.Track) (trackId int
 
 func (r *TrackRepository) create(queryer Queryer, track models.Track) (trackId int, err error) {
 	query := `
-		INSERT INTO tracks(dir_id, cover_id, relative_path, filename, extension, size, hash)
-		VALUES (:dir_id, :cover_id, :relative_path, :filename, :extension, :size, :hash)
+		INSERT INTO tracks(dir_id, cover_id, relative_path, filename, duration_ms, size_byte, audio_codec, bitrate_kbps, sample_rate_hz, channels, hash_sha_256)
+		VALUES (:dir_id, :cover_id, :relative_path, :filename, :duration_ms, :size_byte, :audio_codec, :bitrate_kbps, :sample_rate_hz, :channels, :hash_sha_256)
 		RETURNING track_id
 	`
 	rows, err := queryer.NamedQuery(query, track)
@@ -199,7 +199,9 @@ func (r *TrackRepository) UpdateTx(tx *sqlx.Tx, trackId int, track models.Track)
 func (r *TrackRepository) update(queryer Queryer, trackId int, track models.Track) (err error) {
 	query := `
 		UPDATE tracks 
-		SET dir_id = :dir_id, cover_id = :cover_id, relative_path = :relative_path, filename = :filename, extension = :extension, size = :size, hash = :hash
+		SET dir_id = :dir_id, cover_id = :cover_id, relative_path = :relative_path, filename = :filename,
+		    duration_ms = :duration_ms, size_byte = :size_byte, audio_codec = :audio_codec, bitrate_kbps = :bitrate_kbps,
+		    sample_rate_hz = :sample_rate_hz, channels = :channels, hash_sha_256 = :hash_sha_256
 		WHERE track_id = :track_id
 	`
 	track.TrackId = trackId

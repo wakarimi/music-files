@@ -1,0 +1,354 @@
+basePath: /api/music-files-service
+definitions:
+  cover.readResponse:
+    description: Response structure containing details about a cover.
+    properties:
+      coverId:
+        type: integer
+      format:
+        type: string
+      heightPx:
+        type: integer
+      sizeByte:
+        type: integer
+      widthPx:
+        type: integer
+    type: object
+  directory.createRequest:
+    description: Request structure to create a new directory
+    properties:
+      path:
+        type: string
+    type: object
+  directory.readAllResponse:
+    description: List of directories
+    properties:
+      directories:
+        items:
+          $ref: '#/definitions/directory.readAllResponseItem'
+        type: array
+    type: object
+  directory.readAllResponseItem:
+    description: Directory details
+    properties:
+      dirId:
+        type: integer
+      lastScanned:
+        type: string
+      path:
+        type: string
+    type: object
+  track.readAllResponse:
+    description: Response structure containing details of all tracks.
+    properties:
+      tracks:
+        items:
+          $ref: '#/definitions/track.readAllResponseItem'
+        type: array
+    type: object
+  track.readAllResponseItem:
+    description: Single track item structure in the response of ReadAll endpoint.
+    properties:
+      audioCodec:
+        type: string
+      coverId:
+        type: integer
+      durationMs:
+        type: integer
+      hashSha256:
+        type: string
+      sizeByte:
+        type: integer
+      trackId:
+        type: integer
+    type: object
+  track.readResponse:
+    description: Response structure containing details of a single track.
+    properties:
+      audioCodec:
+        type: string
+      bitrateKbps:
+        type: integer
+      channels:
+        type: integer
+      coverId:
+        type: integer
+      durationMs:
+        type: integer
+      hashSha256:
+        type: string
+      sampleRateHz:
+        type: integer
+      sizeByte:
+        type: integer
+      trackId:
+        type: integer
+    type: object
+  types.ErrorResponse:
+    description: Standard error response
+    properties:
+      error:
+        type: string
+    required:
+    - error
+    type: object
+host: localhost:8022
+info:
+  contact:
+    email: zalimannard@mail.ru
+    name: Dmitry Kolesnikov (Zalimannard)
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Wakarimi Music Files API
+  version: "0.2"
+paths:
+  /covers/{coverId}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Cover Identifier
+        in: path
+        name: coverId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully fetched cover data
+          schema:
+            $ref: '#/definitions/cover.readResponse'
+        "400":
+          description: Invalid coverId format
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+        "500":
+          description: Failed to fetch cover
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Fetch data about a cover by its ID
+      tags:
+      - Covers
+  /covers/{coverId}/download:
+    get:
+      parameters:
+      - description: Cover Identifier
+        in: path
+        name: coverId
+        required: true
+        type: integer
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Successfully downloaded cover file
+          schema:
+            type: file
+        "400":
+          description: Invalid coverId format
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+        "500":
+          description: Failed to fetch cover
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Download a cover by its ID
+      tags:
+      - Covers
+  /dirs:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully fetched all directories
+          schema:
+            $ref: '#/definitions/directory.readAllResponse'
+        "500":
+          description: Failed to fetch directories
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Get all added directories for scanning
+      tags:
+      - Directories
+    post:
+      consumes:
+      - application/json
+      description: Adds a new directory
+      parameters:
+      - description: Details for the new directory
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/directory.createRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created directory
+          schema:
+            type: string
+        "400":
+          description: Failed to encode request or Invalid input
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+        "500":
+          description: Failed to create directory
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Create a directory
+      tags:
+      - Directories
+  /dirs/{dirId}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a directory using its unique identifier
+      parameters:
+      - description: Directory ID
+        in: path
+        name: dirId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successfully deleted directory
+          schema:
+            type: string
+        "400":
+          description: Invalid dirId format
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+        "500":
+          description: Failed to delete directory
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Delete a directory
+      tags:
+      - Directories
+  /dirs/{dirId}/scan:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Directory Identifier
+        in: path
+        name: dirId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Directory scanned successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid dirId format
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+        "500":
+          description: Failed to scan directory
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Scan a directory by its ID
+      tags:
+      - Directories
+  /dirs/scan-all:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Directories scanned successfully
+          schema:
+            type: string
+        "500":
+          description: Failed to scan directories
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Scan all directories
+      tags:
+      - Directories
+  /tracks:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved all tracks
+          schema:
+            $ref: '#/definitions/track.readAllResponse'
+        "500":
+          description: Failed to fetch all tracks
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Retrieve all tracks
+      tags:
+      - Tracks
+  /tracks/{trackId}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Track ID
+        in: path
+        name: trackId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved the track
+          schema:
+            $ref: '#/definitions/track.readResponse'
+        "400":
+          description: Invalid trackId format
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+        "500":
+          description: Failed to fetch track
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Retrieve a single track by its ID
+      tags:
+      - Tracks
+  /tracks/{trackId}/download:
+    get:
+      parameters:
+      - description: Track Identifier
+        in: path
+        name: trackId
+        required: true
+        type: integer
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Successfully downloaded track file
+          schema:
+            type: file
+        "400":
+          description: Invalid trackId format
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+        "500":
+          description: Failed to fetch track
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Download a track by its ID
+      tags:
+      - Tracks
+swagger: "2.0"

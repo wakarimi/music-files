@@ -1,8 +1,8 @@
 package types
 
-// Error represents a standard application error.
-type Error struct {
-	// The error message.
-	// Example: User already exists
+// ErrorResponse godoc
+// @Description Standard error response
+// @Property ErrorResponse (string, required) A human-readable description of the error
+type ErrorResponse struct {
 	Error string `json:"error" binding:"required"`
 }

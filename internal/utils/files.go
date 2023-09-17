@@ -3,10 +3,22 @@ package utils
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"github.com/rs/zerolog/log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
+
+func CalculateSha256(filePath string) (hash string, err error) {
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", err
+	}
+	hashBytes := sha256.Sum256(data)
+	hash = hex.EncodeToString(hashBytes[:])
+	return hash, nil
+}
 
 func IsMusicFile(path string) bool {
 	musicExtensions := []string{".aac", ".flac", ".m4a", ".mp3", ".ogg", ".opus", ".wav", ".wma"}
@@ -20,7 +32,7 @@ func IsMusicFile(path string) bool {
 }
 
 func IsImageFile(path string) bool {
-	imageExtensions := []string{".jpeg", ".jpg", ".png", ".gif", ".bmp", ".tif", ".tiff", ".webp", ".ico", ".svg"}
+	imageExtensions := []string{".jpeg", ".jpg", ".png", ".gif"}
 	ext := strings.ToLower(filepath.Ext(path))
 	for _, imageExt := range imageExtensions {
 		if ext == imageExt {
@@ -30,12 +42,13 @@ func IsImageFile(path string) bool {
 	return false
 }
 
-func CalculateFileHash(filePath string) (hash string, err error) {
-	data, err := os.ReadFile(filePath)
+func GetAudioCodec(filepath string) (codecName string, err error) {
+	cmd := exec.Command("ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries", "stream=codec_name", "-of", "default=noprint_wrappers=1:nokey=1", filepath)
+	codecBytes, err := cmd.Output()
 	if err != nil {
+		log.Error().Err(err).Msg("Failed to determine audio codec")
 		return "", err
 	}
-	hashBytes := sha256.Sum256(data)
-	hash = hex.EncodeToString(hashBytes[:])
-	return hash, nil
+	codecName = strings.TrimSpace(string(codecBytes))
+	return codecName, nil
 }
