@@ -410,7 +410,7 @@
                 "heightPx": {
                     "type": "integer"
                 },
-                "size": {
+                "sizeByte": {
                     "type": "integer"
                 },
                 "widthPx": {
@@ -482,7 +482,7 @@
                 "hashSha256": {
                     "type": "string"
                 },
-                "size": {
+                "sizeByte": {
                     "type": "integer"
                 },
                 "trackId": {
@@ -515,7 +515,7 @@
                 "sampleRateHz": {
                     "type": "integer"
                 },
-                "size": {
+                "sizeByte": {
                     "type": "integer"
                 },
                 "trackId": {

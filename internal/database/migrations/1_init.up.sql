@@ -14,7 +14,7 @@ CREATE TABLE "covers"
     "format"        TEXT    NOT NULL,
     "width_px"      INTEGER NOT NULL,
     "height_px"     INTEGER NOT NULL,
-    "size"          BIGINT  NOT NULL,
+    "size_byte"     BIGINT  NOT NULL,
     "hash_sha_256"  TEXT    NOT NULL,
     FOREIGN KEY ("dir_id") REFERENCES "directories" ("dir_id")
 );
@@ -27,7 +27,7 @@ CREATE TABLE "tracks"
     "relative_path"  TEXT    NOT NULL,
     "filename"       TEXT    NOT NULL,
     "duration_ms"    BIGINT  NOT NULL,
-    "size"           BIGINT  NOT NULL,
+    "size_byte"      BIGINT  NOT NULL,
     "audio_codec"    TEXT    NOT NULL,
     "bitrate_kbps"   INTEGER NOT NULL,
     "sample_rate_hz" INTEGER NOT NULL,

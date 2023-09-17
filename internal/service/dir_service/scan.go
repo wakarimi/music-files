@@ -204,7 +204,7 @@ func (s *Service) searchTracksFromDirectory(dir models.Directory) (tracks []mode
 				RelativePath: relativeDir,
 				Filename:     info.Name(),
 				DurationMs:   durationMs,
-				Size:         info.Size(),
+				SizeByte:     info.Size(),
 				AudioCodec:   codec,
 				BitrateKbps:  fileDetails.Bitrate(),
 				SampleRateHz: fileDetails.Samplerate(),
@@ -262,7 +262,7 @@ func (s *Service) searchCoversFromDirectory(dir models.Directory) (covers []mode
 				Format:       filepath.Ext(path),
 				WidthPx:      widthPx,
 				HeightPx:     heightPx,
-				Size:         info.Size(),
+				SizeByte:     info.Size(),
 				HashSha256:   hash,
 			})
 		}

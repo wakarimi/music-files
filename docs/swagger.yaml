@@ -8,7 +8,7 @@ definitions:
         type: string
       heightPx:
         type: integer
-      size:
+      sizeByte:
         type: integer
       widthPx:
         type: integer
@@ -56,7 +56,7 @@ definitions:
         type: integer
       hashSha256:
         type: string
-      size:
+      sizeByte:
         type: integer
       trackId:
         type: integer
@@ -78,7 +78,7 @@ definitions:
         type: string
       sampleRateHz:
         type: integer
-      size:
+      sizeByte:
         type: integer
       trackId:
         type: integer

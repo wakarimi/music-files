@@ -417,7 +417,7 @@ const docTemplate = `{
                 "heightPx": {
                     "type": "integer"
                 },
-                "size": {
+                "sizeByte": {
                     "type": "integer"
                 },
                 "widthPx": {
@@ -489,7 +489,7 @@ const docTemplate = `{
                 "hashSha256": {
                     "type": "string"
                 },
-                "size": {
+                "sizeByte": {
                     "type": "integer"
                 },
                 "trackId": {
@@ -522,7 +522,7 @@ const docTemplate = `{
                 "sampleRateHz": {
                     "type": "integer"
                 },
-                "size": {
+                "sizeByte": {
                     "type": "integer"
                 },
                 "trackId": {

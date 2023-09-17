@@ -8,6 +8,6 @@ type Cover struct {
 	Format       string `db:"format"`
 	WidthPx      int    `db:"width_px"`
 	HeightPx     int    `db:"height_px"`
-	Size         int64  `db:"size"`
+	SizeByte     int64  `db:"size_byte"`
 	HashSha256   string `db:"hash_sha_256"`
 }

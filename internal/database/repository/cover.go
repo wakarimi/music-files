@@ -46,8 +46,8 @@ func (r *CoverRepository) CreateTx(tx *sqlx.Tx, cover models.Cover) (coverId int
 
 func (r *CoverRepository) create(queryer Queryer, cover models.Cover) (coverId int, err error) {
 	query := `
-		INSERT INTO covers(dir_id, relative_path, filename, format, width_px, height_px, size, hash_sha_256)
-		VALUES (:dir_id, :relative_path, :filename, :format, :width_px, :height_px, :size, :hash_sha_256)
+		INSERT INTO covers(dir_id, relative_path, filename, format, width_px, height_px, size_byte, hash_sha_256)
+		VALUES (:dir_id, :relative_path, :filename, :format, :width_px, :height_px, :size_byte, :hash_sha_256)
 		RETURNING cover_id
 	`
 	rows, err := queryer.NamedQuery(query, cover)
@@ -207,7 +207,7 @@ func (r *CoverRepository) update(queryer Queryer, coverId int, cover models.Cove
 		UPDATE covers 
 		SET
 		    dir_id = :dir_id, relative_path = :relative_path, filename = :filename, format = :format,
-		    width_px = :width_px, height_px = :height_px, size = :size, hash_sha_256 = :hash_sha_256
+		    width_px = :width_px, height_px = :height_px, size_byte = :size_byte, hash_sha_256 = :hash_sha_256
 		WHERE cover_id = :cover_id
 	`
 	cover.CoverId = coverId

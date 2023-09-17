@@ -15,7 +15,7 @@ type readResponse struct {
 	Format   string `json:"format"`
 	WidthPx  int    `json:"widthPx"`
 	HeightPx int    `json:"heightPx"`
-	Size     int64  `json:"size"`
+	SizeByte int64  `json:"sizeByte"`
 }
 
 // Read godoc
@@ -65,6 +65,6 @@ func (h *Handler) Read(c *gin.Context) {
 		Format:   cover.Format,
 		WidthPx:  cover.WidthPx,
 		HeightPx: cover.HeightPx,
-		Size:     cover.Size,
+		SizeByte: cover.SizeByte,
 	})
 }

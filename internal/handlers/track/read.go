@@ -25,7 +25,7 @@ type readResponse struct {
 	TrackId      int    `json:"trackId"`
 	CoverId      *int   `json:"coverId,omitempty"`
 	DurationMs   int64  `json:"durationMs"`
-	Size         int64  `json:"size"`
+	SizeByte     int64  `json:"sizeByte"`
 	AudioCodec   string `json:"audioCodec"`
 	BitrateKbps  int    `json:"bitrateKbps"`
 	SampleRateHz int    `json:"sampleRateHz"`
@@ -79,7 +79,7 @@ func (h *Handler) Read(c *gin.Context) {
 		TrackId:      track.TrackId,
 		CoverId:      track.CoverId,
 		DurationMs:   track.DurationMs,
-		Size:         track.Size,
+		SizeByte:     track.SizeByte,
 		AudioCodec:   track.AudioCodec,
 		BitrateKbps:  track.BitrateKbps,
 		SampleRateHz: track.SampleRateHz,

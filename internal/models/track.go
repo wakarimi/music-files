@@ -7,7 +7,7 @@ type Track struct {
 	RelativePath string `db:"relative_path"`
 	Filename     string `db:"filename"`
 	DurationMs   int64  `db:"duration_ms"`
-	Size         int64  `db:"size"`
+	SizeByte     int64  `db:"size_byte"`
 	AudioCodec   string `db:"audio_codec"`
 	BitrateKbps  int    `db:"bitrate_kbps"`
 	SampleRateHz int    `db:"sample_rate_hz"`
