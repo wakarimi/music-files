@@ -17,7 +17,7 @@ func (h *Handler) Download(c *gin.Context) {
 	coverId, err := strconv.Atoi(coverIdStr)
 	if err != nil {
 		log.Error().Err(err).Msg("Invalid coverId format")
-		c.JSON(http.StatusBadRequest, types.Error{
+		c.JSON(http.StatusBadRequest, types.ErrorResponse{
 			Error: "Invalid coverId format",
 		})
 		return
@@ -36,7 +36,7 @@ func (h *Handler) Download(c *gin.Context) {
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to fetch cover")
-		c.JSON(http.StatusInternalServerError, types.Error{
+		c.JSON(http.StatusInternalServerError, types.ErrorResponse{
 			Error: "Failed to fetch cover",
 		})
 		return

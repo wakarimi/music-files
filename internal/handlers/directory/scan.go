@@ -9,6 +9,16 @@ import (
 	"strconv"
 )
 
+// Scan godoc
+// @Summary Scan a directory by its ID
+// @Tags Directories
+// @Accept json
+// @Produce json
+// @Param dirId path integer true "Directory Identifier"
+// @Success 200 {string} none "Directory scanned successfully"
+// @Failure 400 {object} types.ErrorResponse "Invalid dirId format"
+// @Failure 500 {object} types.ErrorResponse "Failed to scan directory"
+// @Router /dirs/{dirId}/scan [post]
 func (h *Handler) Scan(c *gin.Context) {
 	log.Debug().Msg("Creating new directory")
 
@@ -16,7 +26,7 @@ func (h *Handler) Scan(c *gin.Context) {
 	dirId, err := strconv.Atoi(dirIdStr)
 	if err != nil {
 		log.Error().Err(err).Msg("Invalid dirId format")
-		c.JSON(http.StatusBadRequest, types.Error{
+		c.JSON(http.StatusBadRequest, types.ErrorResponse{
 			Error: "Invalid dirId format",
 		})
 		return
@@ -32,7 +42,7 @@ func (h *Handler) Scan(c *gin.Context) {
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to scan directory")
-		c.JSON(http.StatusInternalServerError, types.Error{
+		c.JSON(http.StatusInternalServerError, types.ErrorResponse{
 			Error: "Failed to scan directory",
 		})
 		return

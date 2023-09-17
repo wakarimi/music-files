@@ -35,7 +35,7 @@ func (h *Handler) ReadAll(c *gin.Context) {
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to fetch all tracks")
-		c.JSON(http.StatusInternalServerError, types.Error{
+		c.JSON(http.StatusInternalServerError, types.ErrorResponse{
 			Error: "Failed to fetch all tracks",
 		})
 		return

@@ -9,10 +9,24 @@ import (
 	"net/http"
 )
 
+// createRequest godoc
+// @Description Request structure to create a new directory
+// @Property Path (string) The path to the directory
 type createRequest struct {
 	Path string `json:"path" bind:"required"`
 }
 
+// Create godoc
+// @Summary Create a directory
+// @Description Adds a new directory
+// @Tags Directories
+// @Accept  json
+// @Produce  json
+// @Param body body createRequest true "Details for the new directory"
+// @Success 201 {string} none "Successfully created directory"
+// @Failure 400 {object} types.ErrorResponse "Failed to encode request or Invalid input"
+// @Failure 500 {object} types.ErrorResponse "Failed to create directory"
+// @Router /dirs [post]
 func (h *Handler) Create(c *gin.Context) {
 	log.Debug().Msg("Creating new directory")
 
@@ -20,7 +34,7 @@ func (h *Handler) Create(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&request); err != nil {
 		log.Error().Err(err).Msg("Failed to encode request")
-		c.JSON(http.StatusBadRequest, types.Error{
+		c.JSON(http.StatusBadRequest, types.ErrorResponse{
 			Error: "Failed to encode request",
 		})
 		return
@@ -38,7 +52,7 @@ func (h *Handler) Create(c *gin.Context) {
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create directory")
-		c.JSON(http.StatusInternalServerError, types.Error{
+		c.JSON(http.StatusInternalServerError, types.ErrorResponse{
 			Error: "Failed to create directory",
 		})
 		return

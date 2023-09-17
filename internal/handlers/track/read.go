@@ -25,7 +25,7 @@ func (h *Handler) Read(c *gin.Context) {
 	trackId, err := strconv.Atoi(trackIdStr)
 	if err != nil {
 		log.Error().Err(err).Msg("Invalid trackId format")
-		c.JSON(http.StatusBadRequest, types.Error{
+		c.JSON(http.StatusBadRequest, types.ErrorResponse{
 			Error: "Invalid trackId format",
 		})
 		return
@@ -43,7 +43,7 @@ func (h *Handler) Read(c *gin.Context) {
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to fetch track")
-		c.JSON(http.StatusInternalServerError, types.Error{
+		c.JSON(http.StatusInternalServerError, types.ErrorResponse{
 			Error: "Failed to fetch track",
 		})
 		return

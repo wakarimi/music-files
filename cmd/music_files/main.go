@@ -10,6 +10,8 @@ import (
 	"music-files/internal/context"
 	"music-files/internal/database"
 	"os"
+
+	_ "music-files/docs"
 )
 
 // @title Wakarimi Music Files API
@@ -21,7 +23,7 @@ import (
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
 
-// @host localhost:8023
+// @host localhost:8022
 // @BasePath /api/music-files-service
 func main() {
 	cfg := loadConfiguration()

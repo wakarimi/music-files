@@ -1,0 +1,256 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Wakarimi Music Files API",
+        "contact": {
+            "name": "Dmitry Kolesnikov (Zalimannard)",
+            "email": "zalimannard@mail.ru"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "0.2"
+    },
+    "host": "localhost:8022",
+    "basePath": "/api/music-files-service",
+    "paths": {
+        "/dirs": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Directories"
+                ],
+                "summary": "Get all added directories for scanning",
+                "responses": {
+                    "200": {
+                        "description": "Successfully fetched all directories",
+                        "schema": {
+                            "$ref": "#/definitions/directory.readAllResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch directories",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Adds a new directory",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Directories"
+                ],
+                "summary": "Create a directory",
+                "parameters": [
+                    {
+                        "description": "Details for the new directory",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/directory.createRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully created directory",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Failed to encode request or Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create directory",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/dirs/scan-all": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Directories"
+                ],
+                "summary": "Scan all directories",
+                "responses": {
+                    "200": {
+                        "description": "Directories scanned successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to scan directories",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/dirs/{dirId}": {
+            "delete": {
+                "description": "Deletes a directory using its unique identifier",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Directories"
+                ],
+                "summary": "Delete a directory",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Directory ID",
+                        "name": "dirId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successfully deleted directory",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid dirId format",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to delete directory",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/dirs/{dirId}/scan": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Directories"
+                ],
+                "summary": "Scan a directory by its ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Directory Identifier",
+                        "name": "dirId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Directory scanned successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid dirId format",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to scan directory",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "directory.createRequest": {
+            "description": "Request structure to create a new directory",
+            "type": "object",
+            "properties": {
+                "path": {
+                    "type": "string"
+                }
+            }
+        },
+        "directory.readAllResponse": {
+            "description": "List of directories",
+            "type": "object",
+            "properties": {
+                "directories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/directory.readAllResponseItem"
+                    }
+                }
+            }
+        },
+        "directory.readAllResponseItem": {
+            "description": "Directory details",
+            "type": "object",
+            "properties": {
+                "dirId": {
+                    "type": "integer"
+                },
+                "lastScanned": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.ErrorResponse": {
+            "description": "Standard error response",
+            "type": "object",
+            "required": [
+                "error"
+            ],
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
