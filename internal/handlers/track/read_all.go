@@ -10,11 +10,11 @@ import (
 )
 
 type readAllResponseItem struct {
-	TrackId   int    `json:"trackId"`
-	CoverId   *int   `json:"coverId,omitempty"`
-	Extension string `json:"extension"`
-	Size      int64  `json:"size"`
-	Hash      string `json:"hash"`
+	TrackId    int    `json:"trackId"`
+	CoverId    *int   `json:"coverId,omitempty"`
+	AudioCodec string `json:"AudioCodec"`
+	Size       int64  `json:"size"`
+	HashSha256 string `json:"hashSha256"`
 }
 
 type readAllResponse struct {
@@ -44,11 +44,11 @@ func (h *Handler) ReadAll(c *gin.Context) {
 	tracksResponse := make([]readAllResponseItem, 0)
 	for _, track := range tracks {
 		trackResponse := readAllResponseItem{
-			TrackId:   track.TrackId,
-			CoverId:   track.CoverId,
-			Extension: track.Extension,
-			Size:      track.Size,
-			Hash:      track.Hash,
+			TrackId:    track.TrackId,
+			CoverId:    track.CoverId,
+			AudioCodec: track.AudioCodec,
+			Size:       track.Size,
+			HashSha256: track.HashSha256,
 		}
 		tracksResponse = append(tracksResponse, trackResponse)
 	}

@@ -11,11 +11,11 @@ import (
 )
 
 type readResponse struct {
-	TrackId   int    `json:"trackId"`
-	CoverId   *int   `json:"coverId,omitempty"`
-	Extension string `json:"extension"`
-	Size      int64  `json:"size"`
-	Hash      string `json:"hash"`
+	TrackId    int    `json:"trackId"`
+	CoverId    *int   `json:"coverId,omitempty"`
+	AudioCodec string `json:"audioCodec"`
+	Size       int64  `json:"size"`
+	HashSha256 string `json:"hashSha256"`
 }
 
 func (h *Handler) Read(c *gin.Context) {
@@ -51,10 +51,10 @@ func (h *Handler) Read(c *gin.Context) {
 
 	log.Debug().Int("trackId", track.TrackId).Str("relativePath", track.RelativePath).Msg("Track fetched successfully")
 	c.JSON(http.StatusOK, readResponse{
-		TrackId:   track.TrackId,
-		CoverId:   track.CoverId,
-		Extension: track.Extension,
-		Size:      track.Size,
-		Hash:      track.Hash,
+		TrackId:    track.TrackId,
+		CoverId:    track.CoverId,
+		AudioCodec: track.AudioCodec,
+		Size:       track.Size,
+		HashSha256: track.HashSha256,
 	})
 }

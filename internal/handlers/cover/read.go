@@ -11,9 +11,9 @@ import (
 )
 
 type readResponse struct {
-	CoverId   int    `json:"coverId"`
-	Extension string `json:"extension"`
-	Size      int64  `json:"size"`
+	CoverId int    `json:"coverId"`
+	Format  string `json:"format"`
+	Size    int64  `json:"size"`
 }
 
 func (h *Handler) Read(c *gin.Context) {
@@ -49,8 +49,8 @@ func (h *Handler) Read(c *gin.Context) {
 
 	log.Debug().Int("coverId", cover.CoverId).Str("relativePath", cover.RelativePath).Msg("Cover fetched successfully")
 	c.JSON(http.StatusOK, readResponse{
-		CoverId:   cover.CoverId,
-		Extension: cover.Extension,
-		Size:      cover.Size,
+		CoverId: cover.CoverId,
+		Format:  cover.Format,
+		Size:    cover.Size,
 	})
 }

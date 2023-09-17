@@ -5,7 +5,9 @@ type Cover struct {
 	DirId        int    `db:"dir_id"`
 	RelativePath string `db:"relative_path"`
 	Filename     string `db:"filename"`
-	Extension    string `db:"extension"`
+	Format       string `db:"format"`
+	WidthPx      int    `db:"width_px"`
+	HeightPx     int    `db:"height_px"`
 	Size         int64  `db:"size"`
-	Hash         string `db:"hash"`
+	HashSha256   string `db:"hash_sha_256"`
 }
