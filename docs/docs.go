@@ -406,6 +406,7 @@ const docTemplate = `{
     },
     "definitions": {
         "cover.readResponse": {
+            "description": "Response structure containing details about a cover.",
             "type": "object",
             "properties": {
                 "coverId": {

@@ -15,7 +15,7 @@ import (
 // @Property CoverId (int, optional) Optional ID of the cover associated with the track.
 // @Property DurationMs (int64) Duration of the track in milliseconds.
 // @Property AudioCodec (string) Codec used for the audio track (e.g., "mp3", "flac").
-// @Property Size (int64) Size of the track file in bytes.
+// @Property SizeByte (int64) Size of the track file in bytes.
 // @Property HashSha256 (string) SHA-256 hash of the track file for integrity verification.
 type readAllResponseItem struct {
 	TrackId    int    `json:"trackId"`

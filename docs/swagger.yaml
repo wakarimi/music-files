@@ -1,6 +1,7 @@
 basePath: /api/music-files-service
 definitions:
   cover.readResponse:
+    description: Response structure containing details about a cover.
     properties:
       coverId:
         type: integer

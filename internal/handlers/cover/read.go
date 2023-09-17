@@ -10,6 +10,13 @@ import (
 	"strconv"
 )
 
+// readResponse godoc
+// @Description Response structure containing details about a cover.
+// @Property CoverId (integer) Unique identifier for the cover.
+// @Property Format (string) The format of the cover (like jpg, png, etc.).
+// @Property WidthPx (integer) Width of the cover in pixels.
+// @Property HeightPx (integer) Height of the cover in pixels.
+// @Property SizeByte (integer) Size of the cover in bytes.
 type readResponse struct {
 	CoverId  int    `json:"coverId"`
 	Format   string `json:"format"`

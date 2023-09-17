@@ -15,7 +15,7 @@ import (
 // @Property TrackId (int) Unique ID of the track
 // @Property CoverId (int, optional) Optional ID of the cover associated with the track
 // @Property DurationMs (int64) Duration of the track in milliseconds
-// @Property Size (int64) Size of the track file in bytes
+// @Property SizeByte (int64) Size of the track file in bytes
 // @Property AudioCodec (string) Codec used for the audio track (e.g., "mp3", "flac")
 // @Property BitrateKbps (int) Bitrate of the audio track in kilobits per second
 // @Property SampleRateHz (int) Sample rate of the audio track in hertz
