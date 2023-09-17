@@ -49,6 +49,6 @@ func GetAudioCodec(filepath string) (codecName string, err error) {
 		log.Error().Err(err).Msg("Failed to determine audio codec")
 		return "", err
 	}
-	codecName = string(codecBytes)
+	codecName = strings.TrimSpace(string(codecBytes))
 	return codecName, nil
 }
