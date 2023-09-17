@@ -13,7 +13,9 @@ func NewService(dirRepo repository.DirRepositoryInterface,
 	trackRepo repository.TrackRepositoryInterface) (s *Service) {
 
 	s = &Service{
-		DirRepo: dirRepo,
+		DirRepo:   dirRepo,
+		CoverRepo: coverRepo,
+		TrackRepo: trackRepo,
 	}
 
 	return s
