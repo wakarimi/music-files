@@ -11,11 +11,11 @@ import (
 )
 
 type readResponse struct {
-	CoverId  int    `db:"cover_id"`
-	Format   string `db:"format"`
-	WidthPx  int    `db:"width_px"`
-	HeightPx int    `db:"height_px"`
-	Size     int64  `db:"size"`
+	CoverId  int    `json:"coverId"`
+	Format   string `json:"format"`
+	WidthPx  int    `json:"widthPx"`
+	HeightPx int    `json:"heightPx"`
+	Size     int64  `json:"size"`
 }
 
 // Read godoc

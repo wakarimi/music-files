@@ -284,6 +284,117 @@
                     }
                 }
             }
+        },
+        "/tracks": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tracks"
+                ],
+                "summary": "Retrieve all tracks",
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved all tracks",
+                        "schema": {
+                            "$ref": "#/definitions/track.readAllResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch all tracks",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/tracks/{trackId}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tracks"
+                ],
+                "summary": "Retrieve a single track by its ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Track ID",
+                        "name": "trackId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved the track",
+                        "schema": {
+                            "$ref": "#/definitions/track.readResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid trackId format",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch track",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/tracks/{trackId}/download": {
+            "get": {
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "Tracks"
+                ],
+                "summary": "Download a track by its ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Track Identifier",
+                        "name": "trackId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully downloaded track file",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid trackId format",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch track",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -340,6 +451,75 @@
                 },
                 "path": {
                     "type": "string"
+                }
+            }
+        },
+        "track.readAllResponse": {
+            "description": "Response structure containing details of all tracks.",
+            "type": "object",
+            "properties": {
+                "tracks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/track.readAllResponseItem"
+                    }
+                }
+            }
+        },
+        "track.readAllResponseItem": {
+            "description": "Single track item structure in the response of ReadAll endpoint.",
+            "type": "object",
+            "properties": {
+                "audioCodec": {
+                    "type": "string"
+                },
+                "coverId": {
+                    "type": "integer"
+                },
+                "durationMs": {
+                    "type": "integer"
+                },
+                "hashSha256": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "trackId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "track.readResponse": {
+            "description": "Response structure containing details of a single track.",
+            "type": "object",
+            "properties": {
+                "audioCodec": {
+                    "type": "string"
+                },
+                "bitrateKbps": {
+                    "type": "integer"
+                },
+                "channels": {
+                    "type": "integer"
+                },
+                "coverId": {
+                    "type": "integer"
+                },
+                "durationMs": {
+                    "type": "integer"
+                },
+                "hashSha256": {
+                    "type": "string"
+                },
+                "sampleRateHz": {
+                    "type": "integer"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "trackId": {
+                    "type": "integer"
                 }
             }
         },

@@ -10,6 +10,15 @@ import (
 	"strconv"
 )
 
+// Download godoc
+// @Summary Download a track by its ID
+// @Tags Tracks
+// @Produce application/octet-stream
+// @Param trackId path integer true "Track Identifier"
+// @Success 200 {file} byte "Successfully downloaded track file"
+// @Failure 400 {object} types.ErrorResponse "Invalid trackId format"
+// @Failure 500 {object} types.ErrorResponse "Failed to fetch track"
+// @Router /tracks/{trackId}/download [get]
 func (h *Handler) Download(c *gin.Context) {
 	log.Debug().Msg("Downloading track")
 

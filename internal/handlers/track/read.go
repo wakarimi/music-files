@@ -10,14 +10,39 @@ import (
 	"strconv"
 )
 
+// readResponse godoc
+// @Description Response structure containing details of a single track.
+// @Property TrackId (int) Unique ID of the track
+// @Property CoverId (int, optional) Optional ID of the cover associated with the track
+// @Property DurationMs (int64) Duration of the track in milliseconds
+// @Property Size (int64) Size of the track file in bytes
+// @Property AudioCodec (string) Codec used for the audio track (e.g., "mp3", "flac")
+// @Property BitrateKbps (int) Bitrate of the audio track in kilobits per second
+// @Property SampleRateHz (int) Sample rate of the audio track in hertz
+// @Property Channels (int) Number of audio channels (e.g., 2 for stereo)
+// @Property HashSha256 (string) SHA-256 hash of the track file for integrity verification
 type readResponse struct {
-	TrackId    int    `json:"trackId"`
-	CoverId    *int   `json:"coverId,omitempty"`
-	AudioCodec string `json:"audioCodec"`
-	Size       int64  `json:"size"`
-	HashSha256 string `json:"hashSha256"`
+	TrackId      int    `json:"trackId"`
+	CoverId      *int   `json:"coverId,omitempty"`
+	DurationMs   int64  `json:"durationMs"`
+	Size         int64  `json:"size"`
+	AudioCodec   string `json:"audioCodec"`
+	BitrateKbps  int    `json:"bitrateKbps"`
+	SampleRateHz int    `json:"sampleRateHz"`
+	Channels     int    `json:"channels"`
+	HashSha256   string `json:"hashSha256"`
 }
 
+// Read godoc
+// @Summary Retrieve a single track by its ID
+// @Tags Tracks
+// @Accept json
+// @Produce json
+// @Param trackId path int true "Track ID"
+// @Success 200 {object} readResponse "Successfully retrieved the track"
+// @Failure 400 {object} types.ErrorResponse "Invalid trackId format"
+// @Failure 500 {object} types.ErrorResponse "Failed to fetch track"
+// @Router /tracks/{trackId} [get]
 func (h *Handler) Read(c *gin.Context) {
 	log.Debug().Msg("Fetching data about track")
 
@@ -51,10 +76,14 @@ func (h *Handler) Read(c *gin.Context) {
 
 	log.Debug().Int("trackId", track.TrackId).Str("relativePath", track.RelativePath).Msg("Track fetched successfully")
 	c.JSON(http.StatusOK, readResponse{
-		TrackId:    track.TrackId,
-		CoverId:    track.CoverId,
-		AudioCodec: track.AudioCodec,
-		Size:       track.Size,
-		HashSha256: track.HashSha256,
+		TrackId:      track.TrackId,
+		CoverId:      track.CoverId,
+		DurationMs:   track.DurationMs,
+		Size:         track.Size,
+		AudioCodec:   track.AudioCodec,
+		BitrateKbps:  track.BitrateKbps,
+		SampleRateHz: track.SampleRateHz,
+		Channels:     track.Channels,
+		HashSha256:   track.HashSha256,
 	})
 }

@@ -37,6 +37,52 @@ definitions:
       path:
         type: string
     type: object
+  track.readAllResponse:
+    description: Response structure containing details of all tracks.
+    properties:
+      tracks:
+        items:
+          $ref: '#/definitions/track.readAllResponseItem'
+        type: array
+    type: object
+  track.readAllResponseItem:
+    description: Single track item structure in the response of ReadAll endpoint.
+    properties:
+      audioCodec:
+        type: string
+      coverId:
+        type: integer
+      durationMs:
+        type: integer
+      hashSha256:
+        type: string
+      size:
+        type: integer
+      trackId:
+        type: integer
+    type: object
+  track.readResponse:
+    description: Response structure containing details of a single track.
+    properties:
+      audioCodec:
+        type: string
+      bitrateKbps:
+        type: integer
+      channels:
+        type: integer
+      coverId:
+        type: integer
+      durationMs:
+        type: integer
+      hashSha256:
+        type: string
+      sampleRateHz:
+        type: integer
+      size:
+        type: integer
+      trackId:
+        type: integer
+    type: object
   types.ErrorResponse:
     description: Standard error response
     properties:
@@ -232,4 +278,76 @@ paths:
       summary: Scan all directories
       tags:
       - Directories
+  /tracks:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved all tracks
+          schema:
+            $ref: '#/definitions/track.readAllResponse'
+        "500":
+          description: Failed to fetch all tracks
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Retrieve all tracks
+      tags:
+      - Tracks
+  /tracks/{trackId}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Track ID
+        in: path
+        name: trackId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved the track
+          schema:
+            $ref: '#/definitions/track.readResponse'
+        "400":
+          description: Invalid trackId format
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+        "500":
+          description: Failed to fetch track
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Retrieve a single track by its ID
+      tags:
+      - Tracks
+  /tracks/{trackId}/download:
+    get:
+      parameters:
+      - description: Track Identifier
+        in: path
+        name: trackId
+        required: true
+        type: integer
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Successfully downloaded track file
+          schema:
+            type: file
+        "400":
+          description: Invalid trackId format
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+        "500":
+          description: Failed to fetch track
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Download a track by its ID
+      tags:
+      - Tracks
 swagger: "2.0"
