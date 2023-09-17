@@ -1,5 +1,18 @@
 basePath: /api/music-files-service
 definitions:
+  cover.readResponse:
+    properties:
+      coverId:
+        type: integer
+      format:
+        type: string
+      heightPx:
+        type: integer
+      size:
+        type: integer
+      widthPx:
+        type: integer
+    type: object
   directory.createRequest:
     description: Request structure to create a new directory
     properties:
@@ -43,6 +56,60 @@ info:
   title: Wakarimi Music Files API
   version: "0.2"
 paths:
+  /covers/{coverId}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Cover Identifier
+        in: path
+        name: coverId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully fetched cover data
+          schema:
+            $ref: '#/definitions/cover.readResponse'
+        "400":
+          description: Invalid coverId format
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+        "500":
+          description: Failed to fetch cover
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Fetch data about a cover by its ID
+      tags:
+      - Covers
+  /covers/{coverId}/download:
+    get:
+      parameters:
+      - description: Cover Identifier
+        in: path
+        name: coverId
+        required: true
+        type: integer
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Successfully downloaded cover file
+          schema:
+            type: file
+        "400":
+          description: Invalid coverId format
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+        "500":
+          description: Failed to fetch cover
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      summary: Download a cover by its ID
+      tags:
+      - Covers
   /dirs:
     get:
       consumes:

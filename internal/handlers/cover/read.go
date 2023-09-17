@@ -11,11 +11,23 @@ import (
 )
 
 type readResponse struct {
-	CoverId int    `json:"coverId"`
-	Format  string `json:"format"`
-	Size    int64  `json:"size"`
+	CoverId  int    `db:"cover_id"`
+	Format   string `db:"format"`
+	WidthPx  int    `db:"width_px"`
+	HeightPx int    `db:"height_px"`
+	Size     int64  `db:"size"`
 }
 
+// Read godoc
+// @Summary Fetch data about a cover by its ID
+// @Tags Covers
+// @Accept json
+// @Produce json
+// @Param coverId path integer true "Cover Identifier"
+// @Success 200 {object} readResponse "Successfully fetched cover data"
+// @Failure 400 {object} types.ErrorResponse "Invalid coverId format"
+// @Failure 500 {object} types.ErrorResponse "Failed to fetch cover"
+// @Router /covers/{coverId} [get]
 func (h *Handler) Read(c *gin.Context) {
 	log.Debug().Msg("Fetching data about cover")
 
@@ -49,8 +61,10 @@ func (h *Handler) Read(c *gin.Context) {
 
 	log.Debug().Int("coverId", cover.CoverId).Str("relativePath", cover.RelativePath).Msg("Cover fetched successfully")
 	c.JSON(http.StatusOK, readResponse{
-		CoverId: cover.CoverId,
-		Format:  cover.Format,
-		Size:    cover.Size,
+		CoverId:  cover.CoverId,
+		Format:   cover.Format,
+		WidthPx:  cover.WidthPx,
+		HeightPx: cover.HeightPx,
+		Size:     cover.Size,
 	})
 }

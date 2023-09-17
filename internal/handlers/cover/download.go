@@ -10,6 +10,15 @@ import (
 	"strconv"
 )
 
+// Download godoc
+// @Summary Download a cover by its ID
+// @Tags Covers
+// @Produce application/octet-stream
+// @Param coverId path integer true "Cover Identifier"
+// @Success 200 {file} byte "Successfully downloaded cover file"
+// @Failure 400 {object} types.ErrorResponse "Invalid coverId format"
+// @Failure 500 {object} types.ErrorResponse "Failed to fetch cover"
+// @Router /covers/{coverId}/download [get]
 func (h *Handler) Download(c *gin.Context) {
 	log.Debug().Msg("Downloading cover")
 

@@ -22,6 +22,89 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/covers/{coverId}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Covers"
+                ],
+                "summary": "Fetch data about a cover by its ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cover Identifier",
+                        "name": "coverId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully fetched cover data",
+                        "schema": {
+                            "$ref": "#/definitions/cover.readResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid coverId format",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch cover",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/covers/{coverId}/download": {
+            "get": {
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "Covers"
+                ],
+                "summary": "Download a cover by its ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cover Identifier",
+                        "name": "coverId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully downloaded cover file",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid coverId format",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch cover",
+                        "schema": {
+                            "$ref": "#/definitions/types.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/dirs": {
             "get": {
                 "consumes": [
@@ -211,6 +294,26 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "cover.readResponse": {
+            "type": "object",
+            "properties": {
+                "coverId": {
+                    "type": "integer"
+                },
+                "format": {
+                    "type": "string"
+                },
+                "heightPx": {
+                    "type": "integer"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "widthPx": {
+                    "type": "integer"
+                }
+            }
+        },
         "directory.createRequest": {
             "description": "Request structure to create a new directory",
             "type": "object",
