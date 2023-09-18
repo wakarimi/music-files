@@ -15,7 +15,7 @@ import (
 )
 
 // @title Wakarimi Music Files API
-// @version 0.2
+// @version 0.3
 
 // @contact.name Dmitry Kolesnikov (Zalimannard)
 // @contact.email zalimannard@mail.ru
