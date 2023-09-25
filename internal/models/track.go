@@ -1,16 +1,17 @@
 package models
 
+import "time"
+
 type Track struct {
-	TrackId      int    `db:"track_id"`
-	DirId        int    `db:"dir_id"`
-	CoverId      *int   `db:"cover_id"`
-	RelativePath string `db:"relative_path"`
-	Filename     string `db:"filename"`
-	DurationMs   int64  `db:"duration_ms"`
-	SizeByte     int64  `db:"size_byte"`
-	AudioCodec   string `db:"audio_codec"`
-	BitrateKbps  int    `db:"bitrate_kbps"`
-	SampleRateHz int    `db:"sample_rate_hz"`
-	Channels     int    `db:"channels"`
-	HashSha256   string `db:"hash_sha_256"`
+	TrackId           int       `db:"track_id"`
+	DirId             int       `db:"dir_id"`
+	Filename          string    `db:"filename"`
+	Extension         string    `db:"extension"`
+	SizeByte          int64     `db:"size_byte"`
+	DurationMs        int64     `db:"duration_ms"`
+	BitrateKbps       int       `db:"bitrate_kbps"`
+	SampleRateHz      int       `db:"sample_rate_hz"`
+	ChannelsN         int       `db:"channels_n"`
+	Sha256            string    `db:"sha_256"`
+	LastContentUpdate time.Time `db:"last_content_update"`
 }

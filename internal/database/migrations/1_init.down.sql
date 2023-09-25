@@ -1,4 +1,3 @@
-DROP TABLE "tracks";
-DROP TABLE "covers";
-DROP TABLE "directories";
-
+DROP TABLE tracks;
+DROP TABLE covers;
+DROP TABLE directories;
