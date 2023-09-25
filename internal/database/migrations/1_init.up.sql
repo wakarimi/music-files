@@ -4,7 +4,8 @@ CREATE TABLE directories
     name          TEXT NOT NULL,
     parent_dir_id INTEGER NULL,
     last_scanned  TIMESTAMP NULL,
-    FOREIGN KEY (parent_dir_id) REFERENCES directories (dir_id)
+    FOREIGN KEY (parent_dir_id) REFERENCES directories (dir_id),
+    UNIQUE (name, parent_dir_id)
 );
 
 CREATE TABLE covers
@@ -18,7 +19,8 @@ CREATE TABLE covers
     height_px           INTEGER    NOT NULL,
     sha_256             CHAR(64)   NOT NULL,
     last_content_update TIMESTAMP  NOT NULL,
-    FOREIGN KEY (dir_id) REFERENCES directories (dir_id)
+    FOREIGN KEY (dir_id) REFERENCES directories (dir_id),
+    UNIQUE (dir_id, filename)
 );
 
 CREATE TABLE tracks
@@ -34,7 +36,8 @@ CREATE TABLE tracks
     channels_n          INTEGER    NOT NULL,
     sha_256             CHAR(64)   NOT NULL,
     last_content_update TIMESTAMP  NOT NULL,
-    FOREIGN KEY (dir_id) REFERENCES directories (dir_id)
+    FOREIGN KEY (dir_id) REFERENCES directories (dir_id),
+    UNIQUE (dir_id, filename)
 );
 
 CREATE UNIQUE INDEX idx_covers_sha_256 ON covers (sha_256);
