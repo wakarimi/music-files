@@ -19,7 +19,7 @@ func (s *Service) AbsolutePath(tx *sqlx.Tx, dirId int) (absolutePath string, err
 	parts = append([]string{currentDir.Name}, parts...)
 
 	for currentDir.ParentDirId != nil {
-		currentDir, err := s.DirRepo.Read(tx, *currentDir.ParentDirId)
+		currentDir, err = s.DirRepo.Read(tx, *currentDir.ParentDirId)
 		if err != nil {
 			log.Error().Err(err).Int("dirId", dirId).Int("currentDirId", currentDir.DirId)
 			return "", err

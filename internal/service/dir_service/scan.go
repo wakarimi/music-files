@@ -3,7 +3,9 @@ package dir_service
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
+	"music-files/internal/models"
 	"music-files/internal/utils"
+	"os"
 )
 
 func (s *Service) Scan(tx *sqlx.Tx, dirId int) (err error) {
@@ -22,10 +24,47 @@ func (s *Service) Scan(tx *sqlx.Tx, dirId int) (err error) {
 		return err
 	}
 	if !exists {
-		// TODO: Удаление директории из базы данных
 		log.Info().Err(err).Str("path", absolutePath).
 			Msg("Directory not exists")
-		return
+		return nil
+	}
+
+	entries, err := os.ReadDir(absolutePath)
+	if err != nil {
+		log.Error().Err(err).Int("dirId", dirId)
+		return err
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			alreadyInDb, err := s.DirRepo.IsExists(tx, &dirId, entry.Name())
+			if err != nil {
+				log.Error().Err(err).Int("dirId", dirId)
+				return err
+			}
+
+			var nextDirIdToScan int
+			if alreadyInDb {
+				nextDirToScan, err := s.DirRepo.ReadByParentAndName(tx, &dirId, entry.Name())
+				if err != nil {
+					log.Error().Err(err).Interface("dirId", dirId)
+					return err
+				}
+				nextDirIdToScan = nextDirToScan.DirId
+			} else {
+				dirToCreate := models.Directory{
+					ParentDirId: &dirId,
+					Name:        entry.Name(),
+				}
+				nextDirIdToScan, err = s.DirRepo.Create(tx, dirToCreate)
+			}
+
+			err = s.Scan(tx, nextDirIdToScan)
+			if err != nil {
+				log.Error().Err(err)
+				return err
+			}
+		}
 	}
 
 	log.Debug().Int("dirId", dirId).

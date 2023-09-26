@@ -30,6 +30,11 @@ func (h *Handler) Scan(c *gin.Context) {
 		if err != nil {
 			return err
 		}
+
+		err = h.DirService.DeleteOrphaned(tx)
+		if err != nil {
+			return err
+		}
 		return nil
 	})
 	if err != nil {

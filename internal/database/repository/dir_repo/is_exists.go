@@ -17,7 +17,7 @@ func (r *Repository) IsExists(tx *sqlx.Tx, parentDirId *int, name string) (exist
                 SELECT 1 
                 FROM directories
                 WHERE parent_dir_id IS NULL
-                AND name = $1
+                	AND name = $1
             )
         `
 		row, err = tx.Queryx(query, name)
@@ -27,17 +27,21 @@ func (r *Repository) IsExists(tx *sqlx.Tx, parentDirId *int, name string) (exist
                 SELECT 1 
                 FROM directories
                 WHERE parent_dir_id = $1
-                AND name = $2
+                	AND name = $2
             )
         `
 		row, err = tx.Queryx(query, *parentDirId, name)
 	}
-
 	if err != nil {
 		log.Error().Err(err).Interface("parentDirId", parentDirId).Str("name", name)
 		return false, err
 	}
-	defer row.Close()
+	defer func(row *sqlx.Rows) {
+		err := row.Close()
+		if err != nil {
+			log.Error().Err(err)
+		}
+	}(row)
 
 	if row.Next() {
 		if err = row.Scan(&exists); err != nil {

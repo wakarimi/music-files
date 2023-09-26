@@ -1,6 +1,7 @@
 package dir_repo
 
 import (
+	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
 	"music-files/internal/models"
@@ -34,8 +35,13 @@ func (r *Repository) Read(tx *sqlx.Tx, dirId int) (dir models.Directory, err err
 			log.Error().Err(err).Int("dirId", dirId)
 			return models.Directory{}, err
 		}
+	} else {
+		err := fmt.Errorf("No directory found with dirId: %d", dirId)
+		log.Error().Err(err)
+		return models.Directory{}, err
 	}
 
-	log.Debug().Str("name", dir.Name).Msg("Directory fetched by id successfully")
+	log.Debug().Str("name", dir.Name).
+		Msg("Directory fetched by id successfully")
 	return dir, nil
 }
