@@ -9,17 +9,14 @@ import (
 )
 
 func (s *Service) Create(tx *sqlx.Tx, dir models.Directory) (err error) {
-	log.Debug().
-		Interface("parentDirId", dir.ParentDirId).
-		Str("name", dir.Name).
+	log.Debug().Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name).
 		Msg("Adding new directory")
 
 	dir.Name = utils.SanitizePath(dir.Name)
 
 	existsOnDisc, err := utils.DirectoryExists(dir.Name)
 	if err != nil {
-		log.Error().Err(err).
-			Interface("parentDirId", dir.ParentDirId).
+		log.Error().Err(err).Interface("parentDirId", dir.ParentDirId).
 			Str("name", dir.Name)
 		return err
 	}
@@ -31,8 +28,7 @@ func (s *Service) Create(tx *sqlx.Tx, dir models.Directory) (err error) {
 
 	existsInDb, err := s.DirRepo.IsExists(tx, dir.ParentDirId, dir.Name)
 	if err != nil {
-		log.Error().Err(err).
-			Interface("parentDirId", dir.ParentDirId).
+		log.Error().Err(err).Interface("parentDirId", dir.ParentDirId).
 			Str("name", dir.Name)
 		return err
 	}
@@ -44,15 +40,12 @@ func (s *Service) Create(tx *sqlx.Tx, dir models.Directory) (err error) {
 
 	_, err = s.DirRepo.Create(tx, dir)
 	if err != nil {
-		log.Error().Err(err).
-			Interface("parentDirId", dir.ParentDirId).
+		log.Error().Err(err).Interface("parentDirId", dir.ParentDirId).
 			Str("name", dir.Name)
 		return err
 	}
 
-	log.Debug().
-		Interface("parentDirId", dir.ParentDirId).
-		Str("name", dir.Name).
+	log.Debug().Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name).
 		Msg("Directory added successfully")
 	return nil
 }

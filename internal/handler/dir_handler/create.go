@@ -14,7 +14,8 @@ type createRequest struct {
 }
 
 func (h *Handler) Create(c *gin.Context) {
-	log.Debug().Msg("Adding new root directory")
+	log.Debug().
+		Msg("Adding new root directory")
 
 	var request createRequest
 
@@ -38,13 +39,14 @@ func (h *Handler) Create(c *gin.Context) {
 		return nil
 	})
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to add directory")
+		log.Error().Err(err)
 		c.JSON(http.StatusInternalServerError, responses.Error{
 			Error: "Failed to create directory",
 		})
 		return
 	}
 
-	log.Debug().Msg("Root directory added successfully")
+	log.Debug().
+		Msg("Root directory added successfully")
 	c.Status(http.StatusCreated)
 }

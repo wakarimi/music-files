@@ -8,9 +8,7 @@ import (
 )
 
 func (r *Repository) Create(tx *sqlx.Tx, dir models.Directory) (dirId int, err error) {
-	log.Debug().
-		Interface("parentDirId", dir.ParentDirId).
-		Str("name", dir.Name).
+	log.Debug().Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name).
 		Msg("Creating new directory")
 
 	query := `
@@ -20,9 +18,7 @@ func (r *Repository) Create(tx *sqlx.Tx, dir models.Directory) (dirId int, err e
 	`
 	rows, err := tx.NamedQuery(query, dir)
 	if err != nil {
-		log.Error().Err(err).
-			Interface("parentDirId", dir.ParentDirId).
-			Str("name", dir.Name)
+		log.Error().Err(err).Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name)
 		return 0, err
 	}
 	defer func(rows *sqlx.Rows) {
@@ -34,23 +30,16 @@ func (r *Repository) Create(tx *sqlx.Tx, dir models.Directory) (dirId int, err e
 
 	if rows.Next() {
 		if err := rows.Scan(&dirId); err != nil {
-			log.Error().Err(err).
-				Interface("parentDirId", dir.ParentDirId).
-				Str("name", dir.Name)
+			log.Error().Err(err).Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name)
 			return 0, err
 		}
 	} else {
 		err := fmt.Errorf("no id returned after directory insert")
-		log.Error().Err(err).
-			Interface("parentDirId", dir.ParentDirId).
-			Str("name", dir.Name)
+		log.Error().Err(err).Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name)
 		return 0, err
 	}
 
-	log.Debug().
-		Interface("parentDirId", dir.ParentDirId).
-		Str("name", dir.Name).
-		Int("dirId", dirId).
+	log.Debug().Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name).Int("dirId", dirId).
 		Msg("Directory created successfully")
 	return dirId, nil
 }

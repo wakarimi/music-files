@@ -7,6 +7,7 @@ import (
 
 type Repo interface {
 	Create(tx *sqlx.Tx, dir models.Directory) (dirId int, err error)
+	Read(tx *sqlx.Tx, dirId int) (dir models.Directory, err error)
 	IsExists(tx *sqlx.Tx, parentDirId *int, name string) (exists bool, err error)
 }
 

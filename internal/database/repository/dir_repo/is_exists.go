@@ -6,9 +6,7 @@ import (
 )
 
 func (r *Repository) IsExists(tx *sqlx.Tx, parentDirId *int, name string) (exists bool, err error) {
-	log.Debug().
-		Interface("parentDirId", parentDirId).
-		Str("name", name).
+	log.Debug().Interface("parentDirId", parentDirId).Str("name", name).
 		Msg("Checking if directory exists in database")
 
 	var query string
@@ -49,14 +47,10 @@ func (r *Repository) IsExists(tx *sqlx.Tx, parentDirId *int, name string) (exist
 	}
 
 	if exists {
-		log.Debug().
-			Interface("parentDirId", parentDirId).
-			Str("name", name).
+		log.Debug().Interface("parentDirId", parentDirId).Str("name", name).
 			Msg("Directory exists")
 	} else {
-		log.Debug().
-			Interface("parentDirId", parentDirId).
-			Str("name", name).
+		log.Debug().Interface("parentDirId", parentDirId).Str("name", name).
 			Msg("No directory found")
 	}
 
