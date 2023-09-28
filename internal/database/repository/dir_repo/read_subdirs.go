@@ -12,10 +12,10 @@ func (r *Repository) ReadSubDirs(tx *sqlx.Tx, parentDirId int) (dirs []models.Di
 	query := `
 		SELECT * 
 		FROM directories
-		WHERE parent_dir_id = :parentDirId
+		WHERE parent_dir_id = :parent_dir_id
 	`
 	args := map[string]interface{}{
-		"parentDirId": parentDirId,
+		"parent_dir_id": parentDirId,
 	}
 	rows, err := tx.NamedQuery(query, args)
 	if err != nil {
@@ -28,6 +28,15 @@ func (r *Repository) ReadSubDirs(tx *sqlx.Tx, parentDirId int) (dirs []models.Di
 			log.Error().Err(err)
 		}
 	}(rows)
+
+	for rows.Next() {
+		var dir models.Directory
+		if err = rows.StructScan(&dir); err != nil {
+			log.Error().Err(err)
+			return nil, err
+		}
+		dirs = append(dirs, dir)
+	}
 
 	log.Debug().Int("parentDirId", parentDirId).Int("subDirsCount", len(dirs)).Msg("Subdirectories fetched successfully")
 	return dirs, nil

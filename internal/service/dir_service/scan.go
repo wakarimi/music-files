@@ -37,7 +37,7 @@ func (s *Service) Scan(tx *sqlx.Tx, dirId int) (err error) {
 
 	for _, entry := range entries {
 		if entry.IsDir() {
-			alreadyInDb, err := s.DirRepo.IsExists(tx, &dirId, entry.Name())
+			alreadyInDb, err := s.DirRepo.IsExistsByParentAndName(tx, &dirId, entry.Name())
 			if err != nil {
 				log.Error().Err(err).Int("dirId", dirId)
 				return err

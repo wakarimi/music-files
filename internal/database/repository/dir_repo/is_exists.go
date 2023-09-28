@@ -5,35 +5,24 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (r *Repository) IsExists(tx *sqlx.Tx, parentDirId *int, name string) (exists bool, err error) {
-	log.Debug().Interface("parentDirId", parentDirId).Str("name", name).
+func (r *Repository) IsExists(tx *sqlx.Tx, dirId int) (exists bool, err error) {
+	log.Debug().Int("dirId", dirId).
 		Msg("Checking if directory exists in database")
 
-	var query string
-	var row *sqlx.Rows
-	if parentDirId == nil {
-		query = `
-            SELECT EXISTS (
-                SELECT 1 
-                FROM directories
-                WHERE parent_dir_id IS NULL
-                	AND name = $1
-            )
-        `
-		row, err = tx.Queryx(query, name)
-	} else {
-		query = `
-            SELECT EXISTS (
-                SELECT 1 
-                FROM directories
-                WHERE parent_dir_id = $1
-                	AND name = $2
-            )
-        `
-		row, err = tx.Queryx(query, *parentDirId, name)
+	query := `
+		SELECT EXISTS (
+			SELECT 1 
+			FROM directories
+			WHERE dir_id = :dir_id
+		)
+	`
+	args := map[string]interface{}{
+		"dir_id": dirId,
 	}
+	row, err := tx.NamedQuery(query, args)
 	if err != nil {
-		log.Error().Err(err).Interface("parentDirId", parentDirId).Str("name", name)
+		log.Error().Err(err).Int("dirId", dirId).
+			Msg("Failed to execute query to check directory existence")
 		return false, err
 	}
 	defer func(row *sqlx.Rows) {
@@ -42,21 +31,14 @@ func (r *Repository) IsExists(tx *sqlx.Tx, parentDirId *int, name string) (exist
 			log.Error().Err(err)
 		}
 	}(row)
-
 	if row.Next() {
 		if err = row.Scan(&exists); err != nil {
-			log.Error().Err(err).Interface("parentDirId", parentDirId).Str("name", name)
+			log.Error().Err(err).Int("dirId", dirId).
+				Msg("Failed to scan result of directory existence check")
 			return false, err
 		}
 	}
 
-	if exists {
-		log.Debug().Interface("parentDirId", parentDirId).Str("name", name).
-			Msg("Directory exists")
-	} else {
-		log.Debug().Interface("parentDirId", parentDirId).Str("name", name).
-			Msg("No directory found")
-	}
-
+	log.Debug().Int("dirId", dirId).Bool("exists", exists)
 	return exists, nil
 }

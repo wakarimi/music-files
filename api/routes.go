@@ -40,6 +40,7 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 		api.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 		dir := api.Group("dirs")
 		{
+			dir.GET("/:dirId/content", dirHandler.ReadContent)
 			dir.POST("/", dirHandler.Create)
 			dir.POST("/:dirId/scan", dirHandler.Scan)
 		}

@@ -10,8 +10,7 @@ import (
 )
 
 func (h *Handler) Scan(c *gin.Context) {
-	log.Debug().
-		Msg("Scanning directory")
+	log.Debug().Msg("Scanning directory")
 
 	dirIdStr := c.Param("dirId")
 	dirId, err := strconv.Atoi(dirIdStr)

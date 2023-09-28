@@ -20,7 +20,7 @@ func (s *Service) DeleteOrphaned(tx *sqlx.Tx) (err error) {
 			return err
 		}
 
-		existInDb, err := s.DirRepo.IsExists(tx, dir.ParentDirId, dir.Name)
+		existInDb, err := s.DirRepo.IsExistsByParentAndName(tx, dir.ParentDirId, dir.Name)
 		if err != nil {
 			log.Error().Err(err)
 			return err

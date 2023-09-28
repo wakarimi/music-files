@@ -12,7 +12,8 @@ type Repo interface {
 	ReadByParentAndName(tx *sqlx.Tx, parentDirId *int, name string) (dir models.Directory, err error)
 	ReadSubDirs(tx *sqlx.Tx, parentDirId int) (dirs []models.Directory, err error)
 	Delete(tx *sqlx.Tx, dirId int) (err error)
-	IsExists(tx *sqlx.Tx, parentDirId *int, name string) (exists bool, err error)
+	IsExists(tx *sqlx.Tx, dirId int) (exists bool, err error)
+	IsExistsByParentAndName(tx *sqlx.Tx, parentDirId *int, name string) (exists bool, err error)
 }
 
 type Repository struct {

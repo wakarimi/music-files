@@ -8,7 +8,7 @@ import (
 	"music-files/internal/utils"
 )
 
-func (s *Service) Create(tx *sqlx.Tx, dir models.Directory) (err error) {
+func (s *Service) Create(tx *sqlx.Tx, dir models.Directory) (dirId int, err error) {
 	log.Debug().Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name).
 		Msg("Adding new directory")
 
@@ -18,34 +18,34 @@ func (s *Service) Create(tx *sqlx.Tx, dir models.Directory) (err error) {
 	if err != nil {
 		log.Error().Err(err).Interface("parentDirId", dir.ParentDirId).
 			Str("name", dir.Name)
-		return err
+		return 0, err
 	}
 	if !existsOnDisc {
 		err := fmt.Errorf("directory does not exist on disk")
 		log.Error().Err(err)
-		return err
+		return 0, err
 	}
 
-	existsInDb, err := s.DirRepo.IsExists(tx, dir.ParentDirId, dir.Name)
+	existsInDb, err := s.DirRepo.IsExistsByParentAndName(tx, dir.ParentDirId, dir.Name)
 	if err != nil {
 		log.Error().Err(err).Interface("parentDirId", dir.ParentDirId).
 			Str("name", dir.Name)
-		return err
+		return 0, err
 	}
 	if existsInDb {
-		log.Info().
+		log.Info().Str("name", dir.Name).
 			Msg("Directory already added")
-		return nil
+		return 0, nil
 	}
 
 	_, err = s.DirRepo.Create(tx, dir)
 	if err != nil {
 		log.Error().Err(err).Interface("parentDirId", dir.ParentDirId).
 			Str("name", dir.Name)
-		return err
+		return 0, err
 	}
 
 	log.Debug().Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name).
 		Msg("Directory added successfully")
-	return nil
+	return dirId, nil
 }

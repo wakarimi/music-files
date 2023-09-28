@@ -14,8 +14,7 @@ type createRequest struct {
 }
 
 func (h *Handler) Create(c *gin.Context) {
-	log.Debug().
-		Msg("Adding new root directory")
+	log.Debug().Msg("Adding new root directory")
 
 	var request createRequest
 
@@ -32,7 +31,7 @@ func (h *Handler) Create(c *gin.Context) {
 			ParentDirId: nil,
 			Name:        request.Path,
 		}
-		err = h.DirService.Create(tx, dir)
+		_, err = h.DirService.Create(tx, dir)
 		if err != nil {
 			return err
 		}
