@@ -7,7 +7,7 @@ import (
 	"music-files/internal/models"
 )
 
-func (s *Service) ReadContent(tx *sqlx.Tx, dirId int) (dirs []models.Directory, err error) {
+func (s *Service) ReadSubDirs(tx *sqlx.Tx, dirId int) (dirs []models.Directory, err error) {
 	parentDirExists, err := s.DirRepo.IsExists(tx, dirId)
 	if err != nil {
 		log.Error().Err(err)

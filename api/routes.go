@@ -35,14 +35,32 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 
 	dirHandler := dir_handler.NewHandler(*dirService, txManager)
 
-	api := r.Group("/api/music-files-service")
+	api := r.Group("/api")
 	{
 		api.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-		dir := api.Group("dirs")
+
+		dirs := api.Group("dirs")
 		{
-			dir.GET("/:dirId/content", dirHandler.ReadContent)
-			dir.POST("/", dirHandler.Create)
-			dir.POST("/:dirId/scan", dirHandler.Scan)
+			dirs.GET("/roots")
+			dirs.GET("/:dirId/content", dirHandler.ReadContent)
+			dirs.GET("/:dirId/tracks-in-tree")
+			dirs.POST("", dirHandler.Create)
+			dirs.POST("/:dirId/scan", dirHandler.Scan)
+			dirs.POST("/scan-all")
+			dirs.DELETE("/:dirId")
+		}
+
+		tracks := api.Group("tracks")
+		{
+			tracks.GET("/:trackId")
+			tracks.GET("")
+			tracks.GET("/:trackId/download")
+		}
+
+		covers := api.Group("covers")
+		{
+			covers.GET("/:coverId")
+			covers.GET("/:coverId/download")
 		}
 	}
 

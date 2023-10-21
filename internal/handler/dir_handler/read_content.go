@@ -37,7 +37,7 @@ func (h *Handler) ReadContent(c *gin.Context) {
 	var dirs []models.Directory
 
 	err = h.TransactionManager.WithTransaction(func(tx *sqlx.Tx) (err error) {
-		dirs, err = h.DirService.ReadContent(tx, dirId)
+		dirs, err = h.DirService.ReadSubDirs(tx, dirId)
 		if err != nil {
 			return err
 		}
