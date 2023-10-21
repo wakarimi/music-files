@@ -1,3 +1,3 @@
-DROP TABLE tracks;
+DROP TABLE songs;
 DROP TABLE covers;
 DROP TABLE directories;

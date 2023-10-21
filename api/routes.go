@@ -6,7 +6,15 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"music-files/internal/context"
+	"music-files/internal/database/repository/cover_repo"
+	"music-files/internal/database/repository/dir_repo"
+	"music-files/internal/database/repository/song_repo"
+	"music-files/internal/handler/dir_handler"
 	"music-files/internal/middleware"
+	"music-files/internal/service"
+	"music-files/internal/service/cover_service"
+	"music-files/internal/service/dir_service"
+	"music-files/internal/service/song_service"
 )
 
 func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
@@ -16,32 +24,32 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 	r = gin.New()
 	r.Use(middleware.ZerologMiddleware(log.Logger))
 
-	//coverRepo := cover_repo.NewRepository()
-	//trackRepo := track_repo.NewRepository()
-	//dirRepo := dir_repo.NewRepository()
-	//txManager := service.NewTransactionManager(*ac.Db)
+	coverRepo := cover_repo.NewRepository()
+	songRepo := song_repo.NewRepository()
+	dirRepo := dir_repo.NewRepository()
+	txManager := service.NewTransactionManager(*ac.Db)
 
-	//coverService := cover_service.NewService(coverRepo)
-	//trackService := track_service.NewService(trackRepo)
-	//dirService := dir_service.NewService(dirRepo, *coverService, *trackService)
+	coverService := cover_service.NewService(coverRepo)
+	songService := song_service.NewService(songRepo)
+	dirService := dir_service.NewService(dirRepo, *coverService, *songService)
 
-	//dirHandler := dir_handler.NewHandler(*dirService, txManager)
+	dirHandler := dir_handler.NewHandler(*dirService, txManager)
 
 	api := r.Group("/api")
 	{
 		api.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-		dirs := api.Group("dirs")
+		dirs := api.Group("/dirs")
 		{
-			dirs.GET("")
+			dirs.POST("/", dirHandler.Track)
 		}
 
-		tracks := api.Group("tracks")
+		songs := api.Group("/songs")
 		{
-			tracks.GET("")
+			songs.GET("")
 		}
 
-		covers := api.Group("covers")
+		covers := api.Group("/covers")
 		{
 			covers.GET("")
 		}

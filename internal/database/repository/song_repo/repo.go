@@ -1,4 +1,4 @@
-package track_repo
+package song_repo
 
 type Repo interface {
 }

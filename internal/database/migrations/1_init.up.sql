@@ -23,9 +23,9 @@ CREATE TABLE covers
     UNIQUE (dir_id, filename)
 );
 
-CREATE TABLE tracks
+CREATE TABLE songs
 (
-    track_id            SERIAL PRIMARY KEY,
+    song_id             SERIAL PRIMARY KEY,
     dir_id              INTEGER    NOT NULL,
     filename            TEXT       NOT NULL,
     extension           VARCHAR(5) NOT NULL,
@@ -41,5 +41,5 @@ CREATE TABLE tracks
 );
 
 CREATE UNIQUE INDEX idx_covers_sha_256 ON covers (sha_256);
-CREATE UNIQUE INDEX idx_tracks_sha_256 ON tracks (sha_256);
+CREATE UNIQUE INDEX idx_songs_sha_256 ON songs (sha_256);
 CREATE INDEX idx_directories_parent_dir_id ON directories (parent_dir_id);
