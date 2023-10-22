@@ -19,9 +19,9 @@ type trackRequest struct {
 // trackResponse is the response model after successfully adding a tracked directory
 type trackResponse struct {
 	// Unique identifier of the directory in the database
-	DirId int `db:"dirId"`
+	DirId int `json:"dirId"`
 	// Name of the directory
-	Name string `db:"name"`
+	Name string `json:"name"`
 }
 
 // Track
@@ -36,7 +36,7 @@ type trackResponse struct {
 // @Failure 404 {object} responses.Error "Directory not found"
 // @Failure 409 {object} responses.Error "Directory already tracked"
 // @Failure 500 {object} responses.Error "Internal Server Error"
-// @Router  /dirs [post]
+// @Router  /roots [post]
 func (h *Handler) Track(c *gin.Context) {
 	log.Debug().Msg("Adding a new directory tracking")
 

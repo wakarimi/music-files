@@ -1,5 +1,25 @@
 basePath: /api
 definitions:
+  dir_handler.getRootsResponse:
+    properties:
+      dirs:
+        description: Array containing root directories
+        items:
+          $ref: '#/definitions/dir_handler.getRootsResponseItem'
+        type: array
+    type: object
+  dir_handler.getRootsResponseItem:
+    properties:
+      dirId:
+        description: Unique identifier for the directory
+        type: integer
+      lastScanned:
+        description: Last time the directory was scanned
+        type: string
+      name:
+        description: Name of the directory
+        type: string
+    type: object
   dir_handler.trackRequest:
     properties:
       path:
@@ -33,7 +53,25 @@ info:
   title: Wakarimi Music Files API
   version: "0.4"
 paths:
-  /dirs:
+  /roots:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all root directories that are tracked
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dir_handler.getRootsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Retrieve root directories
+      tags:
+      - Directories
     post:
       consumes:
       - application/json

@@ -39,9 +39,10 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 	{
 		api.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-		dirs := api.Group("/dirs")
+		roots := api.Group("/roots")
 		{
-			dirs.POST("/", dirHandler.Track)
+			roots.GET("/", dirHandler.GetRoots)
+			roots.POST("/", dirHandler.Track)
 		}
 
 		songs := api.Group("/songs")

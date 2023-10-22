@@ -22,7 +22,34 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/dirs": {
+        "/roots": {
+            "get": {
+                "description": "Retrieves a list of all root directories that are tracked",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Directories"
+                ],
+                "summary": "Retrieve root directories",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dir_handler.getRootsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Adds a new directory to the database for tracking",
                 "consumes": [
@@ -82,6 +109,35 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dir_handler.getRootsResponse": {
+            "type": "object",
+            "properties": {
+                "dirs": {
+                    "description": "Array containing root directories",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dir_handler.getRootsResponseItem"
+                    }
+                }
+            }
+        },
+        "dir_handler.getRootsResponseItem": {
+            "type": "object",
+            "properties": {
+                "dirId": {
+                    "description": "Unique identifier for the directory",
+                    "type": "integer"
+                },
+                "lastScanned": {
+                    "description": "Last time the directory was scanned",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name of the directory",
+                    "type": "string"
+                }
+            }
+        },
         "dir_handler.trackRequest": {
             "type": "object",
             "properties": {
