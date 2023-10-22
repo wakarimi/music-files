@@ -109,4 +109,35 @@ paths:
       summary: Add a new tracked directory
       tags:
       - Directories
+  /roots/{dirId}:
+    delete:
+      consumes:
+      - application/json
+      description: Stops tracking a directory with a specified root directory ID
+      parameters:
+      - description: Root Directory ID
+        in: path
+        name: dirId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid dirId format, The directory is not root
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "404":
+          description: Directory not found
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Remove a tracked root directory
+      tags:
+      - Directories
 swagger: "2.0"

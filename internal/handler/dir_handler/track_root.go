@@ -24,7 +24,7 @@ type trackResponse struct {
 	Name string `json:"name"`
 }
 
-// Track
+// TrackRoot
 // @Summary Add a new tracked directory
 // @Description Adds a new directory to the database for tracking
 // @Tags Directories
@@ -37,7 +37,7 @@ type trackResponse struct {
 // @Failure 409 {object} responses.Error "Directory already tracked"
 // @Failure 500 {object} responses.Error "Internal Server Error"
 // @Router  /roots [post]
-func (h *Handler) Track(c *gin.Context) {
+func (h *Handler) TrackRoot(c *gin.Context) {
 	log.Debug().Msg("Adding a new directory tracking")
 
 	var request trackRequest
@@ -56,7 +56,7 @@ func (h *Handler) Track(c *gin.Context) {
 			ParentDirId: nil,
 			Name:        request.Path,
 		}
-		createdDir, err = h.DirService.Track(tx, dirToCreate)
+		createdDir, err = h.DirService.TrackRoot(tx, dirToCreate)
 		if err != nil {
 			return err
 		}

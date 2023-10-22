@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func (s *Service) Track(tx *sqlx.Tx, dir models.Directory) (createdDir models.Directory, err error) {
+func (s *Service) TrackRoot(tx *sqlx.Tx, dir models.Directory) (createdDir models.Directory, err error) {
 	log.Debug().Str("path", dir.Name).Msg("Adding a new directory tracking")
 
 	dir.Name = filepath.Clean(dir.Name)
