@@ -10,15 +10,33 @@ import (
 	"net/http"
 )
 
+// trackRequest is the request model for adding a new directory for tracking
 type trackRequest struct {
+	// Path to the directory on disk
 	Path string `json:"path" bind:"required"`
 }
 
+// trackResponse is the response model after successfully adding a tracked directory
 type trackResponse struct {
-	DirId int    `db:"dirId"`
-	Name  string `db:"name"`
+	// Unique identifier of the directory in the database
+	DirId int `db:"dirId"`
+	// Name of the directory
+	Name string `db:"name"`
 }
 
+// Track
+// @Summary Add a new tracked directory
+// @Description Adds a new directory to the database for tracking
+// @Tags Directories
+// @Accept  json
+// @Produce  json
+// @Param   request body trackRequest true "Directory Data"
+// @Success 201 {object} trackResponse
+// @Failure 400 {object} responses.Error "Failed to decode request"
+// @Failure 404 {object} responses.Error "Directory not found"
+// @Failure 409 {object} responses.Error "Directory already tracked"
+// @Failure 500 {object} responses.Error "Internal Server Error"
+// @Router  /dirs [post]
 func (h *Handler) Track(c *gin.Context) {
 	log.Debug().Msg("Adding a new directory tracking")
 
