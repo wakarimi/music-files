@@ -76,6 +76,17 @@ func (s *Service) isDirectoryExistsOnDisk(dir models.Directory) (directoryExists
 		log.Warn().Err(err).Str("path", dir.Name).Msg("Unknown error when checking for existence")
 		return false, err
 	}
+
+	fileInfo, err := os.Stat(dir.Name)
+	if err != nil {
+		log.Warn().Err(err).Str("path", dir.Name).Msg("Failed to get object info")
+		return false, err
+	}
+	if !fileInfo.IsDir() {
+		log.Info().Err(err).Str("filepath", dir.Name).Msg("Trying to add a file instead of a folder")
+		return false, err
+	}
+
 	return true, nil
 }
 
