@@ -45,7 +45,7 @@ func (h *Handler) Track(c *gin.Context) {
 		return nil
 	})
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to start tracking directory")
+		log.Warn().Err(err).Msg("Failed to start tracking directory")
 		if _, ok := err.(errors.NotFound); ok {
 			c.JSON(http.StatusNotFound, responses.Error{
 				Message: "Directory not found",
