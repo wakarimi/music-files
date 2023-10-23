@@ -46,6 +46,11 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 			roots.DELETE("/:dirId", dirHandler.UntrackRoot)
 		}
 
+		dirs := api.Group("/dirs")
+		{
+			dirs.POST("/:dirId/scan", dirHandler.Scan)
+		}
+
 		songs := api.Group("/songs")
 		{
 			songs.GET("")

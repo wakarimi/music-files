@@ -6,7 +6,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"music-files/internal/errors"
 	"music-files/internal/models"
-	"os"
+	"music-files/internal/utils"
 	"path/filepath"
 	"strings"
 )
@@ -16,7 +16,7 @@ func (s *Service) TrackRoot(tx *sqlx.Tx, dir models.Directory) (createdDir model
 
 	dir.Name = filepath.Clean(dir.Name)
 
-	directoryExists, err := s.isDirectoryExistsOnDisk(dir)
+	directoryExists, err := utils.IsDirectoryExistsOnDisk(dir.Name)
 	if err != nil {
 		log.Warn().Err(err).Str("path", dir.Name).Msg("Failed to check directory on disk")
 		return models.Directory{}, err
@@ -61,33 +61,6 @@ func (s *Service) TrackRoot(tx *sqlx.Tx, dir models.Directory) (createdDir model
 
 	log.Debug().Str("path", dir.Name).Msg("Directory added to tracked")
 	return createdDir, nil
-}
-
-func (s *Service) isDirectoryExistsOnDisk(dir models.Directory) (directoryExists bool, err error) {
-	_, err = os.Stat(dir.Name)
-	if err != nil {
-		log.Warn().Err(err).Str("path", dir.Name).Msg("Failed to check directory on disk")
-		return false, err
-	}
-	if os.IsNotExist(err) {
-		log.Info().Err(err).Str("path", dir.Name).Msg("Directory on disk not found")
-		return false, errors.NotFound{Resource: "directory on disk"}
-	} else if err != nil {
-		log.Warn().Err(err).Str("path", dir.Name).Msg("Unknown error when checking for existence")
-		return false, err
-	}
-
-	fileInfo, err := os.Stat(dir.Name)
-	if err != nil {
-		log.Warn().Err(err).Str("path", dir.Name).Msg("Failed to get object info")
-		return false, err
-	}
-	if !fileInfo.IsDir() {
-		log.Info().Err(err).Str("filepath", dir.Name).Msg("Trying to add a file instead of a folder")
-		return false, err
-	}
-
-	return true, nil
 }
 
 func (s *Service) isAlreadyTracked(tx *sqlx.Tx, absolutePath string) (alreadyTracked bool, err error) {
