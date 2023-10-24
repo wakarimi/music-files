@@ -1,0 +1,32 @@
+package dir_handler
+
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
+	"github.com/rs/zerolog/log"
+	"music-files/internal/handler/responses"
+	"net/http"
+)
+
+func (h *Handler) ScanAll(c *gin.Context) {
+	log.Debug().Msg("Scanning directory")
+
+	err := h.TransactionManager.WithTransaction(func(tx *sqlx.Tx) (err error) {
+		err = h.DirService.ScanAll(tx)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		log.Warn().Err(err).Msg("Failed to get scan directories")
+		c.JSON(http.StatusInternalServerError, responses.Error{
+			Message: "Failed to get scan directories",
+			Reason:  err.Error(),
+		})
+		return
+	}
+
+	log.Debug().Msg("Directories scanned successfully")
+	c.Status(http.StatusOK)
+}

@@ -49,6 +49,7 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 		dirs := api.Group("/dirs")
 		{
 			dirs.POST("/:dirId/scan", dirHandler.Scan)
+			dirs.POST("/scan-all", dirHandler.ScanAll)
 		}
 
 		songs := api.Group("/songs")

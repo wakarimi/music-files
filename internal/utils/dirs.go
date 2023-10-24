@@ -2,21 +2,16 @@ package utils
 
 import (
 	"github.com/rs/zerolog/log"
-	"music-files/internal/errors"
 	"os"
 )
 
 func IsDirectoryExistsOnDisk(path string) (directoryExists bool, err error) {
 	_, err = os.Stat(path)
-	if err != nil {
-		log.Warn().Err(err).Str("path", path).Msg("Failed to check directory on disk")
-		return false, err
-	}
 	if os.IsNotExist(err) {
 		log.Info().Err(err).Str("path", path).Msg("Directory on disk not found")
-		return false, errors.NotFound{Resource: "directory on disk"}
+		return false, nil
 	} else if err != nil {
-		log.Warn().Err(err).Str("path", path).Msg("Unknown error when checking for existence")
+		log.Warn().Err(err).Str("path", path).Msg("Failed to check directory on disk")
 		return false, err
 	}
 
