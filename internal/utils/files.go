@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"github.com/h2non/filetype"
+	"github.com/rs/zerolog/log"
 	"os"
 )
 
@@ -18,6 +19,14 @@ func CalculateSha256(filePath string) (hash string, err error) {
 }
 
 func IsMusicFile(absolutePath string) (isMusicFile bool, err error) {
+	fileInfo, err := os.Stat(absolutePath)
+	if err != nil {
+		return false, err
+	}
+	if fileInfo.IsDir() {
+		return false, err
+	}
+
 	file, err := os.Open(absolutePath)
 	if err != nil {
 		return false, err
@@ -48,14 +57,27 @@ func IsMusicFile(absolutePath string) (isMusicFile bool, err error) {
 }
 
 func IsImageFile(absolutePath string) (isImageFile bool, err error) {
+	fileInfo, err := os.Stat(absolutePath)
+	if err != nil {
+		return false, err
+	}
+	if fileInfo.IsDir() {
+		return false, err
+	}
+
 	file, err := os.Open(absolutePath)
 	if err != nil {
+		log.Warn().Err(err).Str("absolutePath", absolutePath).Msg("Failed to open file to check on image")
 		return false, err
 	}
 	defer file.Close()
 
 	head := make([]byte, 261)
-	file.Read(head)
+	_, err = file.Read(head)
+	if err != nil {
+		log.Warn().Err(err).Str("absolutePath", absolutePath).Msg("Failed to read file to check on image")
+		return false, err
+	}
 
 	kind, _ := filetype.Match(head)
 	if kind == filetype.Unknown {
