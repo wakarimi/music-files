@@ -40,7 +40,17 @@ func (s *Service) DeleteDir(tx *sqlx.Tx, dirId int) (err error) {
 func (s *Service) deleteContentFiles(tx *sqlx.Tx, dirId int) (err error) {
 	log.Debug().Int("dirId", dirId).Msg("Deleting files in directory")
 
-	// TODO: Delete songs
+	songs, err := s.SongService.GetAllByDir(tx, dirId)
+	if err != nil {
+		return err
+	}
+
+	for _, song := range songs {
+		err = s.SongService.Delete(tx, song.SongId)
+		if err != nil {
+			return err
+		}
+	}
 
 	// TODO: Delete covers
 
