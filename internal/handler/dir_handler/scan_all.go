@@ -19,9 +19,9 @@ func (h *Handler) ScanAll(c *gin.Context) {
 		return nil
 	})
 	if err != nil {
-		log.Warn().Err(err).Msg("Failed to get scan directories")
+		log.Warn().Err(err).Msg("Failed to scan directories")
 		c.JSON(http.StatusInternalServerError, responses.Error{
-			Message: "Failed to get scan directories",
+			Message: "Failed to scan directories",
 			Reason:  err.Error(),
 		})
 		return

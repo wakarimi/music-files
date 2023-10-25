@@ -1,26 +1,24 @@
-package song_repo
+package cover_repo
 
 import (
-	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
 	"music-files/internal/models"
 )
 
-func (r Repository) ReadByDirAndName(tx *sqlx.Tx, dirId int, name string) (song models.Song, err error) {
+func (r Repository) ReadAllByDir(tx *sqlx.Tx, dirId int) (covers []models.Cover, err error) {
 	query := `
-		SELECT *
-		FROM songs
+		SELECT * 
+		FROM covers
 		WHERE dir_id = :dir_id
-			AND filename = :name
 	`
 	args := map[string]interface{}{
 		"dir_id": dirId,
-		"name":   name,
 	}
 	rows, err := tx.NamedQuery(query, args)
 	if err != nil {
-		return models.Song{}, err
+		log.Error().Err(err)
+		return nil, err
 	}
 	defer func(rows *sqlx.Rows) {
 		err := rows.Close()
@@ -28,14 +26,15 @@ func (r Repository) ReadByDirAndName(tx *sqlx.Tx, dirId int, name string) (song 
 			log.Error().Err(err)
 		}
 	}(rows)
-	if rows.Next() {
+
+	for rows.Next() {
+		var song models.Cover
 		if err = rows.StructScan(&song); err != nil {
-			return models.Song{}, err
+			log.Error().Err(err)
+			return nil, err
 		}
-	} else {
-		err := fmt.Errorf("No cover found with dir_id: %d and name: %s", dirId, name)
-		return models.Song{}, err
+		covers = append(covers, song)
 	}
 
-	return song, nil
+	return covers, nil
 }

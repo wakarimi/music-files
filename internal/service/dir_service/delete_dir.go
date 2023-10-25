@@ -52,7 +52,17 @@ func (s *Service) deleteContentFiles(tx *sqlx.Tx, dirId int) (err error) {
 		}
 	}
 
-	// TODO: Delete covers
+	covers, err := s.CoverService.GetAllByDir(tx, dirId)
+	if err != nil {
+		return err
+	}
+
+	for _, cover := range covers {
+		err = s.CoverService.Delete(tx, cover.CoverId)
+		if err != nil {
+			return err
+		}
+	}
 
 	log.Debug().Int("dirId", dirId).Msg("Files deleted from directory successfully")
 	return nil
