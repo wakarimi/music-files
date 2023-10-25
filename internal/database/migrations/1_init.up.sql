@@ -40,6 +40,4 @@ CREATE TABLE songs
     UNIQUE (dir_id, filename)
 );
 
-CREATE UNIQUE INDEX idx_covers_sha_256 ON covers (sha_256);
-CREATE UNIQUE INDEX idx_songs_sha_256 ON songs (sha_256);
 CREATE INDEX idx_directories_parent_dir_id ON directories (parent_dir_id);

@@ -16,7 +16,7 @@ func (r *Repository) Update(tx *sqlx.Tx, dirId int, dir models.Directory) (err e
 		WHERE dir_id = :dir_id
 	`
 
-	dir.DirId = dirId // Устанавливаем ID директории, который нужно обновить
+	dir.DirId = dirId
 	_, err = tx.NamedExec(query, dir)
 
 	if err != nil {

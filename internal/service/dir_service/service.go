@@ -10,17 +10,17 @@ type Service struct {
 	DirRepo dir_repo.Repo
 
 	CoverService cover_service.Service
-	TrackService song_service.Service
+	SongService  song_service.Service
 }
 
 func NewService(dirRepo dir_repo.Repo,
 	coverService cover_service.Service,
-	trackService song_service.Service) (s *Service) {
+	songService song_service.Service) (s *Service) {
 
 	s = &Service{
 		DirRepo:      dirRepo,
 		CoverService: coverService,
-		TrackService: trackService,
+		SongService:  songService,
 	}
 
 	return s
