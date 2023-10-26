@@ -56,15 +56,15 @@ func (h *Handler) GetRoots(c *gin.Context) {
 	}
 
 	rootResponseItems := make([]getRootsResponseItem, len(roots))
-	for i := range rootResponseItems {
+	for i, root := range rootResponseItems {
 		rootResponseItems[i] = getRootsResponseItem{
-			DirId:       roots[i].DirId,
-			Name:        roots[i].Name,
-			LastScanned: roots[i].LastScanned,
+			DirId:       root.DirId,
+			Name:        root.Name,
+			LastScanned: root.LastScanned,
 		}
 	}
 
-	log.Debug().Msg("Directory added to tracked")
+	log.Debug().Msg("Directories got successfully")
 	c.JSON(http.StatusOK, getRootsResponse{
 		Dirs: rootResponseItems,
 	})
