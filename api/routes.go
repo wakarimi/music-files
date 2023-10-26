@@ -9,6 +9,7 @@ import (
 	"music-files/internal/database/repository/cover_repo"
 	"music-files/internal/database/repository/dir_repo"
 	"music-files/internal/database/repository/song_repo"
+	"music-files/internal/handler/cover_handler"
 	"music-files/internal/handler/dir_handler"
 	"music-files/internal/handler/song_handler"
 	"music-files/internal/middleware"
@@ -34,6 +35,7 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 	songService := song_service.NewService(songRepo)
 	dirService := dir_service.NewService(dirRepo, *coverService, *songService)
 
+	coverHandler := cover_handler.NewHandler(*coverService, txManager)
 	songHandler := song_handler.NewHandler(*songService, txManager)
 	dirHandler := dir_handler.NewHandler(*dirService, txManager)
 
@@ -67,7 +69,7 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 
 		covers := api.Group("/covers")
 		{
-			covers.GET("/:coverId")
+			covers.GET("/:coverId", coverHandler.GetCover)
 			covers.GET("/:coverId/download")
 		}
 	}

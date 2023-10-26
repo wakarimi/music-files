@@ -9,7 +9,7 @@ import (
 )
 
 func (s *Service) GetSong(tx *sqlx.Tx, songId int) (song models.Song, err error) {
-	log.Debug().Int("songId", songId).Msg("Getting directory")
+	log.Debug().Int("songId", songId).Msg("Getting song")
 
 	exists, err := s.SongRepo.IsExists(tx, songId)
 	if err != nil {
