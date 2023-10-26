@@ -56,12 +56,17 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 
 		songs := api.Group("/songs")
 		{
-			songs.GET("")
+			songs.GET("/:songId")
+			songs.GET("/")
+			songs.GET("/:songId/download")
+			songs.GET("/:songId/cover")
+			songs.GET("/sha256/:sha256")
 		}
 
 		covers := api.Group("/covers")
 		{
-			covers.GET("")
+			covers.GET("/:coverId")
+			covers.GET("/:coverId/download")
 		}
 	}
 
