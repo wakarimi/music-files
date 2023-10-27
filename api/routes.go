@@ -48,8 +48,8 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 		roots := api.Group("/roots")
 		{
 			roots.GET("/", dirHandler.GetRoots)
-			roots.POST("/", dirHandler.TrackRoot)
-			roots.DELETE("/:dirId", dirHandler.UntrackRoot)
+			roots.POST("/", dirHandler.AddRootToWatchList)
+			roots.DELETE("/:dirId", dirHandler.RemoveRootFromWatchList)
 		}
 
 		dirs := api.Group("/dirs")

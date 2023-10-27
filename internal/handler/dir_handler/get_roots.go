@@ -47,7 +47,7 @@ func (h *Handler) GetRoots(c *gin.Context) {
 		return nil
 	})
 	if err != nil {
-		log.Warn().Err(err).Msg("Failed to get root directories")
+		log.Error().Err(err).Msg("Failed to get root directories")
 		c.JSON(http.StatusInternalServerError, responses.Error{
 			Message: "Failed to get root directories",
 			Reason:  err.Error(),
@@ -55,17 +55,17 @@ func (h *Handler) GetRoots(c *gin.Context) {
 		return
 	}
 
-	rootResponseItems := make([]getRootsResponseItem, len(roots))
-	for i, root := range rootResponseItems {
-		rootResponseItems[i] = getRootsResponseItem{
+	responseRootItems := make([]getRootsResponseItem, len(roots))
+	for i, root := range responseRootItems {
+		responseRootItems[i] = getRootsResponseItem{
 			DirId:       root.DirId,
 			Name:        root.Name,
 			LastScanned: root.LastScanned,
 		}
 	}
 
-	log.Debug().Msg("Directories got successfully")
+	log.Debug().Msg("Root directories got successfully")
 	c.JSON(http.StatusOK, getRootsResponse{
-		Dirs: rootResponseItems,
+		Dirs: responseRootItems,
 	})
 }

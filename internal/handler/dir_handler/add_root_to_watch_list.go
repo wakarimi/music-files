@@ -10,21 +10,21 @@ import (
 	"net/http"
 )
 
-// trackRequest is the request model for adding a new directory for tracking
-type trackRequest struct {
+// addRootToWatchListRequest is the request model for adding a new directory for tracking
+type addRootToWatchListRequest struct {
 	// Path to the directory on disk
 	Path string `json:"path" bind:"required"`
 }
 
-// trackResponse is the response model after successfully adding a tracked directory
-type trackResponse struct {
+// addRootToWatchListResponse is the response model after successfully adding a tracked directory
+type addRootToWatchListResponse struct {
 	// Unique identifier of the directory in the database
 	DirId int `json:"dirId"`
 	// Name of the directory
 	Name string `json:"name"`
 }
 
-// TrackRoot
+// AddRootToWatchList
 // @Summary Add a new tracked directory
 // @Description Adds a new directory to the database for tracking
 // @Tags Directories
@@ -37,18 +37,19 @@ type trackResponse struct {
 // @Failure 409 {object} responses.Error "Directory already tracked"
 // @Failure 500 {object} responses.Error "Internal Server Error"
 // @Router  /roots [post]
-func (h *Handler) TrackRoot(c *gin.Context) {
-	log.Debug().Msg("Adding a new directory tracking")
+func (h *Handler) AddRootToWatchList(c *gin.Context) {
+	log.Debug().Msg("Adding a root directory to the watch list")
 
-	var request trackRequest
+	var request addRootToWatchListRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		log.Error().Err(err)
+		log.Error().Err(err).Msg("Failed to encode request")
 		c.JSON(http.StatusBadRequest, responses.Error{
 			Message: "Failed to encode request",
 			Reason:  err.Error(),
 		})
 		return
 	}
+	log.Debug().Str("path", request.Path).Msg("Request encoded successfully")
 
 	var createdDir models.Directory
 	err := h.TransactionManager.WithTransaction(func(tx *sqlx.Tx) (err error) {
@@ -56,35 +57,35 @@ func (h *Handler) TrackRoot(c *gin.Context) {
 			ParentDirId: nil,
 			Name:        request.Path,
 		}
-		createdDir, err = h.DirService.TrackRoot(tx, dirToCreate)
+		createdDir, err = h.DirService.AddRootToWatchList(tx, dirToCreate)
 		if err != nil {
 			return err
 		}
 		return nil
 	})
 	if err != nil {
-		log.Warn().Err(err).Msg("Failed to start tracking directory")
+		log.Error().Err(err).Msg("Failed to add directory to watch list")
 		if _, ok := err.(errors.NotFound); ok {
 			c.JSON(http.StatusNotFound, responses.Error{
-				Message: "Directory not found",
+				Message: "Directory not found on disk",
 				Reason:  err.Error(),
 			})
 		} else if _, ok = err.(errors.Conflict); ok {
 			c.JSON(http.StatusConflict, responses.Error{
-				Message: "Directory already tracked",
+				Message: "The directory is already being tracked",
 				Reason:  err.Error(),
 			})
 		} else {
 			c.JSON(http.StatusInternalServerError, responses.Error{
-				Message: "Failed to start tracking directory",
+				Message: "Failed to add directory to watch list",
 				Reason:  err.Error(),
 			})
 		}
 		return
 	}
 
-	log.Debug().Msg("Directory added to tracked")
-	c.JSON(http.StatusCreated, trackResponse{
+	log.Debug().Msg("Directory added to watch list successfully")
+	c.JSON(http.StatusCreated, addRootToWatchListResponse{
 		DirId: createdDir.DirId,
 		Name:  createdDir.Name,
 	})

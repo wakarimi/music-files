@@ -10,7 +10,7 @@ import (
 	"strconv"
 )
 
-// UntrackRoot
+// RemoveRootFromWatchList
 // @Summary Remove a tracked root directory
 // @Description Stops tracking a directory with a specified root directory ID
 // @Tags Directories
@@ -22,8 +22,8 @@ import (
 // @Failure 404 {object} responses.Error "Directory not found"
 // @Failure 500 {object} responses.Error "Internal Server Error"
 // @Router  /roots/{dirId} [delete]
-func (h *Handler) UntrackRoot(c *gin.Context) {
-	log.Debug().Msg("Removing directories from tracked")
+func (h *Handler) RemoveRootFromWatchList(c *gin.Context) {
+	log.Debug().Msg("Removing directories from watch list")
 
 	dirIdStr := c.Param("dirId")
 	dirId, err := strconv.Atoi(dirIdStr)
@@ -38,17 +38,17 @@ func (h *Handler) UntrackRoot(c *gin.Context) {
 	log.Debug().Int("dirId", dirId).Msg("Url parameter read successfully")
 
 	err = h.TransactionManager.WithTransaction(func(tx *sqlx.Tx) (err error) {
-		err = h.DirService.UntrackRoot(tx, dirId)
+		err = h.DirService.RemoveRootFromWatchList(tx, dirId)
 		if err != nil {
 			return err
 		}
 		return nil
 	})
 	if err != nil {
-		log.Warn().Err(err).Msg("Failed to stop tracking directory")
+		log.Error().Err(err).Msg("Failed to remove directory from watch list")
 		if _, ok := err.(errors.NotFound); ok {
 			c.JSON(http.StatusNotFound, responses.Error{
-				Message: "Directory not found",
+				Message: "Directory not found in database",
 				Reason:  err.Error(),
 			})
 		} else if _, ok = err.(errors.BadRequest); ok {
@@ -58,7 +58,7 @@ func (h *Handler) UntrackRoot(c *gin.Context) {
 			})
 		} else {
 			c.JSON(http.StatusInternalServerError, responses.Error{
-				Message: "Failed to stop tracking directory",
+				Message: "Failed to remove directory from watch list",
 				Reason:  err.Error(),
 			})
 		}

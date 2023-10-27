@@ -7,7 +7,7 @@ import (
 )
 
 func (r *Repository) ReadRoots(tx *sqlx.Tx) (dirs []models.Directory, err error) {
-	log.Debug().Msg("Fetching root directories")
+	log.Debug().Msg("Reading root directories")
 
 	query := `
 		SELECT * 
@@ -16,10 +16,10 @@ func (r *Repository) ReadRoots(tx *sqlx.Tx) (dirs []models.Directory, err error)
 	`
 	err = tx.Select(&dirs, query)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to fetch root directories")
+		log.Error().Err(err).Msg("Failed to read root directories")
 		return nil, err
 	}
 
-	log.Debug().Int("dirsCount", len(dirs)).Msg("All root directories fetched successfully")
+	log.Debug().Int("countOfRootDirs", len(dirs)).Msg("All root directories read successfully")
 	return dirs, nil
 }
