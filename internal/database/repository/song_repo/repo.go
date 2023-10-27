@@ -10,6 +10,7 @@ type Repo interface {
 	Read(tx *sqlx.Tx, songId int) (song models.Song, err error)
 	ReadByDirAndName(tx *sqlx.Tx, dirId int, name string) (song models.Song, err error)
 	ReadAll(tx *sqlx.Tx) (songs []models.Song, err error)
+	ReadAllBySha256(tx *sqlx.Tx, sha256 string) (songs []models.Song, err error)
 	ReadAllByDir(tx *sqlx.Tx, dirId int) (songs []models.Song, err error)
 	Update(tx *sqlx.Tx, songId int, song models.Song) (err error)
 	Delete(tx *sqlx.Tx, songId int) (err error)
