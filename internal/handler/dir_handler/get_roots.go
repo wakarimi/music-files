@@ -56,7 +56,7 @@ func (h *Handler) GetRoots(c *gin.Context) {
 	}
 
 	responseRootItems := make([]getRootsResponseItem, len(roots))
-	for i, root := range responseRootItems {
+	for i, root := range roots {
 		responseRootItems[i] = getRootsResponseItem{
 			DirId:       root.DirId,
 			Name:        root.Name,
