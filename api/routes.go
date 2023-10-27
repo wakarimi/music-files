@@ -65,7 +65,7 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 			songs.GET("/:songId", songHandler.GetSong)
 			songs.GET("/", songHandler.GetAll)
 			songs.GET("/:songId/download", songHandler.Download)
-			songs.GET("/:songId/cover")
+			songs.GET("/:songId/cover", songHandler.GetCover)
 			songs.GET("/sha256/:sha256")
 		}
 
