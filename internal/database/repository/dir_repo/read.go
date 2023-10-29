@@ -8,8 +8,7 @@ import (
 )
 
 func (r *Repository) Read(tx *sqlx.Tx, dirId int) (dir models.Directory, err error) {
-	log.Debug().Int("dirId", dirId).
-		Msg("Fetching directory by id")
+	log.Debug().Int("dirId", dirId).Msg("Fetching directory by id")
 
 	query := `
 		SELECT *
@@ -27,7 +26,7 @@ func (r *Repository) Read(tx *sqlx.Tx, dirId int) (dir models.Directory, err err
 	defer func(rows *sqlx.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Error().Err(err)
+			log.Error().Err(err).Msg("Failed to close rows")
 		}
 	}(rows)
 	if rows.Next() {
@@ -36,12 +35,11 @@ func (r *Repository) Read(tx *sqlx.Tx, dirId int) (dir models.Directory, err err
 			return models.Directory{}, err
 		}
 	} else {
-		err := fmt.Errorf("No directory found with dirId: %d", dirId)
+		err := fmt.Errorf("no directory found with dir_id: %d", dirId)
 		log.Error().Err(err)
 		return models.Directory{}, err
 	}
 
-	log.Debug().Str("name", dir.Name).
-		Msg("Directory fetched by id successfully")
+	log.Debug().Str("name", dir.Name).Msg("Directory fetched by id successfully")
 	return dir, nil
 }

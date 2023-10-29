@@ -19,20 +19,20 @@ func (r *Repository) ReadSubDirs(tx *sqlx.Tx, parentDirId int) (dirs []models.Di
 	}
 	rows, err := tx.NamedQuery(query, args)
 	if err != nil {
-		log.Error().Err(err)
+		log.Error().Err(err).Int("parentDirId", parentDirId).Str("query", query).Msg("Failed to execute query to read subdirectories")
 		return nil, err
 	}
 	defer func(rows *sqlx.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Error().Err(err)
+			log.Error().Err(err).Msg("Failed to close rows")
 		}
 	}(rows)
 
 	for rows.Next() {
 		var dir models.Directory
 		if err = rows.StructScan(&dir); err != nil {
-			log.Error().Err(err)
+			log.Error().Err(err).Int("parentDirId", parentDirId).Msg("Failed to get read result")
 			return nil, err
 		}
 		dirs = append(dirs, dir)

@@ -48,7 +48,7 @@ func loadConfiguration() (cfg *config.Configuration) {
 	if err != nil {
 		log.Panic().Err(err).Msg("Failed to load configuration")
 	}
-	log.Debug().Msg("Configuration loaded")
+	log.Info().Msg("Configuration loaded")
 	return cfg
 }
 

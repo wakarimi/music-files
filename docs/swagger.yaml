@@ -1,5 +1,153 @@
 basePath: /api
 definitions:
+  audio_file_handler.getAudioFileResponse:
+    properties:
+      audioFileId:
+        description: Unique identifier for the audioFile
+        type: integer
+      bitrateKbps:
+        description: Bitrate in kilobits per second
+        type: integer
+      channelsN:
+        description: Number of audio channels
+        type: integer
+      dirId:
+        description: Directory identifier where the audioFile resides
+        type: integer
+      durationMs:
+        description: Duration of the audioFile in milliseconds
+        type: integer
+      extension:
+        description: File extension of the audioFile
+        type: string
+      filename:
+        description: Filename of the audioFile
+        type: string
+      lastContentUpdate:
+        description: Time of the last update to the audioFile's content
+        type: string
+      sampleRateHz:
+        description: Sample rate in hertz
+        type: integer
+      sha256:
+        description: SHA-256 hash of the file
+        type: string
+      sizeByte:
+        description: File size in bytes
+        type: integer
+    type: object
+  audio_file_handler.getAudioFilesResponse:
+    properties:
+      audioFiles:
+        description: Array containing audioFile items
+        items:
+          $ref: '#/definitions/audio_file_handler.getAudioFilesResponseItem'
+        type: array
+    type: object
+  audio_file_handler.getAudioFilesResponseItem:
+    properties:
+      audioFileId:
+        description: Unique identifier for the audioFile
+        type: integer
+      bitrateKbps:
+        description: Bitrate in kilobits per second
+        type: integer
+      channelsN:
+        description: Number of audio channels
+        type: integer
+      dirId:
+        description: Directory identifier where the audioFile resides
+        type: integer
+      durationMs:
+        description: Duration of the audioFile in milliseconds
+        type: integer
+      extension:
+        description: File extension of the audioFile
+        type: string
+      filename:
+        description: Filename of the audioFile
+        type: string
+      lastContentUpdate:
+        description: Time of the last update to the audioFile's content
+        type: string
+      sampleRateHz:
+        description: Sample rate in hertz
+        type: integer
+      sha256:
+        description: SHA-256 hash of the file
+        type: string
+      sizeByte:
+        description: File size in bytes
+        type: integer
+    type: object
+  audio_file_handler.getCoverResponse:
+    properties:
+      coverId:
+        description: Unique identifier for the cover.
+        type: integer
+      extension:
+        description: File extension of the cover.
+        type: string
+      heightPx:
+        description: Height of the cover in pixels.
+        type: integer
+      lastContentUpdate:
+        description: Timestamp of the last content update.
+        type: string
+      sha256:
+        description: SHA-256 hash of the cover.
+        type: string
+      sizeByte:
+        description: File size of the cover in bytes.
+        type: integer
+      widthPx:
+        description: Width of the cover in pixels.
+        type: integer
+    type: object
+  audio_file_handler.searchBySha256Response:
+    properties:
+      audioFiles:
+        description: Array of audioFiles that match the search query.
+        items:
+          $ref: '#/definitions/audio_file_handler.searchBySha256ResponseItem'
+        type: array
+    type: object
+  audio_file_handler.searchBySha256ResponseItem:
+    properties:
+      audioFileId:
+        description: Unique identifier for the audioFile.
+        type: integer
+      bitrateKbps:
+        description: Bitrate of the audioFile in Kbps.
+        type: integer
+      channelsN:
+        description: Number of channels in the audioFile.
+        type: integer
+      dirId:
+        description: Directory ID where the audioFile is located.
+        type: integer
+      durationMs:
+        description: Duration of the audioFile in milliseconds.
+        type: integer
+      extension:
+        description: File extension of the audioFile.
+        type: string
+      filename:
+        description: Filename of the audioFile.
+        type: string
+      lastContentUpdate:
+        description: Timestamp of the last content update.
+        type: string
+      sampleRateHz:
+        description: Sample rate of the audioFile in Hz.
+        type: integer
+      sha256:
+        description: SHA-256 hash of the audioFile.
+        type: string
+      sizeByte:
+        description: File size of the audioFile in bytes.
+        type: integer
+    type: object
   cover_handler.getCoverResponse:
     properties:
       coverId:
@@ -41,28 +189,22 @@ definitions:
     type: object
   dir_handler.contentResponse:
     properties:
+      audioFiles:
+        description: Array containing audioFile items
+        items:
+          $ref: '#/definitions/dir_handler.contentResponseAudioFileItem'
+        type: array
       dirs:
         description: Array containing directory items
         items:
           $ref: '#/definitions/dir_handler.contentResponseDirItem'
         type: array
-      songs:
-        description: Array containing song items
-        items:
-          $ref: '#/definitions/dir_handler.contentResponseSongItem'
-        type: array
     type: object
-  dir_handler.contentResponseDirItem:
+  dir_handler.contentResponseAudioFileItem:
     properties:
-      dirId:
-        description: Unique identifier for the directory
+      audioFileId:
+        description: Unique identifier for the audioFile
         type: integer
-      name:
-        description: Name of the directory
-        type: string
-    type: object
-  dir_handler.contentResponseSongItem:
-    properties:
       bitrateKbps:
         description: Bitrate in kilobits per second
         type: integer
@@ -70,19 +212,19 @@ definitions:
         description: Number of audio channels
         type: integer
       dirId:
-        description: Directory identifier where the song resides
+        description: Directory identifier where the audioFile resides
         type: integer
       durationMs:
-        description: Duration of the song in milliseconds
+        description: Duration of the audioFile in milliseconds
         type: integer
       extension:
-        description: File extension of the song
+        description: File extension of the audioFile
         type: string
       filename:
-        description: Filename of the song
+        description: Filename of the audioFile
         type: string
       lastContentUpdate:
-        description: Time of the last update to the song's content
+        description: Time of the last update to the audioFile's content
         type: string
       sampleRateHz:
         description: Sample rate in hertz
@@ -93,9 +235,15 @@ definitions:
       sizeByte:
         description: File size in bytes
         type: integer
-      songId:
-        description: Unique identifier for the song
+    type: object
+  dir_handler.contentResponseDirItem:
+    properties:
+      dirId:
+        description: Unique identifier for the directory
         type: integer
+      name:
+        description: Name of the directory
+        type: string
     type: object
   dir_handler.getRootsResponse:
     properties:
@@ -124,154 +272,6 @@ definitions:
       reason:
         type: string
     type: object
-  song_handler.getCoverResponse:
-    properties:
-      coverId:
-        description: Unique identifier for the cover.
-        type: integer
-      extension:
-        description: File extension of the cover.
-        type: string
-      heightPx:
-        description: Height of the cover in pixels.
-        type: integer
-      lastContentUpdate:
-        description: Timestamp of the last content update.
-        type: string
-      sha256:
-        description: SHA-256 hash of the cover.
-        type: string
-      sizeByte:
-        description: File size of the cover in bytes.
-        type: integer
-      widthPx:
-        description: Width of the cover in pixels.
-        type: integer
-    type: object
-  song_handler.getSongResponse:
-    properties:
-      bitrateKbps:
-        description: Bitrate in kilobits per second
-        type: integer
-      channelsN:
-        description: Number of audio channels
-        type: integer
-      dirId:
-        description: Directory identifier where the song resides
-        type: integer
-      durationMs:
-        description: Duration of the song in milliseconds
-        type: integer
-      extension:
-        description: File extension of the song
-        type: string
-      filename:
-        description: Filename of the song
-        type: string
-      lastContentUpdate:
-        description: Time of the last update to the song's content
-        type: string
-      sampleRateHz:
-        description: Sample rate in hertz
-        type: integer
-      sha256:
-        description: SHA-256 hash of the file
-        type: string
-      sizeByte:
-        description: File size in bytes
-        type: integer
-      songId:
-        description: Unique identifier for the song
-        type: integer
-    type: object
-  song_handler.getSongsResponse:
-    properties:
-      songs:
-        description: Array containing song items
-        items:
-          $ref: '#/definitions/song_handler.getSongsResponseItem'
-        type: array
-    type: object
-  song_handler.getSongsResponseItem:
-    properties:
-      bitrateKbps:
-        description: Bitrate in kilobits per second
-        type: integer
-      channelsN:
-        description: Number of audio channels
-        type: integer
-      dirId:
-        description: Directory identifier where the song resides
-        type: integer
-      durationMs:
-        description: Duration of the song in milliseconds
-        type: integer
-      extension:
-        description: File extension of the song
-        type: string
-      filename:
-        description: Filename of the song
-        type: string
-      lastContentUpdate:
-        description: Time of the last update to the song's content
-        type: string
-      sampleRateHz:
-        description: Sample rate in hertz
-        type: integer
-      sha256:
-        description: SHA-256 hash of the file
-        type: string
-      sizeByte:
-        description: File size in bytes
-        type: integer
-      songId:
-        description: Unique identifier for the song
-        type: integer
-    type: object
-  song_handler.searchBySha256Response:
-    properties:
-      songs:
-        description: Array of songs that match the search query.
-        items:
-          $ref: '#/definitions/song_handler.searchBySha256ResponseItem'
-        type: array
-    type: object
-  song_handler.searchBySha256ResponseItem:
-    properties:
-      bitrateKbps:
-        description: Bitrate of the song in Kbps.
-        type: integer
-      channelsN:
-        description: Number of channels in the song.
-        type: integer
-      dirId:
-        description: Directory ID where the song is located.
-        type: integer
-      durationMs:
-        description: Duration of the song in milliseconds.
-        type: integer
-      extension:
-        description: File extension of the song.
-        type: string
-      filename:
-        description: Filename of the song.
-        type: string
-      lastContentUpdate:
-        description: Timestamp of the last content update.
-        type: string
-      sampleRateHz:
-        description: Sample rate of the song in Hz.
-        type: integer
-      sha256:
-        description: SHA-256 hash of the song.
-        type: string
-      sizeByte:
-        description: File size of the song in bytes.
-        type: integer
-      songId:
-        description: Unique identifier for the song.
-        type: integer
-    type: object
 host: localhost:8022
 info:
   contact:
@@ -283,6 +283,153 @@ info:
   title: Wakarimi Music Files API
   version: "0.4"
 paths:
+  /audio-files:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all audioFiles in the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/audio_file_handler.getAudioFilesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Retrieve all audioFiles
+      tags:
+      - AudioFiles
+  /audio-files/{audioFileId}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a single audioFile by its ID
+      parameters:
+      - description: AudioFile ID
+        in: path
+        name: audioFileId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/audio_file_handler.getAudioFileResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Retrieve a audioFile by its ID
+      tags:
+      - AudioFiles
+  /audio-files/{audioFileId}/cover:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves detailed information about a cover for a audioFile by
+        its ID.
+      parameters:
+      - description: AudioFile ID
+        in: path
+        name: audioFileId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/audio_file_handler.getCoverResponse'
+        "400":
+          description: Invalid audioFileId format
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "404":
+          description: Cover not found
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Retrieve a cover for a audioFile by ID
+      tags:
+      - Covers
+  /audio-files/{audioFileId}/download:
+    get:
+      consumes:
+      - application/json
+      description: Downloads a audio file identified by the audioFileId
+      parameters:
+      - description: Audio File ID
+        in: path
+        name: audioFileId
+        required: true
+        type: integer
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Audio File
+          headers:
+            Content-Disposition:
+              description: attachment; filename=[name of the file]
+              type: string
+            Content-Type:
+              description: application/octet-stream
+              type: string
+          schema:
+            type: file
+        "400":
+          description: Invalid audioFileId format
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error, Failed to calculate absolute path
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Download a audio file by ID
+      tags:
+      - AudioFiles
+  /audio-files/sha256/{sha256}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of audioFiles that have the specified SHA256 hash.
+      parameters:
+      - description: SHA256 hash
+        in: path
+        name: sha256
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/audio_file_handler.searchBySha256Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Search audioFiles by SHA256 hash
+      tags:
+      - AudioFiles
   /covers/{coverId}:
     get:
       consumes:
@@ -522,151 +669,4 @@ paths:
       summary: Remove a tracked root directory
       tags:
       - Directories
-  /songs:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves a list of all songs in the system
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/song_handler.getSongsResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/responses.Error'
-      summary: Retrieve all songs
-      tags:
-      - Songs
-  /songs/{songId}:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves a single song by its ID
-      parameters:
-      - description: Song ID
-        in: path
-        name: songId
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/song_handler.getSongResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/responses.Error'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/responses.Error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/responses.Error'
-      summary: Retrieve a song by its ID
-      tags:
-      - Songs
-  /songs/{songId}/cover:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves detailed information about a cover for a song by its
-        ID.
-      parameters:
-      - description: Song ID
-        in: path
-        name: songId
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/song_handler.getCoverResponse'
-        "400":
-          description: Invalid songId format
-          schema:
-            $ref: '#/definitions/responses.Error'
-        "404":
-          description: Cover not found
-          schema:
-            $ref: '#/definitions/responses.Error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/responses.Error'
-      summary: Retrieve a cover for a song by ID
-      tags:
-      - Covers
-  /songs/{songId}/download:
-    get:
-      consumes:
-      - application/json
-      description: Downloads a song file identified by the songId
-      parameters:
-      - description: Song ID
-        in: path
-        name: songId
-        required: true
-        type: integer
-      produces:
-      - application/octet-stream
-      responses:
-        "200":
-          description: Song File
-          headers:
-            Content-Disposition:
-              description: attachment; filename=[name of the file]
-              type: string
-            Content-Type:
-              description: application/octet-stream
-              type: string
-          schema:
-            type: file
-        "400":
-          description: Invalid songId format
-          schema:
-            $ref: '#/definitions/responses.Error'
-        "500":
-          description: Internal Server Error, Failed to calculate absolute path
-          schema:
-            $ref: '#/definitions/responses.Error'
-      summary: Download a song by ID
-      tags:
-      - Songs
-  /songs/sha256/{sha256}:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves a list of songs that have the specified SHA256 hash.
-      parameters:
-      - description: SHA256 hash
-        in: path
-        name: sha256
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/song_handler.searchBySha256Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/responses.Error'
-      summary: Search songs by SHA256 hash
-      tags:
-      - Songs
 swagger: "2.0"

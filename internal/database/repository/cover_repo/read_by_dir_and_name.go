@@ -7,7 +7,9 @@ import (
 	"music-files/internal/models"
 )
 
-func (r Repository) ReadByDirAndName(tx *sqlx.Tx, dirId int, name string) (song models.Cover, err error) {
+func (r Repository) ReadByDirAndName(tx *sqlx.Tx, dirId int, name string) (cover models.Cover, err error) {
+	log.Debug().Int("dirId", dirId).Str("name", name).Msg("Reading cover from database")
+
 	query := `
 		SELECT *
 		FROM covers
@@ -20,22 +22,26 @@ func (r Repository) ReadByDirAndName(tx *sqlx.Tx, dirId int, name string) (song 
 	}
 	rows, err := tx.NamedQuery(query, args)
 	if err != nil {
+		log.Error().Err(err).Int("dirId", dirId).Str("name", name).Str("query", query).Msg("Failed to execute query to read cover")
 		return models.Cover{}, err
 	}
 	defer func(rows *sqlx.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Error().Err(err)
+			log.Error().Err(err).Msg("Failed to close rows")
 		}
 	}(rows)
 	if rows.Next() {
-		if err = rows.StructScan(&song); err != nil {
+		if err = rows.StructScan(&cover); err != nil {
+			log.Error().Err(err).Int("dirId", dirId).Str("name", name).Msg("Failed to get read result")
 			return models.Cover{}, err
 		}
 	} else {
-		err := fmt.Errorf("No cover found with dir_id: %d and name: %s", dirId, name)
+		err := fmt.Errorf("no cover found with dir_id: %d and name: %s", dirId, name)
+		log.Error().Err(err).Int("dirId", dirId).Str("name", name).Msg("Cover not found")
 		return models.Cover{}, err
 	}
 
-	return song, nil
+	log.Debug().Interface("cover", cover).Msg("Cover read successfully")
+	return cover, nil
 }

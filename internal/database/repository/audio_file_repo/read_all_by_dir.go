@@ -1,4 +1,4 @@
-package cover_repo
+package audio_file_repo
 
 import (
 	"github.com/jmoiron/sqlx"
@@ -6,12 +6,12 @@ import (
 	"music-files/internal/models"
 )
 
-func (r Repository) ReadAllByDir(tx *sqlx.Tx, dirId int) (covers []models.Cover, err error) {
-	log.Debug().Int("dirId", dirId).Msg("Reading covers by directory from database")
+func (r Repository) ReadAllByDir(tx *sqlx.Tx, dirId int) (audioFiles []models.AudioFile, err error) {
+	log.Debug().Int("dirId", dirId).Msg("Reading audio files by directory from database")
 
 	query := `
 		SELECT * 
-		FROM covers
+		FROM audio_files
 		WHERE dir_id = :dir_id
 	`
 	args := map[string]interface{}{
@@ -19,7 +19,7 @@ func (r Repository) ReadAllByDir(tx *sqlx.Tx, dirId int) (covers []models.Cover,
 	}
 	rows, err := tx.NamedQuery(query, args)
 	if err != nil {
-		log.Error().Err(err).Int("dirId", dirId).Str("query", query).Msg("Failed to execute query to read cover by dirId")
+		log.Error().Err(err).Int("dirId", dirId).Str("query", query).Msg("Failed to execute query to read audio files by dirId")
 		return nil, err
 	}
 	defer func(rows *sqlx.Rows) {
@@ -30,14 +30,14 @@ func (r Repository) ReadAllByDir(tx *sqlx.Tx, dirId int) (covers []models.Cover,
 	}(rows)
 
 	for rows.Next() {
-		var audioFile models.Cover
+		var audioFile models.AudioFile
 		if err = rows.StructScan(&audioFile); err != nil {
 			log.Error().Err(err).Int("dirId", dirId).Msg("Failed to get read result")
 			return nil, err
 		}
-		covers = append(covers, audioFile)
+		audioFiles = append(audioFiles, audioFile)
 	}
 
-	log.Debug().Int("dirId", dirId).Int("countOfCoversInDir", len(covers)).Msg("Covers by dirId read successfully")
-	return covers, nil
+	log.Debug().Int("dirId", dirId).Int("countOfAudioFilesInDir", len(audioFiles)).Msg("Audio files by dirId read successfully")
+	return audioFiles, nil
 }

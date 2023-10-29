@@ -1,4 +1,4 @@
-package cover_repo
+package audio_file_repo
 
 import (
 	"github.com/jmoiron/sqlx"
@@ -6,12 +6,12 @@ import (
 )
 
 func (r Repository) IsExistsByDirAndName(tx *sqlx.Tx, dirId int, name string) (exists bool, err error) {
-	log.Debug().Int("dirId", dirId).Str("name", name).Msg("Checking for the existence of a cover in the database by dirId and name")
+	log.Debug().Int("dirId", dirId).Str("name", name).Msg("Checking for the existence of a audio file in the database by dirId and name")
 
 	query := `
 		SELECT EXISTS (
 			SELECT 1 
-			FROM covers
+			FROM audio_files
 			WHERE dir_id = :dir_id
 				AND filename = :name
 		)
@@ -38,6 +38,6 @@ func (r Repository) IsExistsByDirAndName(tx *sqlx.Tx, dirId int, name string) (e
 		}
 	}
 
-	log.Debug().Int("dirId", dirId).Str("name", name).Bool("exists", exists).Msg("The existence of the cover was checked successfully")
+	log.Debug().Int("dirId", dirId).Str("name", name).Bool("exists", exists).Msg("The existence of the audio file was checked successfully")
 	return exists, nil
 }

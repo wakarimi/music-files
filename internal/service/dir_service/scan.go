@@ -126,7 +126,7 @@ func (s *Service) actualizeSubDirs(tx *sqlx.Tx, dirId int) (err error) {
 }
 
 func (s *Service) scanContent(tx *sqlx.Tx, dirId int) (err error) {
-	err = s.actualizeSongs(tx, dirId)
+	err = s.actualizeAudioFiles(tx, dirId)
 	if err != nil {
 		return err
 	}
@@ -139,7 +139,7 @@ func (s *Service) scanContent(tx *sqlx.Tx, dirId int) (err error) {
 	return nil
 }
 
-func (s *Service) actualizeSongs(tx *sqlx.Tx, dirId int) (err error) {
+func (s *Service) actualizeAudioFiles(tx *sqlx.Tx, dirId int) (err error) {
 	absolutePath, err := s.AbsolutePath(tx, dirId)
 	if err != nil {
 		return err
@@ -162,42 +162,42 @@ func (s *Service) actualizeSongs(tx *sqlx.Tx, dirId int) (err error) {
 				return err
 			}
 
-			alreadyInDatabase, err := s.SongService.IsExistsByDirAndName(tx, dirId, entry.Name())
+			alreadyInDatabase, err := s.AudioFileService.IsExistsByDirAndName(tx, dirId, entry.Name())
 			if err != nil {
 				return err
 			}
 
 			if alreadyInDatabase {
-				song, err := s.SongService.GetByDirAndName(tx, dirId, entry.Name())
+				audioFile, err := s.AudioFileService.GetByDirAndName(tx, dirId, entry.Name())
 				if err != nil {
 
 				}
-				sha256InDatabase := song.Sha256
+				sha256InDatabase := audioFile.Sha256
 
 				if sha256OnDisk == sha256InDatabase {
 					continue
 				}
 
-				songToUpdate, err := s.prepareSongByAbsolutePath(absolutePath)
+				audioFileToUpdate, err := s.prepareAudioFileByAbsolutePath(absolutePath)
 				if err != nil {
 					return err
 				}
-				songToUpdate.DirId = dirId
-				songToUpdate.Sha256 = sha256OnDisk
+				audioFileToUpdate.DirId = dirId
+				audioFileToUpdate.Sha256 = sha256OnDisk
 
-				_, err = s.SongService.Update(tx, song.SongId, songToUpdate)
+				_, err = s.AudioFileService.Update(tx, audioFile.AudioFileId, audioFileToUpdate)
 				if err != nil {
 					return err
 				}
 			} else {
-				songToCreate, err := s.prepareSongByAbsolutePath(fileAbsolutePath)
+				audioFileToCreate, err := s.prepareAudioFileByAbsolutePath(fileAbsolutePath)
 				if err != nil {
 					return err
 				}
-				songToCreate.DirId = dirId
-				songToCreate.Sha256 = sha256OnDisk
+				audioFileToCreate.DirId = dirId
+				audioFileToCreate.Sha256 = sha256OnDisk
 
-				_, err = s.SongService.Create(tx, songToCreate)
+				_, err = s.AudioFileService.Create(tx, audioFileToCreate)
 				if err != nil {
 					return err
 				}
@@ -206,12 +206,12 @@ func (s *Service) actualizeSongs(tx *sqlx.Tx, dirId int) (err error) {
 		}
 	}
 
-	songs, err := s.SongService.GetAllByDir(tx, dirId)
+	audioFiles, err := s.AudioFileService.GetAllByDir(tx, dirId)
 	if err != nil {
 		return err
 	}
 
-	for _, song := range songs {
+	for _, audioFile := range audioFiles {
 		foundOnDisk := false
 
 		for _, entry := range entries {
@@ -222,14 +222,14 @@ func (s *Service) actualizeSongs(tx *sqlx.Tx, dirId int) (err error) {
 			}
 
 			if isMusicFile {
-				if song.Filename == entry.Name() {
+				if audioFile.Filename == entry.Name() {
 					foundOnDisk = true
 				}
 			}
 		}
 
 		if !foundOnDisk {
-			err = s.SongService.Delete(tx, song.SongId)
+			err = s.AudioFileService.Delete(tx, audioFile.AudioFileId)
 		}
 	}
 
@@ -259,20 +259,20 @@ func (s *Service) actualizeSongs(tx *sqlx.Tx, dirId int) (err error) {
 	return nil
 }
 
-func (s *Service) prepareSongByAbsolutePath(absolutePath string) (song models.Song, err error) {
+func (s *Service) prepareAudioFileByAbsolutePath(absolutePath string) (audioFile models.AudioFile, err error) {
 	fileInfo, err := os.Stat(absolutePath)
 	if err != nil {
-		return models.Song{}, err
+		return models.AudioFile{}, err
 	}
 
 	fileDetails, err := taglib.Read(absolutePath)
 	if err != nil {
-		return models.Song{}, err
+		return models.AudioFile{}, err
 	}
 
 	durationMs := int64(fileDetails.Length() / time.Millisecond)
 
-	song = models.Song{
+	audioFile = models.AudioFile{
 		Filename:     fileInfo.Name(),
 		Extension:    filepath.Ext(absolutePath),
 		SizeByte:     fileInfo.Size(),
@@ -282,7 +282,7 @@ func (s *Service) prepareSongByAbsolutePath(absolutePath string) (song models.So
 		ChannelsN:    fileDetails.Channels(),
 	}
 
-	return song, nil
+	return audioFile, nil
 }
 
 func (s *Service) actualizeCovers(tx *sqlx.Tx, dirId int) (err error) {
@@ -414,7 +414,7 @@ func (s *Service) actualizeCovers(tx *sqlx.Tx, dirId int) (err error) {
 	return nil
 }
 
-func (s *Service) prepareCoverByAbsolutePath(absolutePath string) (song models.Cover, err error) {
+func (s *Service) prepareCoverByAbsolutePath(absolutePath string) (audioFile models.Cover, err error) {
 	fileInfo, err := os.Stat(absolutePath)
 	if err != nil {
 		return models.Cover{}, err
@@ -431,7 +431,7 @@ func (s *Service) prepareCoverByAbsolutePath(absolutePath string) (song models.C
 		return models.Cover{}, err
 	}
 
-	song = models.Cover{
+	audioFile = models.Cover{
 		Filename:  fileInfo.Name(),
 		Extension: filepath.Ext(absolutePath),
 		SizeByte:  fileInfo.Size(),
@@ -439,5 +439,5 @@ func (s *Service) prepareCoverByAbsolutePath(absolutePath string) (song models.C
 		HeightPx:  img.Height,
 	}
 
-	return song, nil
+	return audioFile, nil
 }

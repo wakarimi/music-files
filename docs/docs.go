@@ -22,6 +22,227 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/audio-files": {
+            "get": {
+                "description": "Retrieves a list of all audioFiles in the system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AudioFiles"
+                ],
+                "summary": "Retrieve all audioFiles",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/audio_file_handler.getAudioFilesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/audio-files/sha256/{sha256}": {
+            "get": {
+                "description": "Retrieves a list of audioFiles that have the specified SHA256 hash.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AudioFiles"
+                ],
+                "summary": "Search audioFiles by SHA256 hash",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "SHA256 hash",
+                        "name": "sha256",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/audio_file_handler.searchBySha256Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/audio-files/{audioFileId}": {
+            "get": {
+                "description": "Retrieves a single audioFile by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AudioFiles"
+                ],
+                "summary": "Retrieve a audioFile by its ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "AudioFile ID",
+                        "name": "audioFileId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/audio_file_handler.getAudioFileResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/audio-files/{audioFileId}/cover": {
+            "get": {
+                "description": "Retrieves detailed information about a cover for a audioFile by its ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Covers"
+                ],
+                "summary": "Retrieve a cover for a audioFile by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "AudioFile ID",
+                        "name": "audioFileId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/audio_file_handler.getCoverResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid audioFileId format",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Cover not found",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/audio-files/{audioFileId}/download": {
+            "get": {
+                "description": "Downloads a audio file identified by the audioFileId",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "AudioFiles"
+                ],
+                "summary": "Download a audio file by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Audio File ID",
+                        "name": "audioFileId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Audio File",
+                        "schema": {
+                            "type": "file"
+                        },
+                        "headers": {
+                            "Content-Disposition": {
+                                "type": "string",
+                                "description": "attachment; filename=[name of the file]"
+                            },
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "application/octet-stream"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid audioFileId format",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error, Failed to calculate absolute path",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/covers/{coverId}": {
             "get": {
                 "description": "Retrieves detailed information about a cover by its ID",
@@ -380,230 +601,213 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/songs": {
-            "get": {
-                "description": "Retrieves a list of all songs in the system",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Songs"
-                ],
-                "summary": "Retrieve all songs",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/song_handler.getSongsResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/responses.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/songs/sha256/{sha256}": {
-            "get": {
-                "description": "Retrieves a list of songs that have the specified SHA256 hash.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Songs"
-                ],
-                "summary": "Search songs by SHA256 hash",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "SHA256 hash",
-                        "name": "sha256",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/song_handler.searchBySha256Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/responses.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/songs/{songId}": {
-            "get": {
-                "description": "Retrieves a single song by its ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Songs"
-                ],
-                "summary": "Retrieve a song by its ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Song ID",
-                        "name": "songId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/song_handler.getSongResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/responses.Error"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/responses.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/responses.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/songs/{songId}/cover": {
-            "get": {
-                "description": "Retrieves detailed information about a cover for a song by its ID.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Covers"
-                ],
-                "summary": "Retrieve a cover for a song by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Song ID",
-                        "name": "songId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/song_handler.getCoverResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid songId format",
-                        "schema": {
-                            "$ref": "#/definitions/responses.Error"
-                        }
-                    },
-                    "404": {
-                        "description": "Cover not found",
-                        "schema": {
-                            "$ref": "#/definitions/responses.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/responses.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/songs/{songId}/download": {
-            "get": {
-                "description": "Downloads a song file identified by the songId",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/octet-stream"
-                ],
-                "tags": [
-                    "Songs"
-                ],
-                "summary": "Download a song by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Song ID",
-                        "name": "songId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Song File",
-                        "schema": {
-                            "type": "file"
-                        },
-                        "headers": {
-                            "Content-Disposition": {
-                                "type": "string",
-                                "description": "attachment; filename=[name of the file]"
-                            },
-                            "Content-Type": {
-                                "type": "string",
-                                "description": "application/octet-stream"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid songId format",
-                        "schema": {
-                            "$ref": "#/definitions/responses.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error, Failed to calculate absolute path",
-                        "schema": {
-                            "$ref": "#/definitions/responses.Error"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
+        "audio_file_handler.getAudioFileResponse": {
+            "type": "object",
+            "properties": {
+                "audioFileId": {
+                    "description": "Unique identifier for the audioFile",
+                    "type": "integer"
+                },
+                "bitrateKbps": {
+                    "description": "Bitrate in kilobits per second",
+                    "type": "integer"
+                },
+                "channelsN": {
+                    "description": "Number of audio channels",
+                    "type": "integer"
+                },
+                "dirId": {
+                    "description": "Directory identifier where the audioFile resides",
+                    "type": "integer"
+                },
+                "durationMs": {
+                    "description": "Duration of the audioFile in milliseconds",
+                    "type": "integer"
+                },
+                "extension": {
+                    "description": "File extension of the audioFile",
+                    "type": "string"
+                },
+                "filename": {
+                    "description": "Filename of the audioFile",
+                    "type": "string"
+                },
+                "lastContentUpdate": {
+                    "description": "Time of the last update to the audioFile's content",
+                    "type": "string"
+                },
+                "sampleRateHz": {
+                    "description": "Sample rate in hertz",
+                    "type": "integer"
+                },
+                "sha256": {
+                    "description": "SHA-256 hash of the file",
+                    "type": "string"
+                },
+                "sizeByte": {
+                    "description": "File size in bytes",
+                    "type": "integer"
+                }
+            }
+        },
+        "audio_file_handler.getAudioFilesResponse": {
+            "type": "object",
+            "properties": {
+                "audioFiles": {
+                    "description": "Array containing audioFile items",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/audio_file_handler.getAudioFilesResponseItem"
+                    }
+                }
+            }
+        },
+        "audio_file_handler.getAudioFilesResponseItem": {
+            "type": "object",
+            "properties": {
+                "audioFileId": {
+                    "description": "Unique identifier for the audioFile",
+                    "type": "integer"
+                },
+                "bitrateKbps": {
+                    "description": "Bitrate in kilobits per second",
+                    "type": "integer"
+                },
+                "channelsN": {
+                    "description": "Number of audio channels",
+                    "type": "integer"
+                },
+                "dirId": {
+                    "description": "Directory identifier where the audioFile resides",
+                    "type": "integer"
+                },
+                "durationMs": {
+                    "description": "Duration of the audioFile in milliseconds",
+                    "type": "integer"
+                },
+                "extension": {
+                    "description": "File extension of the audioFile",
+                    "type": "string"
+                },
+                "filename": {
+                    "description": "Filename of the audioFile",
+                    "type": "string"
+                },
+                "lastContentUpdate": {
+                    "description": "Time of the last update to the audioFile's content",
+                    "type": "string"
+                },
+                "sampleRateHz": {
+                    "description": "Sample rate in hertz",
+                    "type": "integer"
+                },
+                "sha256": {
+                    "description": "SHA-256 hash of the file",
+                    "type": "string"
+                },
+                "sizeByte": {
+                    "description": "File size in bytes",
+                    "type": "integer"
+                }
+            }
+        },
+        "audio_file_handler.getCoverResponse": {
+            "type": "object",
+            "properties": {
+                "coverId": {
+                    "description": "Unique identifier for the cover.",
+                    "type": "integer"
+                },
+                "extension": {
+                    "description": "File extension of the cover.",
+                    "type": "string"
+                },
+                "heightPx": {
+                    "description": "Height of the cover in pixels.",
+                    "type": "integer"
+                },
+                "lastContentUpdate": {
+                    "description": "Timestamp of the last content update.",
+                    "type": "string"
+                },
+                "sha256": {
+                    "description": "SHA-256 hash of the cover.",
+                    "type": "string"
+                },
+                "sizeByte": {
+                    "description": "File size of the cover in bytes.",
+                    "type": "integer"
+                },
+                "widthPx": {
+                    "description": "Width of the cover in pixels.",
+                    "type": "integer"
+                }
+            }
+        },
+        "audio_file_handler.searchBySha256Response": {
+            "type": "object",
+            "properties": {
+                "audioFiles": {
+                    "description": "Array of audioFiles that match the search query.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/audio_file_handler.searchBySha256ResponseItem"
+                    }
+                }
+            }
+        },
+        "audio_file_handler.searchBySha256ResponseItem": {
+            "type": "object",
+            "properties": {
+                "audioFileId": {
+                    "description": "Unique identifier for the audioFile.",
+                    "type": "integer"
+                },
+                "bitrateKbps": {
+                    "description": "Bitrate of the audioFile in Kbps.",
+                    "type": "integer"
+                },
+                "channelsN": {
+                    "description": "Number of channels in the audioFile.",
+                    "type": "integer"
+                },
+                "dirId": {
+                    "description": "Directory ID where the audioFile is located.",
+                    "type": "integer"
+                },
+                "durationMs": {
+                    "description": "Duration of the audioFile in milliseconds.",
+                    "type": "integer"
+                },
+                "extension": {
+                    "description": "File extension of the audioFile.",
+                    "type": "string"
+                },
+                "filename": {
+                    "description": "Filename of the audioFile.",
+                    "type": "string"
+                },
+                "lastContentUpdate": {
+                    "description": "Timestamp of the last content update.",
+                    "type": "string"
+                },
+                "sampleRateHz": {
+                    "description": "Sample rate of the audioFile in Hz.",
+                    "type": "integer"
+                },
+                "sha256": {
+                    "description": "SHA-256 hash of the audioFile.",
+                    "type": "string"
+                },
+                "sizeByte": {
+                    "description": "File size of the audioFile in bytes.",
+                    "type": "integer"
+                }
+            }
+        },
         "cover_handler.getCoverResponse": {
             "type": "object",
             "properties": {
@@ -662,38 +866,29 @@ const docTemplate = `{
         "dir_handler.contentResponse": {
             "type": "object",
             "properties": {
+                "audioFiles": {
+                    "description": "Array containing audioFile items",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dir_handler.contentResponseAudioFileItem"
+                    }
+                },
                 "dirs": {
                     "description": "Array containing directory items",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/dir_handler.contentResponseDirItem"
                     }
-                },
-                "songs": {
-                    "description": "Array containing song items",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dir_handler.contentResponseSongItem"
-                    }
                 }
             }
         },
-        "dir_handler.contentResponseDirItem": {
+        "dir_handler.contentResponseAudioFileItem": {
             "type": "object",
             "properties": {
-                "dirId": {
-                    "description": "Unique identifier for the directory",
+                "audioFileId": {
+                    "description": "Unique identifier for the audioFile",
                     "type": "integer"
                 },
-                "name": {
-                    "description": "Name of the directory",
-                    "type": "string"
-                }
-            }
-        },
-        "dir_handler.contentResponseSongItem": {
-            "type": "object",
-            "properties": {
                 "bitrateKbps": {
                     "description": "Bitrate in kilobits per second",
                     "type": "integer"
@@ -703,23 +898,23 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "dirId": {
-                    "description": "Directory identifier where the song resides",
+                    "description": "Directory identifier where the audioFile resides",
                     "type": "integer"
                 },
                 "durationMs": {
-                    "description": "Duration of the song in milliseconds",
+                    "description": "Duration of the audioFile in milliseconds",
                     "type": "integer"
                 },
                 "extension": {
-                    "description": "File extension of the song",
+                    "description": "File extension of the audioFile",
                     "type": "string"
                 },
                 "filename": {
-                    "description": "Filename of the song",
+                    "description": "Filename of the audioFile",
                     "type": "string"
                 },
                 "lastContentUpdate": {
-                    "description": "Time of the last update to the song's content",
+                    "description": "Time of the last update to the audioFile's content",
                     "type": "string"
                 },
                 "sampleRateHz": {
@@ -733,10 +928,19 @@ const docTemplate = `{
                 "sizeByte": {
                     "description": "File size in bytes",
                     "type": "integer"
-                },
-                "songId": {
-                    "description": "Unique identifier for the song",
+                }
+            }
+        },
+        "dir_handler.contentResponseDirItem": {
+            "type": "object",
+            "properties": {
+                "dirId": {
+                    "description": "Unique identifier for the directory",
                     "type": "integer"
+                },
+                "name": {
+                    "description": "Name of the directory",
+                    "type": "string"
                 }
             }
         },
@@ -777,210 +981,6 @@ const docTemplate = `{
                 },
                 "reason": {
                     "type": "string"
-                }
-            }
-        },
-        "song_handler.getCoverResponse": {
-            "type": "object",
-            "properties": {
-                "coverId": {
-                    "description": "Unique identifier for the cover.",
-                    "type": "integer"
-                },
-                "extension": {
-                    "description": "File extension of the cover.",
-                    "type": "string"
-                },
-                "heightPx": {
-                    "description": "Height of the cover in pixels.",
-                    "type": "integer"
-                },
-                "lastContentUpdate": {
-                    "description": "Timestamp of the last content update.",
-                    "type": "string"
-                },
-                "sha256": {
-                    "description": "SHA-256 hash of the cover.",
-                    "type": "string"
-                },
-                "sizeByte": {
-                    "description": "File size of the cover in bytes.",
-                    "type": "integer"
-                },
-                "widthPx": {
-                    "description": "Width of the cover in pixels.",
-                    "type": "integer"
-                }
-            }
-        },
-        "song_handler.getSongResponse": {
-            "type": "object",
-            "properties": {
-                "bitrateKbps": {
-                    "description": "Bitrate in kilobits per second",
-                    "type": "integer"
-                },
-                "channelsN": {
-                    "description": "Number of audio channels",
-                    "type": "integer"
-                },
-                "dirId": {
-                    "description": "Directory identifier where the song resides",
-                    "type": "integer"
-                },
-                "durationMs": {
-                    "description": "Duration of the song in milliseconds",
-                    "type": "integer"
-                },
-                "extension": {
-                    "description": "File extension of the song",
-                    "type": "string"
-                },
-                "filename": {
-                    "description": "Filename of the song",
-                    "type": "string"
-                },
-                "lastContentUpdate": {
-                    "description": "Time of the last update to the song's content",
-                    "type": "string"
-                },
-                "sampleRateHz": {
-                    "description": "Sample rate in hertz",
-                    "type": "integer"
-                },
-                "sha256": {
-                    "description": "SHA-256 hash of the file",
-                    "type": "string"
-                },
-                "sizeByte": {
-                    "description": "File size in bytes",
-                    "type": "integer"
-                },
-                "songId": {
-                    "description": "Unique identifier for the song",
-                    "type": "integer"
-                }
-            }
-        },
-        "song_handler.getSongsResponse": {
-            "type": "object",
-            "properties": {
-                "songs": {
-                    "description": "Array containing song items",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/song_handler.getSongsResponseItem"
-                    }
-                }
-            }
-        },
-        "song_handler.getSongsResponseItem": {
-            "type": "object",
-            "properties": {
-                "bitrateKbps": {
-                    "description": "Bitrate in kilobits per second",
-                    "type": "integer"
-                },
-                "channelsN": {
-                    "description": "Number of audio channels",
-                    "type": "integer"
-                },
-                "dirId": {
-                    "description": "Directory identifier where the song resides",
-                    "type": "integer"
-                },
-                "durationMs": {
-                    "description": "Duration of the song in milliseconds",
-                    "type": "integer"
-                },
-                "extension": {
-                    "description": "File extension of the song",
-                    "type": "string"
-                },
-                "filename": {
-                    "description": "Filename of the song",
-                    "type": "string"
-                },
-                "lastContentUpdate": {
-                    "description": "Time of the last update to the song's content",
-                    "type": "string"
-                },
-                "sampleRateHz": {
-                    "description": "Sample rate in hertz",
-                    "type": "integer"
-                },
-                "sha256": {
-                    "description": "SHA-256 hash of the file",
-                    "type": "string"
-                },
-                "sizeByte": {
-                    "description": "File size in bytes",
-                    "type": "integer"
-                },
-                "songId": {
-                    "description": "Unique identifier for the song",
-                    "type": "integer"
-                }
-            }
-        },
-        "song_handler.searchBySha256Response": {
-            "type": "object",
-            "properties": {
-                "songs": {
-                    "description": "Array of songs that match the search query.",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/song_handler.searchBySha256ResponseItem"
-                    }
-                }
-            }
-        },
-        "song_handler.searchBySha256ResponseItem": {
-            "type": "object",
-            "properties": {
-                "bitrateKbps": {
-                    "description": "Bitrate of the song in Kbps.",
-                    "type": "integer"
-                },
-                "channelsN": {
-                    "description": "Number of channels in the song.",
-                    "type": "integer"
-                },
-                "dirId": {
-                    "description": "Directory ID where the song is located.",
-                    "type": "integer"
-                },
-                "durationMs": {
-                    "description": "Duration of the song in milliseconds.",
-                    "type": "integer"
-                },
-                "extension": {
-                    "description": "File extension of the song.",
-                    "type": "string"
-                },
-                "filename": {
-                    "description": "Filename of the song.",
-                    "type": "string"
-                },
-                "lastContentUpdate": {
-                    "description": "Timestamp of the last content update.",
-                    "type": "string"
-                },
-                "sampleRateHz": {
-                    "description": "Sample rate of the song in Hz.",
-                    "type": "integer"
-                },
-                "sha256": {
-                    "description": "SHA-256 hash of the song.",
-                    "type": "string"
-                },
-                "sizeByte": {
-                    "description": "File size of the song in bytes.",
-                    "type": "integer"
-                },
-                "songId": {
-                    "description": "Unique identifier for the song.",
-                    "type": "integer"
                 }
             }
         }

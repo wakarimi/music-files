@@ -6,8 +6,7 @@ import (
 )
 
 func (r *Repository) IsExistsByParentAndName(tx *sqlx.Tx, parentDirId *int, name string) (exists bool, err error) {
-	log.Debug().Interface("parentDirId", parentDirId).Str("name", name).
-		Msg("Checking if directory exists in database")
+	log.Debug().Interface("parentDirId", parentDirId).Str("name", name).Msg("Checking if directory exists in database")
 
 	var query string
 	var row *sqlx.Rows
@@ -39,7 +38,7 @@ func (r *Repository) IsExistsByParentAndName(tx *sqlx.Tx, parentDirId *int, name
 	defer func(row *sqlx.Rows) {
 		err := row.Close()
 		if err != nil {
-			log.Error().Err(err)
+			log.Error().Err(err).Msg("Failed to close row")
 		}
 	}(row)
 
@@ -50,7 +49,6 @@ func (r *Repository) IsExistsByParentAndName(tx *sqlx.Tx, parentDirId *int, name
 		}
 	}
 
-	log.Debug().Interface("parentDirId", parentDirId).Str("name", name).Bool("exists", exists)
-
+	log.Debug().Interface("parentDirId", parentDirId).Str("name", name).Bool("exists", exists).Msg("The existence of the directory was checked successfully")
 	return exists, nil
 }

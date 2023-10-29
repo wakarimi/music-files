@@ -32,6 +32,7 @@ func (s *Service) DeleteDir(tx *sqlx.Tx, dirId int) (err error) {
 	err = s.DirRepo.Delete(tx, dirId)
 	if err != nil {
 		log.Error().Err(err).Int("dirId", dirId).Msg("Failed to delete directory from database")
+		return err
 	}
 
 	log.Debug().Int("dirId", dirId).Msg("Directory with files deleted from database successfully")
@@ -41,17 +42,17 @@ func (s *Service) DeleteDir(tx *sqlx.Tx, dirId int) (err error) {
 func (s *Service) deleteContent(tx *sqlx.Tx, dirId int) (err error) {
 	log.Debug().Int("dirId", dirId).Msg("Deleting files in directory")
 
-	songs, err := s.SongService.GetAllByDir(tx, dirId)
+	audioFiles, err := s.AudioFileService.GetAllByDir(tx, dirId)
 	if err != nil {
-		log.Error().Err(err).Int("dirId", dirId).Msg("Failed to get directory's songs")
+		log.Error().Err(err).Int("dirId", dirId).Msg("Failed to get directory's audio files")
 		return err
 	}
-	log.Debug().Int("dirId", dirId).Int("countOfSongInDir", len(songs)).Msg("Received songs that need to be deleted")
+	log.Debug().Int("dirId", dirId).Int("countOfAudioFileInDir", len(audioFiles)).Msg("Received audioFiles that need to be deleted")
 
-	for _, song := range songs {
-		err = s.SongService.Delete(tx, song.SongId)
+	for _, audioFile := range audioFiles {
+		err = s.AudioFileService.Delete(tx, audioFile.AudioFileId)
 		if err != nil {
-			log.Error().Err(err).Int("songId", song.SongId).Msg("Failed to delete song from database")
+			log.Error().Err(err).Int("audioFileId", audioFile.AudioFileId).Msg("Failed to delete audioFile from database")
 			return err
 		}
 	}
@@ -61,7 +62,7 @@ func (s *Service) deleteContent(tx *sqlx.Tx, dirId int) (err error) {
 		log.Error().Err(err).Int("dirId", dirId).Msg("Failed to get directory's covers")
 		return err
 	}
-	log.Debug().Int("dirId", dirId).Int("countOfCoverInDir", len(songs)).Msg("Received covers that need to be deleted")
+	log.Debug().Int("dirId", dirId).Int("countOfCoverInDir", len(audioFiles)).Msg("Received covers that need to be deleted")
 
 	for _, cover := range covers {
 		err = s.CoverService.Delete(tx, cover.CoverId)

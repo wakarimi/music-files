@@ -20,19 +20,19 @@ type contentResponseDirItem struct {
 	Name string `json:"name"`
 }
 
-// contentResponseDirItem represents a song item in the content response
-type contentResponseSongItem struct {
-	// Unique identifier for the song
-	SongId int `json:"songId"`
-	// Directory identifier where the song resides
+// contentResponseDirItem represents a audioFile item in the content response
+type contentResponseAudioFileItem struct {
+	// Unique identifier for the audioFile
+	AudioFileId int `json:"audioFileId"`
+	// Directory identifier where the audioFile resides
 	DirId int `json:"dirId"`
-	// Filename of the song
+	// Filename of the audioFile
 	Filename string `json:"filename"`
-	// File extension of the song
+	// File extension of the audioFile
 	Extension string `json:"extension"`
 	// File size in bytes
 	SizeByte int64 `json:"sizeByte"`
-	// Duration of the song in milliseconds
+	// Duration of the audioFile in milliseconds
 	DurationMs int64 `json:"durationMs"`
 	// Bitrate in kilobits per second
 	BitrateKbps int `json:"bitrateKbps"`
@@ -42,7 +42,7 @@ type contentResponseSongItem struct {
 	ChannelsN int `json:"channelsN"`
 	// SHA-256 hash of the file
 	Sha256 string `json:"sha256"`
-	// Time of the last update to the song's content
+	// Time of the last update to the audioFile's content
 	LastContentUpdate time.Time `json:"lastContentUpdate"`
 }
 
@@ -50,8 +50,8 @@ type contentResponseSongItem struct {
 type contentResponse struct {
 	// Array containing directory items
 	Dirs []contentResponseDirItem `json:"dirs"`
-	// Array containing song items
-	Songs []contentResponseSongItem `json:"songs"`
+	// Array containing audioFile items
+	AudioFiles []contentResponseAudioFileItem `json:"audioFiles"`
 }
 
 // Content
@@ -82,13 +82,13 @@ func (h *Handler) Content(c *gin.Context) {
 	log.Debug().Int("dirId", dirId).Msg("Url parameter read successfully")
 
 	var subDirs []models.Directory
-	var songs []models.Song
+	var audioFiles []models.AudioFile
 	err = h.TransactionManager.WithTransaction(func(tx *sqlx.Tx) (err error) {
 		subDirs, err = h.DirService.SubDirs(tx, dirId)
 		if err != nil {
 			return err
 		}
-		songs, err = h.DirService.GetSongs(tx, dirId)
+		audioFiles, err = h.DirService.GetAudioFiles(tx, dirId)
 		if err != nil {
 			return err
 		}
@@ -116,26 +116,26 @@ func (h *Handler) Content(c *gin.Context) {
 		subDirsResponse[i].Name = subDirs[i].Name
 	}
 
-	songsResponse := make([]contentResponseSongItem, len(songs))
-	for i, song := range songs {
-		songsResponse[i] = contentResponseSongItem{
-			SongId:            song.SongId,
-			DirId:             song.DirId,
-			Filename:          song.Filename,
-			Extension:         song.Extension,
-			SizeByte:          song.SizeByte,
-			DurationMs:        song.DurationMs,
-			BitrateKbps:       song.BitrateKbps,
-			SampleRateHz:      song.SampleRateHz,
-			ChannelsN:         song.ChannelsN,
-			Sha256:            song.Sha256,
-			LastContentUpdate: song.LastContentUpdate,
+	audioFilesResponse := make([]contentResponseAudioFileItem, len(audioFiles))
+	for i, audioFile := range audioFiles {
+		audioFilesResponse[i] = contentResponseAudioFileItem{
+			AudioFileId:       audioFile.AudioFileId,
+			DirId:             audioFile.DirId,
+			Filename:          audioFile.Filename,
+			Extension:         audioFile.Extension,
+			SizeByte:          audioFile.SizeByte,
+			DurationMs:        audioFile.DurationMs,
+			BitrateKbps:       audioFile.BitrateKbps,
+			SampleRateHz:      audioFile.SampleRateHz,
+			ChannelsN:         audioFile.ChannelsN,
+			Sha256:            audioFile.Sha256,
+			LastContentUpdate: audioFile.LastContentUpdate,
 		}
 	}
 
 	log.Debug().Msg("Directory content got successfully")
 	c.JSON(http.StatusOK, contentResponse{
-		Dirs:  subDirsResponse,
-		Songs: songsResponse,
+		Dirs:       subDirsResponse,
+		AudioFiles: audioFilesResponse,
 	})
 }

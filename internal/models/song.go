@@ -2,8 +2,8 @@ package models
 
 import "time"
 
-type Song struct {
-	SongId            int       `db:"song_id"`
+type AudioFile struct {
+	AudioFileId       int       `db:"audio_file_id"`
 	DirId             int       `db:"dir_id"`
 	Filename          string    `db:"filename"`
 	Extension         string    `db:"extension"`

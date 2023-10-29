@@ -8,8 +8,7 @@ import (
 )
 
 func (r *Repository) Create(tx *sqlx.Tx, dir models.Directory) (dirId int, err error) {
-	log.Debug().Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name).
-		Msg("Creating new directory")
+	log.Debug().Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name).Msg("Creating new directory")
 
 	query := `
 		INSERT INTO directories(name, parent_dir_id)
@@ -24,7 +23,7 @@ func (r *Repository) Create(tx *sqlx.Tx, dir models.Directory) (dirId int, err e
 	defer func(rows *sqlx.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Error().Err(err)
+			log.Error().Err(err).Msg("Failed to close rows")
 		}
 	}(rows)
 
@@ -39,7 +38,6 @@ func (r *Repository) Create(tx *sqlx.Tx, dir models.Directory) (dirId int, err e
 		return 0, err
 	}
 
-	log.Debug().Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name).Int("dirId", dirId).
-		Msg("Directory created successfully")
+	log.Debug().Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name).Int("dirId", dirId).Msg("Directory created successfully")
 	return dirId, nil
 }

@@ -23,9 +23,9 @@ CREATE TABLE covers
     UNIQUE (dir_id, filename)
 );
 
-CREATE TABLE songs
+CREATE TABLE audio_files
 (
-    song_id             SERIAL PRIMARY KEY,
+    audio_file_id       SERIAL PRIMARY KEY,
     dir_id              INTEGER    NOT NULL,
     filename            TEXT       NOT NULL,
     extension           VARCHAR(5) NOT NULL,

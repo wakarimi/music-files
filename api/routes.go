@@ -6,18 +6,18 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"music-files/internal/context"
+	"music-files/internal/database/repository/audio_file_repo"
 	"music-files/internal/database/repository/cover_repo"
 	"music-files/internal/database/repository/dir_repo"
-	"music-files/internal/database/repository/song_repo"
+	"music-files/internal/handler/audio_file_handler"
 	"music-files/internal/handler/cover_handler"
 	"music-files/internal/handler/dir_handler"
-	"music-files/internal/handler/song_handler"
 	"music-files/internal/middleware"
 	"music-files/internal/service"
+	"music-files/internal/service/audio_file_service"
 	"music-files/internal/service/cover_service"
 	"music-files/internal/service/dir_service"
 	"music-files/internal/service/file_processor_service"
-	"music-files/internal/service/song_service"
 )
 
 func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
@@ -28,17 +28,17 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 	r.Use(middleware.ZerologMiddleware(log.Logger))
 
 	coverRepo := cover_repo.NewRepository()
-	songRepo := song_repo.NewRepository()
+	audioFileRepo := audio_file_repo.NewRepository()
 	dirRepo := dir_repo.NewRepository()
 	txManager := service.NewTransactionManager(*ac.Db)
 
 	coverService := cover_service.NewService(coverRepo)
-	songService := song_service.NewService(songRepo)
-	dirService := dir_service.NewService(dirRepo, *coverService, *songService)
-	fileProcessorService := file_processor_service.NewService(*dirService, *coverService, *songService)
+	audioFileService := audio_file_service.NewService(audioFileRepo)
+	dirService := dir_service.NewService(dirRepo, *coverService, *audioFileService)
+	fileProcessorService := file_processor_service.NewService(*dirService, *coverService, *audioFileService)
 
 	coverHandler := cover_handler.NewHandler(*coverService, *fileProcessorService, txManager)
-	songHandler := song_handler.NewHandler(*songService, *fileProcessorService, txManager)
+	audioFileHandler := audio_file_handler.NewHandler(*audioFileService, *fileProcessorService, txManager)
 	dirHandler := dir_handler.NewHandler(*dirService, txManager)
 
 	api := r.Group("/api")
@@ -60,13 +60,13 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 			dirs.POST("/scan", dirHandler.ScanAll)
 		}
 
-		songs := api.Group("/songs")
+		audioFiles := api.Group("/audio-files")
 		{
-			songs.GET("/:songId", songHandler.GetSong)
-			songs.GET("/", songHandler.GetAll)
-			songs.GET("/:songId/download", songHandler.Download)
-			songs.GET("/:songId/cover", songHandler.GetCover)
-			songs.GET("/sha256/:sha256", songHandler.SearchBySha256)
+			audioFiles.GET("/:audioFileId", audioFileHandler.GetAudioFile)
+			audioFiles.GET("/", audioFileHandler.GetAll)
+			audioFiles.GET("/:audioFileId/download", audioFileHandler.Download)
+			audioFiles.GET("/:audioFileId/cover", audioFileHandler.GetCover)
+			audioFiles.GET("/sha256/:sha256", audioFileHandler.SearchBySha256)
 		}
 
 		covers := api.Group("/covers")
@@ -76,5 +76,6 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 		}
 	}
 
+	log.Debug().Msg("Router setup successfully")
 	return r
 }

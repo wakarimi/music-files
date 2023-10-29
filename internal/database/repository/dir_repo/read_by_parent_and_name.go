@@ -7,8 +7,7 @@ import (
 )
 
 func (r *Repository) ReadByParentAndName(tx *sqlx.Tx, parentDirId *int, name string) (dir models.Directory, err error) {
-	log.Debug().Interface("parentDirId", parentDirId).Str("name", name).
-		Msg("Fetching directory by parent and name")
+	log.Debug().Interface("parentDirId", parentDirId).Str("name", name).Msg("Fetching directory by parent and name")
 
 	var query string
 	var row *sqlx.Rows
@@ -40,7 +39,7 @@ func (r *Repository) ReadByParentAndName(tx *sqlx.Tx, parentDirId *int, name str
 	defer func(row *sqlx.Rows) {
 		err := row.Close()
 		if err != nil {
-			log.Error().Err(err)
+			log.Error().Err(err).Msg("Failed to close row")
 		}
 	}(row)
 
@@ -51,7 +50,6 @@ func (r *Repository) ReadByParentAndName(tx *sqlx.Tx, parentDirId *int, name str
 		}
 	}
 
-	log.Debug().Interface("parentDirId", parentDirId).Str("name", name).
-		Msg("Directory fetched by id successfully")
+	log.Debug().Interface("parentDirId", parentDirId).Str("name", name).Msg("Directory fetched by id successfully")
 	return dir, nil
 }

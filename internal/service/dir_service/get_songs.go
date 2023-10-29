@@ -6,15 +6,15 @@ import (
 	"music-files/internal/models"
 )
 
-func (s *Service) GetSongs(tx *sqlx.Tx, dirId int) (songs []models.Song, err error) {
-	log.Debug().Msg("Getting songs in directory")
+func (s *Service) GetAudioFiles(tx *sqlx.Tx, dirId int) (audioFiles []models.AudioFile, err error) {
+	log.Debug().Msg("Getting audioFiles in directory")
 
-	songs, err = s.SongService.GetAllByDir(tx, dirId)
+	audioFiles, err = s.AudioFileService.GetAllByDir(tx, dirId)
 	if err != nil {
-		log.Error().Err(err).Int("dirId", dirId).Msg("Failed to get songs in directory")
-		return make([]models.Song, 0), err
+		log.Error().Err(err).Int("dirId", dirId).Msg("Failed to get audioFiles in directory")
+		return make([]models.AudioFile, 0), err
 	}
 
-	log.Debug().Int("countOfSongs", len(songs)).Msg("Song in directory got successfully")
-	return songs, nil
+	log.Debug().Int("countOfAudioFiles", len(audioFiles)).Msg("AudioFile in directory got successfully")
+	return audioFiles, nil
 }

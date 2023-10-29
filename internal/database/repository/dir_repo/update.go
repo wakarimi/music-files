@@ -7,8 +7,7 @@ import (
 )
 
 func (r *Repository) Update(tx *sqlx.Tx, dirId int, dir models.Directory) (err error) {
-	log.Debug().Int("dirId", dirId).Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name).
-		Msg("Updating directory")
+	log.Debug().Int("dirId", dirId).Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name).Msg("Updating directory")
 
 	query := `
 		UPDATE directories
@@ -24,8 +23,6 @@ func (r *Repository) Update(tx *sqlx.Tx, dirId int, dir models.Directory) (err e
 		return err
 	}
 
-	log.Debug().Int("dirId", dirId).Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name).
-		Msg("Directory updated successfully")
-
+	log.Debug().Int("dirId", dirId).Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name).Msg("Directory updated successfully")
 	return nil
 }
