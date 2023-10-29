@@ -12,16 +12,36 @@ import (
 	"time"
 )
 
+// getCoverResponse is the response model for GetCover API
 type getCoverResponse struct {
-	CoverId           int       `json:"coverId"`
-	Extension         string    `json:"extension"`
-	SizeByte          int64     `json:"sizeByte"`
-	WidthPx           int       `json:"widthPx"`
-	HeightPx          int       `json:"heightPx"`
-	Sha256            string    `json:"sha256"`
+	// Unique identifier for the cover
+	CoverId int `json:"coverId"`
+	// File extension of the cover
+	Extension string `json:"extension"`
+	// File size of the cover in bytes
+	SizeByte int64 `json:"sizeByte"`
+	// Width of the cover in pixels
+	WidthPx int `json:"widthPx"`
+	// Height of the cover in pixels
+	HeightPx int `json:"heightPx"`
+	// SHA-256 hash of the cover
+	Sha256 string `json:"sha256"`
+	// Timestamp of the last content update
 	LastContentUpdate time.Time `json:"lastContentUpdate"`
 }
 
+// GetCover
+// @Summary Retrieve a cover by ID
+// @Description Retrieves detailed information about a cover by its ID
+// @Tags Covers
+// @Accept  json
+// @Produce  json
+// @Param   coverId     path    int     true        "Cover ID"
+// @Success 200 {object} getCoverResponse
+// @Failure 400 {object} responses.Error "Invalid coverId format"
+// @Failure 404 {object} responses.Error "Cover not found"
+// @Failure 500 {object} responses.Error "Internal Server Error"
+// @Router /covers/{coverId} [get]
 func (h *Handler) GetCover(c *gin.Context) {
 	log.Debug().Msg("Getting cover")
 
@@ -46,7 +66,7 @@ func (h *Handler) GetCover(c *gin.Context) {
 		return nil
 	})
 	if err != nil {
-		log.Warn().Err(err).Msg("Failed to get cover")
+		log.Error().Err(err).Msg("Failed to get cover")
 		if _, ok := err.(errors.NotFound); ok {
 			c.JSON(http.StatusNotFound, responses.Error{
 				Message: "Cover not found",

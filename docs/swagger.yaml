@@ -1,5 +1,102 @@
 basePath: /api
 definitions:
+  cover_handler.getCoverResponse:
+    properties:
+      coverId:
+        description: Unique identifier for the cover
+        type: integer
+      extension:
+        description: File extension of the cover
+        type: string
+      heightPx:
+        description: Height of the cover in pixels
+        type: integer
+      lastContentUpdate:
+        description: Timestamp of the last content update
+        type: string
+      sha256:
+        description: SHA-256 hash of the cover
+        type: string
+      sizeByte:
+        description: File size of the cover in bytes
+        type: integer
+      widthPx:
+        description: Width of the cover in pixels
+        type: integer
+    type: object
+  dir_handler.addRootToWatchListRequest:
+    properties:
+      path:
+        description: Path to the directory on disk
+        type: string
+    type: object
+  dir_handler.addRootToWatchListResponse:
+    properties:
+      dirId:
+        description: Unique identifier of the directory in the database
+        type: integer
+      name:
+        description: Name of the directory
+        type: string
+    type: object
+  dir_handler.contentResponse:
+    properties:
+      dirs:
+        description: Array containing directory items
+        items:
+          $ref: '#/definitions/dir_handler.contentResponseDirItem'
+        type: array
+      songs:
+        description: Array containing song items
+        items:
+          $ref: '#/definitions/dir_handler.contentResponseSongItem'
+        type: array
+    type: object
+  dir_handler.contentResponseDirItem:
+    properties:
+      dirId:
+        description: Unique identifier for the directory
+        type: integer
+      name:
+        description: Name of the directory
+        type: string
+    type: object
+  dir_handler.contentResponseSongItem:
+    properties:
+      bitrateKbps:
+        description: Bitrate in kilobits per second
+        type: integer
+      channelsN:
+        description: Number of audio channels
+        type: integer
+      dirId:
+        description: Directory identifier where the song resides
+        type: integer
+      durationMs:
+        description: Duration of the song in milliseconds
+        type: integer
+      extension:
+        description: File extension of the song
+        type: string
+      filename:
+        description: Filename of the song
+        type: string
+      lastContentUpdate:
+        description: Time of the last update to the song's content
+        type: string
+      sampleRateHz:
+        description: Sample rate in hertz
+        type: integer
+      sha256:
+        description: SHA-256 hash of the file
+        type: string
+      sizeByte:
+        description: File size in bytes
+        type: integer
+      songId:
+        description: Unique identifier for the song
+        type: integer
+    type: object
   dir_handler.getRootsResponse:
     properties:
       dirs:
@@ -20,27 +117,160 @@ definitions:
         description: Name of the directory
         type: string
     type: object
-  dir_handler.trackRequest:
-    properties:
-      path:
-        description: Path to the directory on disk
-        type: string
-    type: object
-  dir_handler.trackResponse:
-    properties:
-      dirId:
-        description: Unique identifier of the directory in the database
-        type: integer
-      name:
-        description: Name of the directory
-        type: string
-    type: object
   responses.Error:
     properties:
       message:
         type: string
       reason:
         type: string
+    type: object
+  song_handler.getCoverResponse:
+    properties:
+      coverId:
+        description: Unique identifier for the cover.
+        type: integer
+      extension:
+        description: File extension of the cover.
+        type: string
+      heightPx:
+        description: Height of the cover in pixels.
+        type: integer
+      lastContentUpdate:
+        description: Timestamp of the last content update.
+        type: string
+      sha256:
+        description: SHA-256 hash of the cover.
+        type: string
+      sizeByte:
+        description: File size of the cover in bytes.
+        type: integer
+      widthPx:
+        description: Width of the cover in pixels.
+        type: integer
+    type: object
+  song_handler.getSongResponse:
+    properties:
+      bitrateKbps:
+        description: Bitrate in kilobits per second
+        type: integer
+      channelsN:
+        description: Number of audio channels
+        type: integer
+      dirId:
+        description: Directory identifier where the song resides
+        type: integer
+      durationMs:
+        description: Duration of the song in milliseconds
+        type: integer
+      extension:
+        description: File extension of the song
+        type: string
+      filename:
+        description: Filename of the song
+        type: string
+      lastContentUpdate:
+        description: Time of the last update to the song's content
+        type: string
+      sampleRateHz:
+        description: Sample rate in hertz
+        type: integer
+      sha256:
+        description: SHA-256 hash of the file
+        type: string
+      sizeByte:
+        description: File size in bytes
+        type: integer
+      songId:
+        description: Unique identifier for the song
+        type: integer
+    type: object
+  song_handler.getSongsResponse:
+    properties:
+      songs:
+        description: Array containing song items
+        items:
+          $ref: '#/definitions/song_handler.getSongsResponseItem'
+        type: array
+    type: object
+  song_handler.getSongsResponseItem:
+    properties:
+      bitrateKbps:
+        description: Bitrate in kilobits per second
+        type: integer
+      channelsN:
+        description: Number of audio channels
+        type: integer
+      dirId:
+        description: Directory identifier where the song resides
+        type: integer
+      durationMs:
+        description: Duration of the song in milliseconds
+        type: integer
+      extension:
+        description: File extension of the song
+        type: string
+      filename:
+        description: Filename of the song
+        type: string
+      lastContentUpdate:
+        description: Time of the last update to the song's content
+        type: string
+      sampleRateHz:
+        description: Sample rate in hertz
+        type: integer
+      sha256:
+        description: SHA-256 hash of the file
+        type: string
+      sizeByte:
+        description: File size in bytes
+        type: integer
+      songId:
+        description: Unique identifier for the song
+        type: integer
+    type: object
+  song_handler.searchBySha256Response:
+    properties:
+      songs:
+        description: Array of songs that match the search query.
+        items:
+          $ref: '#/definitions/song_handler.searchBySha256ResponseItem'
+        type: array
+    type: object
+  song_handler.searchBySha256ResponseItem:
+    properties:
+      bitrateKbps:
+        description: Bitrate of the song in Kbps.
+        type: integer
+      channelsN:
+        description: Number of channels in the song.
+        type: integer
+      dirId:
+        description: Directory ID where the song is located.
+        type: integer
+      durationMs:
+        description: Duration of the song in milliseconds.
+        type: integer
+      extension:
+        description: File extension of the song.
+        type: string
+      filename:
+        description: Filename of the song.
+        type: string
+      lastContentUpdate:
+        description: Timestamp of the last content update.
+        type: string
+      sampleRateHz:
+        description: Sample rate of the song in Hz.
+        type: integer
+      sha256:
+        description: SHA-256 hash of the song.
+        type: string
+      sizeByte:
+        description: File size of the song in bytes.
+        type: integer
+      songId:
+        description: Unique identifier for the song.
+        type: integer
     type: object
 host: localhost:8022
 info:
@@ -53,6 +283,158 @@ info:
   title: Wakarimi Music Files API
   version: "0.4"
 paths:
+  /covers/{coverId}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves detailed information about a cover by its ID
+      parameters:
+      - description: Cover ID
+        in: path
+        name: coverId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cover_handler.getCoverResponse'
+        "400":
+          description: Invalid coverId format
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "404":
+          description: Cover not found
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Retrieve a cover by ID
+      tags:
+      - Covers
+  /covers/{coverId}/download:
+    get:
+      consumes:
+      - application/json
+      description: Downloads a cover image file identified by the coverId
+      parameters:
+      - description: Cover ID
+        in: path
+        name: coverId
+        required: true
+        type: integer
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Cover File
+          headers:
+            Content-Disposition:
+              description: attachment; filename=[name of the file]
+              type: string
+            Content-Type:
+              description: application/octet-stream
+              type: string
+          schema:
+            type: file
+        "400":
+          description: Invalid coverId format
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error, Failed to calculate absolute path
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Download a cover image by ID
+      tags:
+      - Covers
+  /dirs/{dirId}/content:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of subdirectories for a given directory ID
+      parameters:
+      - description: Directory ID
+        in: path
+        name: dirId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dir_handler.contentResponse'
+        "400":
+          description: Invalid dirId format
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "404":
+          description: Directory not found
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Retrieve content of a directory by ID
+      tags:
+      - Directories
+  /dirs/{dirId}/scan:
+    post:
+      consumes:
+      - application/json
+      description: Initiates a scan in the specified directory to identify new or
+        updated files.
+      parameters:
+      - description: Directory ID
+        in: path
+        name: dirId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Directory scanned successfully
+        "400":
+          description: Invalid dirId format
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "404":
+          description: Directory not found
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Scan a directory by ID
+      tags:
+      - Directories
+  /dirs/scan:
+    post:
+      consumes:
+      - application/json
+      description: Initiates a scan in all directories to identify new or updated
+        files.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: All directories scanned successfully
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Scan all directories
+      tags:
+      - Directories
   /roots:
     get:
       consumes:
@@ -82,14 +464,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dir_handler.trackRequest'
+          $ref: '#/definitions/dir_handler.addRootToWatchListRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/dir_handler.trackResponse'
+            $ref: '#/definitions/dir_handler.addRootToWatchListResponse'
         "400":
           description: Failed to decode request
           schema:
@@ -140,4 +522,151 @@ paths:
       summary: Remove a tracked root directory
       tags:
       - Directories
+  /songs:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all songs in the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/song_handler.getSongsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Retrieve all songs
+      tags:
+      - Songs
+  /songs/{songId}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a single song by its ID
+      parameters:
+      - description: Song ID
+        in: path
+        name: songId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/song_handler.getSongResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Retrieve a song by its ID
+      tags:
+      - Songs
+  /songs/{songId}/cover:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves detailed information about a cover for a song by its
+        ID.
+      parameters:
+      - description: Song ID
+        in: path
+        name: songId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/song_handler.getCoverResponse'
+        "400":
+          description: Invalid songId format
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "404":
+          description: Cover not found
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Retrieve a cover for a song by ID
+      tags:
+      - Covers
+  /songs/{songId}/download:
+    get:
+      consumes:
+      - application/json
+      description: Downloads a song file identified by the songId
+      parameters:
+      - description: Song ID
+        in: path
+        name: songId
+        required: true
+        type: integer
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Song File
+          headers:
+            Content-Disposition:
+              description: attachment; filename=[name of the file]
+              type: string
+            Content-Type:
+              description: application/octet-stream
+              type: string
+          schema:
+            type: file
+        "400":
+          description: Invalid songId format
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error, Failed to calculate absolute path
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Download a song by ID
+      tags:
+      - Songs
+  /songs/sha256/{sha256}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of songs that have the specified SHA256 hash.
+      parameters:
+      - description: SHA256 hash
+        in: path
+        name: sha256
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/song_handler.searchBySha256Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Search songs by SHA256 hash
+      tags:
+      - Songs
 swagger: "2.0"

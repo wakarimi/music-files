@@ -30,8 +30,8 @@ type addRootToWatchListResponse struct {
 // @Tags Directories
 // @Accept  json
 // @Produce  json
-// @Param   request body trackRequest true "Directory Data"
-// @Success 201 {object} trackResponse
+// @Param   request body addRootToWatchListRequest true "Directory Data"
+// @Success 201 {object} addRootToWatchListResponse
 // @Failure 400 {object} responses.Error "Failed to decode request"
 // @Failure 404 {object} responses.Error "Directory not found"
 // @Failure 409 {object} responses.Error "Directory already tracked"

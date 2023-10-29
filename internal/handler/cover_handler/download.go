@@ -10,6 +10,19 @@ import (
 	"strconv"
 )
 
+// Download
+// @Summary Download a cover image by ID
+// @Description Downloads a cover image file identified by the coverId
+// @Tags Covers
+// @Accept  json
+// @Produce  octet-stream
+// @Param   coverId     path    int     true        "Cover ID"
+// @Success 200 {file} byte "Cover File"
+// @Header 200 {string} Content-Type "application/octet-stream"
+// @Header 200 {string} Content-Disposition "attachment; filename=[name of the file]"
+// @Failure 400 {object} responses.Error "Invalid coverId format"
+// @Failure 500 {object} responses.Error "Internal Server Error, Failed to calculate absolute path"
+// @Router /covers/{coverId}/download [get]
 func (h *Handler) Download(c *gin.Context) {
 	log.Debug().Msg("Downloading cover")
 

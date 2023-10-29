@@ -12,20 +12,42 @@ import (
 	"time"
 )
 
-type getDirResponse struct {
-	SongId            int       `json:"songId"`
-	DirId             int       `json:"dirId"`
-	Filename          string    `json:"filename"`
-	Extension         string    `json:"extension"`
-	SizeByte          int64     `json:"sizeByte"`
-	DurationMs        int64     `json:"durationMs"`
-	BitrateKbps       int       `json:"bitrateKbps"`
-	SampleRateHz      int       `json:"sampleRateHz"`
-	ChannelsN         int       `json:"channelsN"`
-	Sha256            string    `json:"sha256"`
+// getSongResponse represents song in the getSong response
+type getSongResponse struct {
+	// Unique identifier for the song
+	SongId int `json:"songId"`
+	// Directory identifier where the song resides
+	DirId int `json:"dirId"`
+	// Filename of the song
+	Filename string `json:"filename"`
+	// File extension of the song
+	Extension string `json:"extension"`
+	// File size in bytes
+	SizeByte int64 `json:"sizeByte"`
+	// Duration of the song in milliseconds
+	DurationMs int64 `json:"durationMs"`
+	// Bitrate in kilobits per second
+	BitrateKbps int `json:"bitrateKbps"`
+	// Sample rate in hertz
+	SampleRateHz int `json:"sampleRateHz"`
+	// Number of audio channels
+	ChannelsN int `json:"channelsN"`
+	// SHA-256 hash of the file
+	Sha256 string `json:"sha256"`
+	// Time of the last update to the song's content
 	LastContentUpdate time.Time `json:"lastContentUpdate"`
 }
 
+// GetSong retrieves a song by its identifier
+// @Summary Retrieve a song by its ID
+// @Description Retrieves a single song by its ID
+// @Tags Songs
+// @Accept  json
+// @Produce  json
+// @Param   songId path int true "Song ID"
+// @Success 200 {object} getSongResponse
+// @Failure 400,404,500 {object} responses.Error
+// @Router /songs/{songId} [get]
 func (h *Handler) GetSong(c *gin.Context) {
 	log.Debug().Msg("Getting song")
 
@@ -66,7 +88,7 @@ func (h *Handler) GetSong(c *gin.Context) {
 	}
 
 	log.Debug().Msg("Song got successfully")
-	c.JSON(http.StatusOK, getDirResponse{
+	c.JSON(http.StatusOK, getSongResponse{
 		SongId:            song.SongId,
 		DirId:             song.DirId,
 		Filename:          song.Filename,

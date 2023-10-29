@@ -10,24 +10,47 @@ import (
 	"time"
 )
 
+// getSongsResponseItem represents each song item in the getSongs response
 type getSongsResponseItem struct {
-	SongId            int       `json:"songId"`
-	DirId             int       `json:"dirId"`
-	Filename          string    `json:"filename"`
-	Extension         string    `json:"extension"`
-	SizeByte          int64     `json:"sizeByte"`
-	DurationMs        int64     `json:"durationMs"`
-	BitrateKbps       int       `json:"bitrateKbps"`
-	SampleRateHz      int       `json:"sampleRateHz"`
-	ChannelsN         int       `json:"channelsN"`
-	Sha256            string    `json:"sha256"`
+	// Unique identifier for the song
+	SongId int `json:"songId"`
+	// Directory identifier where the song resides
+	DirId int `json:"dirId"`
+	// Filename of the song
+	Filename string `json:"filename"`
+	// File extension of the song
+	Extension string `json:"extension"`
+	// File size in bytes
+	SizeByte int64 `json:"sizeByte"`
+	// Duration of the song in milliseconds
+	DurationMs int64 `json:"durationMs"`
+	// Bitrate in kilobits per second
+	BitrateKbps int `json:"bitrateKbps"`
+	// Sample rate in hertz
+	SampleRateHz int `json:"sampleRateHz"`
+	// Number of audio channels
+	ChannelsN int `json:"channelsN"`
+	// SHA-256 hash of the file
+	Sha256 string `json:"sha256"`
+	// Time of the last update to the song's content
 	LastContentUpdate time.Time `json:"lastContentUpdate"`
 }
 
-type getRootsResponse struct {
+// getSongsResponse is the response model for the GetAll API
+type getSongsResponse struct {
+	// Array containing song items
 	Songs []getSongsResponseItem `json:"songs"`
 }
 
+// GetAll retrieves all songs
+// @Summary Retrieve all songs
+// @Description Retrieves a list of all songs in the system
+// @Tags Songs
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} getSongsResponse
+// @Failure 500 {object} responses.Error "Internal Server Error"
+// @Router /songs [get]
 func (h *Handler) GetAll(c *gin.Context) {
 	log.Debug().Msg("Getting songs")
 
@@ -66,7 +89,7 @@ func (h *Handler) GetAll(c *gin.Context) {
 	}
 
 	log.Debug().Msg("Songs got successfully")
-	c.JSON(http.StatusOK, getRootsResponse{
+	c.JSON(http.StatusOK, getSongsResponse{
 		Songs: songsResponseItems,
 	})
 }

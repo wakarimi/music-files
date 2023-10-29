@@ -8,6 +8,15 @@ import (
 	"net/http"
 )
 
+// ScanAll scans all directories for new or updated files.
+// @Summary Scan all directories
+// @Description Initiates a scan in all directories to identify new or updated files.
+// @Tags Directories
+// @Accept  json
+// @Produce  json
+// @Success 200 "All directories scanned successfully"
+// @Failure 500 {object} responses.Error "Internal Server Error"
+// @Router /dirs/scan [post]
 func (h *Handler) ScanAll(c *gin.Context) {
 	log.Debug().Msg("Scanning directory")
 

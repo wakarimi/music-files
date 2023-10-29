@@ -10,24 +10,48 @@ import (
 	"time"
 )
 
+// searchBySha256ResponseItem represents a single song item in the search by SHA256 response.
 type searchBySha256ResponseItem struct {
-	SongId            int       `json:"songId"`
-	DirId             int       `json:"dirId"`
-	Filename          string    `json:"filename"`
-	Extension         string    `json:"extension"`
-	SizeByte          int64     `json:"sizeByte"`
-	DurationMs        int64     `json:"durationMs"`
-	BitrateKbps       int       `json:"bitrateKbps"`
-	SampleRateHz      int       `json:"sampleRateHz"`
-	ChannelsN         int       `json:"channelsN"`
-	Sha256            string    `json:"sha256"`
+	// Unique identifier for the song.
+	SongId int `json:"songId"`
+	// Directory ID where the song is located.
+	DirId int `json:"dirId"`
+	// Filename of the song.
+	Filename string `json:"filename"`
+	// File extension of the song.
+	Extension string `json:"extension"`
+	// File size of the song in bytes.
+	SizeByte int64 `json:"sizeByte"`
+	// Duration of the song in milliseconds.
+	DurationMs int64 `json:"durationMs"`
+	// Bitrate of the song in Kbps.
+	BitrateKbps int `json:"bitrateKbps"`
+	// Sample rate of the song in Hz.
+	SampleRateHz int `json:"sampleRateHz"`
+	// Number of channels in the song.
+	ChannelsN int `json:"channelsN"`
+	// SHA-256 hash of the song.
+	Sha256 string `json:"sha256"`
+	// Timestamp of the last content update.
 	LastContentUpdate time.Time `json:"lastContentUpdate"`
 }
 
+// searchBySha256Response represents the search by SHA256 API response.
 type searchBySha256Response struct {
+	// Array of songs that match the search query.
 	Songs []searchBySha256ResponseItem `json:"songs"`
 }
 
+// SearchBySha256 retrieves a list of songs based on SHA256 hash.
+// @Summary Search songs by SHA256 hash
+// @Description Retrieves a list of songs that have the specified SHA256 hash.
+// @Tags Songs
+// @Accept  json
+// @Produce  json
+// @Param   sha256     path    string  true        "SHA256 hash"
+// @Success 200 {object} searchBySha256Response
+// @Failure 500 {object} responses.Error "Internal Server Error"
+// @Router /songs/sha256/{sha256} [get]
 func (h *Handler) SearchBySha256(c *gin.Context) {
 	sha256 := c.Param("sha256")
 	log.Debug().Str("sha256", sha256).Msg("Url parameter read successfully")

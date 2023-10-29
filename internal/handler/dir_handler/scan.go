@@ -10,6 +10,18 @@ import (
 	"strconv"
 )
 
+// Scan scans a directory for new or updated files.
+// @Summary Scan a directory by ID
+// @Description Initiates a scan in the specified directory to identify new or updated files.
+// @Tags Directories
+// @Accept  json
+// @Produce  json
+// @Param   dirId     path    int     true        "Directory ID"
+// @Success 200 "Directory scanned successfully"
+// @Failure 400 {object} responses.Error "Invalid dirId format"
+// @Failure 404 {object} responses.Error "Directory not found"
+// @Failure 500 {object} responses.Error "Internal Server Error"
+// @Router /dirs/{dirId}/scan [post]
 func (h *Handler) Scan(c *gin.Context) {
 	log.Debug().Msg("Scanning directory")
 
