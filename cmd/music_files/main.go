@@ -15,7 +15,7 @@ import (
 )
 
 // @title Wakarimi Music Files API
-// @version 0.3
+// @version 0.4
 
 // @contact.name Dmitry Kolesnikov (Zalimannard)
 // @contact.email zalimannard@mail.ru
@@ -24,7 +24,7 @@ import (
 // @license.url https://opensource.org/licenses/MIT
 
 // @host localhost:8022
-// @BasePath /api/music-files-service
+// @BasePath /api
 func main() {
 	cfg := loadConfiguration()
 
@@ -48,7 +48,7 @@ func loadConfiguration() (cfg *config.Configuration) {
 	if err != nil {
 		log.Panic().Err(err).Msg("Failed to load configuration")
 	}
-	log.Debug().Msg("Configuration loaded")
+	log.Info().Msg("Configuration loaded")
 	return cfg
 }
 

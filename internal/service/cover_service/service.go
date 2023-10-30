@@ -1,18 +1,15 @@
 package cover_service
 
-import "music-files/internal/database/repository"
+import "music-files/internal/database/repository/cover_repo"
 
 type Service struct {
-	CoverRepo repository.CoverRepositoryInterface
-	DirRepo   repository.DirRepositoryInterface
+	CoverRepo cover_repo.Repo
 }
 
-func NewService(coverRepo repository.CoverRepositoryInterface,
-	dirRepo repository.DirRepositoryInterface) (s *Service) {
+func NewService(coverRepo cover_repo.Repo) (s *Service) {
 
 	s = &Service{
 		CoverRepo: coverRepo,
-		DirRepo:   dirRepo,
 	}
 
 	return s

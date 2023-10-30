@@ -1,38 +1,43 @@
-CREATE TABLE "directories"
+CREATE TABLE directories
 (
-    "dir_id"       SERIAL PRIMARY KEY,
-    "path"         TEXT NOT NULL UNIQUE,
-    "last_scanned" TIMESTAMPTZ
+    dir_id        SERIAL PRIMARY KEY,
+    name          TEXT NOT NULL,
+    parent_dir_id INTEGER NULL,
+    last_scanned  TIMESTAMP NULL,
+    FOREIGN KEY (parent_dir_id) REFERENCES directories (dir_id),
+    UNIQUE (name, parent_dir_id)
 );
 
-CREATE TABLE "covers"
+CREATE TABLE covers
 (
-    "cover_id"      SERIAL PRIMARY KEY,
-    "dir_id"        INTEGER NOT NULL,
-    "relative_path" TEXT    NOT NULL,
-    "filename"      TEXT    NOT NULL,
-    "format"        TEXT    NOT NULL,
-    "width_px"      INTEGER NOT NULL,
-    "height_px"     INTEGER NOT NULL,
-    "size_byte"     BIGINT  NOT NULL,
-    "hash_sha_256"  TEXT    NOT NULL,
-    FOREIGN KEY ("dir_id") REFERENCES "directories" ("dir_id")
+    cover_id            SERIAL PRIMARY KEY,
+    dir_id              INTEGER    NOT NULL,
+    filename            TEXT       NOT NULL,
+    extension           VARCHAR(5) NOT NULL,
+    size_byte           BIGINT     NOT NULL,
+    width_px            INTEGER    NOT NULL,
+    height_px           INTEGER    NOT NULL,
+    sha_256             CHAR(64)   NOT NULL,
+    last_content_update TIMESTAMP  NOT NULL,
+    FOREIGN KEY (dir_id) REFERENCES directories (dir_id),
+    UNIQUE (dir_id, filename)
 );
 
-CREATE TABLE "tracks"
+CREATE TABLE audio_files
 (
-    "track_id"       SERIAL PRIMARY KEY,
-    "dir_id"         INTEGER NOT NULL,
-    "cover_id"       INTEGER,
-    "relative_path"  TEXT    NOT NULL,
-    "filename"       TEXT    NOT NULL,
-    "duration_ms"    BIGINT  NOT NULL,
-    "size_byte"      BIGINT  NOT NULL,
-    "audio_codec"    TEXT    NOT NULL,
-    "bitrate_kbps"   INTEGER NOT NULL,
-    "sample_rate_hz" INTEGER NOT NULL,
-    "channels"       INTEGER NOT NULL,
-    "hash_sha_256"   TEXT    NOT NULL,
-    FOREIGN KEY ("dir_id") REFERENCES "directories" ("dir_id"),
-    FOREIGN KEY ("cover_id") REFERENCES "covers" ("cover_id")
+    audio_file_id       SERIAL PRIMARY KEY,
+    dir_id              INTEGER    NOT NULL,
+    filename            TEXT       NOT NULL,
+    extension           VARCHAR(5) NOT NULL,
+    size_byte           BIGINT     NOT NULL,
+    duration_ms         BIGINT     NOT NULL,
+    bitrate_kbps        INTEGER    NOT NULL,
+    sample_rate_hz      INTEGER    NOT NULL,
+    channels_n          INTEGER    NOT NULL,
+    sha_256             CHAR(64)   NOT NULL,
+    last_content_update TIMESTAMP  NOT NULL,
+    FOREIGN KEY (dir_id) REFERENCES directories (dir_id),
+    UNIQUE (dir_id, filename)
 );
+
+CREATE INDEX idx_directories_parent_dir_id ON directories (parent_dir_id);

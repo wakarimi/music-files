@@ -10,13 +10,131 @@
             "name": "MIT",
             "url": "https://opensource.org/licenses/MIT"
         },
-        "version": "0.2"
+        "version": "0.4"
     },
     "host": "localhost:8022",
-    "basePath": "/api/music-files-service",
+    "basePath": "/api",
     "paths": {
-        "/covers/{coverId}": {
+        "/audio-files": {
             "get": {
+                "description": "Retrieves a list of all audioFiles in the system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AudioFiles"
+                ],
+                "summary": "Retrieve all audioFiles",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/audio_file_handler.getAudioFilesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/audio-files/sha256/{sha256}": {
+            "get": {
+                "description": "Retrieves a list of audioFiles that have the specified SHA256 hash.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AudioFiles"
+                ],
+                "summary": "Search audioFiles by SHA256 hash",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "SHA256 hash",
+                        "name": "sha256",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/audio_file_handler.searchBySha256Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/audio-files/{audioFileId}": {
+            "get": {
+                "description": "Retrieves a single audioFile by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AudioFiles"
+                ],
+                "summary": "Retrieve a audioFile by its ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "AudioFile ID",
+                        "name": "audioFileId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/audio_file_handler.getAudioFileResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/audio-files/{audioFileId}/cover": {
+            "get": {
+                "description": "Retrieves detailed information about a cover for a audioFile by its ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -26,11 +144,115 @@
                 "tags": [
                     "Covers"
                 ],
-                "summary": "Fetch data about a cover by its ID",
+                "summary": "Retrieve a cover for a audioFile by ID",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Cover Identifier",
+                        "description": "AudioFile ID",
+                        "name": "audioFileId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/audio_file_handler.getCoverResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid audioFileId format",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Cover not found",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/audio-files/{audioFileId}/download": {
+            "get": {
+                "description": "Downloads a audio file identified by the audioFileId",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "AudioFiles"
+                ],
+                "summary": "Download a audio file by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Audio File ID",
+                        "name": "audioFileId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Audio File",
+                        "schema": {
+                            "type": "file"
+                        },
+                        "headers": {
+                            "Content-Disposition": {
+                                "type": "string",
+                                "description": "attachment; filename=[name of the file]"
+                            },
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "application/octet-stream"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid audioFileId format",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error, Failed to calculate absolute path",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/covers/{coverId}": {
+            "get": {
+                "description": "Retrieves detailed information about a cover by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Covers"
+                ],
+                "summary": "Retrieve a cover by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cover ID",
                         "name": "coverId",
                         "in": "path",
                         "required": true
@@ -38,21 +260,27 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully fetched cover data",
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/cover.readResponse"
+                            "$ref": "#/definitions/cover_handler.getCoverResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid coverId format",
                         "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Cover not found",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
                         }
                     },
                     "500": {
-                        "description": "Failed to fetch cover",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     }
                 }
@@ -60,17 +288,21 @@
         },
         "/covers/{coverId}/download": {
             "get": {
+                "description": "Downloads a cover image file identified by the coverId",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/octet-stream"
                 ],
                 "tags": [
                     "Covers"
                 ],
-                "summary": "Download a cover by its ID",
+                "summary": "Download a cover image by ID",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Cover Identifier",
+                        "description": "Cover ID",
                         "name": "coverId",
                         "in": "path",
                         "required": true
@@ -78,100 +310,39 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully downloaded cover file",
+                        "description": "Cover File",
                         "schema": {
                             "type": "file"
+                        },
+                        "headers": {
+                            "Content-Disposition": {
+                                "type": "string",
+                                "description": "attachment; filename=[name of the file]"
+                            },
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "application/octet-stream"
+                            }
                         }
                     },
                     "400": {
                         "description": "Invalid coverId format",
                         "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     },
                     "500": {
-                        "description": "Failed to fetch cover",
+                        "description": "Internal Server Error, Failed to calculate absolute path",
                         "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     }
                 }
             }
         },
-        "/dirs": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Directories"
-                ],
-                "summary": "Get all added directories for scanning",
-                "responses": {
-                    "200": {
-                        "description": "Successfully fetched all directories",
-                        "schema": {
-                            "$ref": "#/definitions/directory.readAllResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to fetch directories",
-                        "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
-                        }
-                    }
-                }
-            },
+        "/dirs/scan": {
             "post": {
-                "description": "Adds a new directory",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Directories"
-                ],
-                "summary": "Create a directory",
-                "parameters": [
-                    {
-                        "description": "Details for the new directory",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/directory.createRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Successfully created directory",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Failed to encode request or Invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to create directory",
-                        "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/dirs/scan-all": {
-            "post": {
+                "description": "Initiates a scan in all directories to identify new or updated files.",
                 "consumes": [
                     "application/json"
                 ],
@@ -184,23 +355,20 @@
                 "summary": "Scan all directories",
                 "responses": {
                     "200": {
-                        "description": "Directories scanned successfully",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "All directories scanned successfully"
                     },
                     "500": {
-                        "description": "Failed to scan directories",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     }
                 }
             }
         },
         "/dirs/{dirId}": {
-            "delete": {
-                "description": "Deletes a directory using its unique identifier",
+            "get": {
+                "description": "Retrieves detailed information about a directory by its ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -210,7 +378,57 @@
                 "tags": [
                     "Directories"
                 ],
-                "summary": "Delete a directory",
+                "summary": "Retrieve a directory by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Dir ID",
+                        "name": "dirId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dir_handler.getDirResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid dirId format",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Directory not found",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/dirs/{dirId}/content": {
+            "get": {
+                "description": "Retrieves a list of subdirectories for a given directory ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Directories"
+                ],
+                "summary": "Retrieve content of a directory by ID",
                 "parameters": [
                     {
                         "type": "integer",
@@ -221,22 +439,28 @@
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "Successfully deleted directory",
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/dir_handler.contentResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid dirId format",
                         "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Directory not found",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
                         }
                     },
                     "500": {
-                        "description": "Failed to delete directory",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     }
                 }
@@ -244,6 +468,7 @@
         },
         "/dirs/{dirId}/scan": {
             "post": {
+                "description": "Initiates a scan in the specified directory to identify new or updated files.",
                 "consumes": [
                     "application/json"
                 ],
@@ -253,11 +478,11 @@
                 "tags": [
                     "Directories"
                 ],
-                "summary": "Scan a directory by its ID",
+                "summary": "Scan a directory by ID",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Directory Identifier",
+                        "description": "Directory ID",
                         "name": "dirId",
                         "in": "path",
                         "required": true
@@ -265,28 +490,32 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Directory scanned successfully",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Directory scanned successfully"
                     },
                     "400": {
                         "description": "Invalid dirId format",
                         "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Directory not found",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
                         }
                     },
                     "500": {
-                        "description": "Failed to scan directory",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     }
                 }
             }
         },
-        "/tracks": {
+        "/roots": {
             "get": {
+                "description": "Retrieves a list of all root directories that are tracked",
                 "consumes": [
                     "application/json"
                 ],
@@ -294,27 +523,26 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Tracks"
+                    "Directories"
                 ],
-                "summary": "Retrieve all tracks",
+                "summary": "Retrieve root directories",
                 "responses": {
                     "200": {
-                        "description": "Successfully retrieved all tracks",
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/track.readAllResponse"
+                            "$ref": "#/definitions/dir_handler.getRootsResponse"
                         }
                     },
                     "500": {
-                        "description": "Failed to fetch all tracks",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     }
                 }
-            }
-        },
-        "/tracks/{trackId}": {
-            "get": {
+            },
+            "post": {
+                "description": "Adds a new directory to the database for tracking",
                 "consumes": [
                     "application/json"
                 ],
@@ -322,75 +550,96 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Tracks"
+                    "Directories"
                 ],
-                "summary": "Retrieve a single track by its ID",
+                "summary": "Add a new tracked directory",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Track ID",
-                        "name": "trackId",
-                        "in": "path",
-                        "required": true
+                        "description": "Directory Data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dir_handler.addRootToWatchListRequest"
+                        }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "Successfully retrieved the track",
+                    "201": {
+                        "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/track.readResponse"
+                            "$ref": "#/definitions/dir_handler.addRootToWatchListResponse"
                         }
                     },
                     "400": {
-                        "description": "Invalid trackId format",
+                        "description": "Failed to decode request",
                         "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Directory not found",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "409": {
+                        "description": "Directory already tracked",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
                         }
                     },
                     "500": {
-                        "description": "Failed to fetch track",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     }
                 }
             }
         },
-        "/tracks/{trackId}/download": {
-            "get": {
+        "/roots/{dirId}": {
+            "delete": {
+                "description": "Stops tracking a directory with a specified root directory ID",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
-                    "application/octet-stream"
+                    "application/json"
                 ],
                 "tags": [
-                    "Tracks"
+                    "Directories"
                 ],
-                "summary": "Download a track by its ID",
+                "summary": "Remove a tracked root directory",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Track Identifier",
-                        "name": "trackId",
+                        "description": "Root Directory ID",
+                        "name": "dirId",
                         "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "Successfully downloaded track file",
-                        "schema": {
-                            "type": "file"
-                        }
+                    "204": {
+                        "description": "No Content"
                     },
                     "400": {
-                        "description": "Invalid trackId format",
+                        "description": "Invalid dirId format, The directory is not root",
                         "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Directory not found",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
                         }
                     },
                     "500": {
-                        "description": "Failed to fetch track",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     }
                 }
@@ -398,140 +647,403 @@
         }
     },
     "definitions": {
-        "cover.readResponse": {
-            "description": "Response structure containing details about a cover.",
+        "audio_file_handler.getAudioFileResponse": {
             "type": "object",
             "properties": {
-                "coverId": {
+                "audioFileId": {
+                    "description": "Unique identifier for the audioFile",
                     "type": "integer"
-                },
-                "format": {
-                    "type": "string"
-                },
-                "heightPx": {
-                    "type": "integer"
-                },
-                "sizeByte": {
-                    "type": "integer"
-                },
-                "widthPx": {
-                    "type": "integer"
-                }
-            }
-        },
-        "directory.createRequest": {
-            "description": "Request structure to create a new directory",
-            "type": "object",
-            "properties": {
-                "path": {
-                    "type": "string"
-                }
-            }
-        },
-        "directory.readAllResponse": {
-            "description": "List of directories",
-            "type": "object",
-            "properties": {
-                "directories": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/directory.readAllResponseItem"
-                    }
-                }
-            }
-        },
-        "directory.readAllResponseItem": {
-            "description": "Directory details",
-            "type": "object",
-            "properties": {
-                "dirId": {
-                    "type": "integer"
-                },
-                "lastScanned": {
-                    "type": "string"
-                },
-                "path": {
-                    "type": "string"
-                }
-            }
-        },
-        "track.readAllResponse": {
-            "description": "Response structure containing details of all tracks.",
-            "type": "object",
-            "properties": {
-                "tracks": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/track.readAllResponseItem"
-                    }
-                }
-            }
-        },
-        "track.readAllResponseItem": {
-            "description": "Single track item structure in the response of ReadAll endpoint.",
-            "type": "object",
-            "properties": {
-                "audioCodec": {
-                    "type": "string"
-                },
-                "coverId": {
-                    "type": "integer"
-                },
-                "durationMs": {
-                    "type": "integer"
-                },
-                "hashSha256": {
-                    "type": "string"
-                },
-                "sizeByte": {
-                    "type": "integer"
-                },
-                "trackId": {
-                    "type": "integer"
-                }
-            }
-        },
-        "track.readResponse": {
-            "description": "Response structure containing details of a single track.",
-            "type": "object",
-            "properties": {
-                "audioCodec": {
-                    "type": "string"
                 },
                 "bitrateKbps": {
+                    "description": "Bitrate in kilobits per second",
                     "type": "integer"
                 },
-                "channels": {
+                "channelsN": {
+                    "description": "Number of audio channels",
                     "type": "integer"
                 },
-                "coverId": {
+                "dirId": {
+                    "description": "Directory identifier where the audioFile resides",
                     "type": "integer"
                 },
                 "durationMs": {
+                    "description": "Duration of the audioFile in milliseconds",
                     "type": "integer"
                 },
-                "hashSha256": {
+                "extension": {
+                    "description": "File extension of the audioFile",
+                    "type": "string"
+                },
+                "filename": {
+                    "description": "Filename of the audioFile",
+                    "type": "string"
+                },
+                "lastContentUpdate": {
+                    "description": "Time of the last update to the audioFile's content",
                     "type": "string"
                 },
                 "sampleRateHz": {
+                    "description": "Sample rate in hertz",
                     "type": "integer"
+                },
+                "sha256": {
+                    "description": "SHA-256 hash of the file",
+                    "type": "string"
                 },
                 "sizeByte": {
-                    "type": "integer"
-                },
-                "trackId": {
+                    "description": "File size in bytes",
                     "type": "integer"
                 }
             }
         },
-        "types.ErrorResponse": {
-            "description": "Standard error response",
+        "audio_file_handler.getAudioFilesResponse": {
             "type": "object",
-            "required": [
-                "error"
-            ],
             "properties": {
-                "error": {
+                "audioFiles": {
+                    "description": "Array containing audioFile items",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/audio_file_handler.getAudioFilesResponseItem"
+                    }
+                }
+            }
+        },
+        "audio_file_handler.getAudioFilesResponseItem": {
+            "type": "object",
+            "properties": {
+                "audioFileId": {
+                    "description": "Unique identifier for the audioFile",
+                    "type": "integer"
+                },
+                "bitrateKbps": {
+                    "description": "Bitrate in kilobits per second",
+                    "type": "integer"
+                },
+                "channelsN": {
+                    "description": "Number of audio channels",
+                    "type": "integer"
+                },
+                "dirId": {
+                    "description": "Directory identifier where the audioFile resides",
+                    "type": "integer"
+                },
+                "durationMs": {
+                    "description": "Duration of the audioFile in milliseconds",
+                    "type": "integer"
+                },
+                "extension": {
+                    "description": "File extension of the audioFile",
+                    "type": "string"
+                },
+                "filename": {
+                    "description": "Filename of the audioFile",
+                    "type": "string"
+                },
+                "lastContentUpdate": {
+                    "description": "Time of the last update to the audioFile's content",
+                    "type": "string"
+                },
+                "sampleRateHz": {
+                    "description": "Sample rate in hertz",
+                    "type": "integer"
+                },
+                "sha256": {
+                    "description": "SHA-256 hash of the file",
+                    "type": "string"
+                },
+                "sizeByte": {
+                    "description": "File size in bytes",
+                    "type": "integer"
+                }
+            }
+        },
+        "audio_file_handler.getCoverResponse": {
+            "type": "object",
+            "properties": {
+                "coverId": {
+                    "description": "Unique identifier for the cover.",
+                    "type": "integer"
+                },
+                "extension": {
+                    "description": "File extension of the cover.",
+                    "type": "string"
+                },
+                "heightPx": {
+                    "description": "Height of the cover in pixels.",
+                    "type": "integer"
+                },
+                "lastContentUpdate": {
+                    "description": "Timestamp of the last content update.",
+                    "type": "string"
+                },
+                "sha256": {
+                    "description": "SHA-256 hash of the cover.",
+                    "type": "string"
+                },
+                "sizeByte": {
+                    "description": "File size of the cover in bytes.",
+                    "type": "integer"
+                },
+                "widthPx": {
+                    "description": "Width of the cover in pixels.",
+                    "type": "integer"
+                }
+            }
+        },
+        "audio_file_handler.searchBySha256Response": {
+            "type": "object",
+            "properties": {
+                "audioFiles": {
+                    "description": "Array of audioFiles that match the search query.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/audio_file_handler.searchBySha256ResponseItem"
+                    }
+                }
+            }
+        },
+        "audio_file_handler.searchBySha256ResponseItem": {
+            "type": "object",
+            "properties": {
+                "audioFileId": {
+                    "description": "Unique identifier for the audioFile.",
+                    "type": "integer"
+                },
+                "bitrateKbps": {
+                    "description": "Bitrate of the audioFile in Kbps.",
+                    "type": "integer"
+                },
+                "channelsN": {
+                    "description": "Number of channels in the audioFile.",
+                    "type": "integer"
+                },
+                "dirId": {
+                    "description": "Directory ID where the audioFile is located.",
+                    "type": "integer"
+                },
+                "durationMs": {
+                    "description": "Duration of the audioFile in milliseconds.",
+                    "type": "integer"
+                },
+                "extension": {
+                    "description": "File extension of the audioFile.",
+                    "type": "string"
+                },
+                "filename": {
+                    "description": "Filename of the audioFile.",
+                    "type": "string"
+                },
+                "lastContentUpdate": {
+                    "description": "Timestamp of the last content update.",
+                    "type": "string"
+                },
+                "sampleRateHz": {
+                    "description": "Sample rate of the audioFile in Hz.",
+                    "type": "integer"
+                },
+                "sha256": {
+                    "description": "SHA-256 hash of the audioFile.",
+                    "type": "string"
+                },
+                "sizeByte": {
+                    "description": "File size of the audioFile in bytes.",
+                    "type": "integer"
+                }
+            }
+        },
+        "cover_handler.getCoverResponse": {
+            "type": "object",
+            "properties": {
+                "coverId": {
+                    "description": "Unique identifier for the cover",
+                    "type": "integer"
+                },
+                "extension": {
+                    "description": "File extension of the cover",
+                    "type": "string"
+                },
+                "heightPx": {
+                    "description": "Height of the cover in pixels",
+                    "type": "integer"
+                },
+                "lastContentUpdate": {
+                    "description": "Timestamp of the last content update",
+                    "type": "string"
+                },
+                "sha256": {
+                    "description": "SHA-256 hash of the cover",
+                    "type": "string"
+                },
+                "sizeByte": {
+                    "description": "File size of the cover in bytes",
+                    "type": "integer"
+                },
+                "widthPx": {
+                    "description": "Width of the cover in pixels",
+                    "type": "integer"
+                }
+            }
+        },
+        "dir_handler.addRootToWatchListRequest": {
+            "type": "object",
+            "properties": {
+                "path": {
+                    "description": "Path to the directory on disk",
+                    "type": "string"
+                }
+            }
+        },
+        "dir_handler.addRootToWatchListResponse": {
+            "type": "object",
+            "properties": {
+                "dirId": {
+                    "description": "Unique identifier of the directory in the database",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "Name of the directory",
+                    "type": "string"
+                }
+            }
+        },
+        "dir_handler.contentResponse": {
+            "type": "object",
+            "properties": {
+                "audioFiles": {
+                    "description": "Array containing audioFile items",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dir_handler.contentResponseAudioFileItem"
+                    }
+                },
+                "dirs": {
+                    "description": "Array containing directory items",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dir_handler.contentResponseDirItem"
+                    }
+                }
+            }
+        },
+        "dir_handler.contentResponseAudioFileItem": {
+            "type": "object",
+            "properties": {
+                "audioFileId": {
+                    "description": "Unique identifier for the audioFile",
+                    "type": "integer"
+                },
+                "bitrateKbps": {
+                    "description": "Bitrate in kilobits per second",
+                    "type": "integer"
+                },
+                "channelsN": {
+                    "description": "Number of audio channels",
+                    "type": "integer"
+                },
+                "dirId": {
+                    "description": "Directory identifier where the audioFile resides",
+                    "type": "integer"
+                },
+                "durationMs": {
+                    "description": "Duration of the audioFile in milliseconds",
+                    "type": "integer"
+                },
+                "extension": {
+                    "description": "File extension of the audioFile",
+                    "type": "string"
+                },
+                "filename": {
+                    "description": "Filename of the audioFile",
+                    "type": "string"
+                },
+                "lastContentUpdate": {
+                    "description": "Time of the last update to the audioFile's content",
+                    "type": "string"
+                },
+                "sampleRateHz": {
+                    "description": "Sample rate in hertz",
+                    "type": "integer"
+                },
+                "sha256": {
+                    "description": "SHA-256 hash of the file",
+                    "type": "string"
+                },
+                "sizeByte": {
+                    "description": "File size in bytes",
+                    "type": "integer"
+                }
+            }
+        },
+        "dir_handler.contentResponseDirItem": {
+            "type": "object",
+            "properties": {
+                "dirId": {
+                    "description": "Unique identifier for the directory",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "Name of the directory",
+                    "type": "string"
+                }
+            }
+        },
+        "dir_handler.getDirResponse": {
+            "type": "object",
+            "properties": {
+                "absolutePath": {
+                    "description": "Absolute path to directory",
+                    "type": "string"
+                },
+                "dirId": {
+                    "description": "Unique identifier for the directory",
+                    "type": "integer"
+                },
+                "lastScanned": {
+                    "description": "Last time the directory was scanned",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name of the directory",
+                    "type": "string"
+                }
+            }
+        },
+        "dir_handler.getRootsResponse": {
+            "type": "object",
+            "properties": {
+                "dirs": {
+                    "description": "Array containing root directories",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dir_handler.getRootsResponseItem"
+                    }
+                }
+            }
+        },
+        "dir_handler.getRootsResponseItem": {
+            "type": "object",
+            "properties": {
+                "dirId": {
+                    "description": "Unique identifier for the directory",
+                    "type": "integer"
+                },
+                "lastScanned": {
+                    "description": "Last time the directory was scanned",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name of the directory",
+                    "type": "string"
+                }
+            }
+        },
+        "responses.Error": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "reason": {
                     "type": "string"
                 }
             }

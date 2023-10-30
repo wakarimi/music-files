@@ -3,11 +3,9 @@ package utils
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"github.com/h2non/filetype"
 	"github.com/rs/zerolog/log"
 	"os"
-	"os/exec"
-	"path/filepath"
-	"strings"
 )
 
 func CalculateSha256(filePath string) (hash string, err error) {
@@ -20,35 +18,75 @@ func CalculateSha256(filePath string) (hash string, err error) {
 	return hash, nil
 }
 
-func IsMusicFile(path string) bool {
-	musicExtensions := []string{".aac", ".flac", ".m4a", ".mp3", ".ogg", ".opus", ".wav", ".wma"}
-	ext := strings.ToLower(filepath.Ext(path))
-	for _, musicExt := range musicExtensions {
-		if ext == musicExt {
-			return true
-		}
-	}
-	return false
-}
-
-func IsImageFile(path string) bool {
-	imageExtensions := []string{".jpeg", ".jpg", ".png", ".gif"}
-	ext := strings.ToLower(filepath.Ext(path))
-	for _, imageExt := range imageExtensions {
-		if ext == imageExt {
-			return true
-		}
-	}
-	return false
-}
-
-func GetAudioCodec(filepath string) (codecName string, err error) {
-	cmd := exec.Command("ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries", "stream=codec_name", "-of", "default=noprint_wrappers=1:nokey=1", filepath)
-	codecBytes, err := cmd.Output()
+func IsMusicFile(absolutePath string) (isMusicFile bool, err error) {
+	fileInfo, err := os.Stat(absolutePath)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to determine audio codec")
-		return "", err
+		return false, err
 	}
-	codecName = strings.TrimSpace(string(codecBytes))
-	return codecName, nil
+	if fileInfo.IsDir() {
+		return false, err
+	}
+
+	file, err := os.Open(absolutePath)
+	if err != nil {
+		return false, err
+	}
+	defer file.Close()
+
+	head := make([]byte, 261)
+	file.Read(head)
+
+	kind, _ := filetype.Match(head)
+	if kind == filetype.Unknown {
+		return false, nil
+	}
+
+	isMusicFile = kind.MIME.Value == "audio/mpeg" ||
+		kind.MIME.Value == "audio/wav" ||
+		kind.MIME.Value == "audio/flac" ||
+		kind.MIME.Value == "audio/aac" ||
+		kind.MIME.Value == "audio/ogg" ||
+		kind.MIME.Value == "audio/x-ms-wma" ||
+		kind.MIME.Value == "audio/vnd.rn-realaudio" ||
+		kind.MIME.Value == "audio/amr" ||
+		kind.MIME.Value == "audio/mp4" ||
+		kind.MIME.Value == "audio/alac" ||
+		kind.MIME.Value == "audio/midi"
+
+	return isMusicFile, nil
+}
+
+func IsImageFile(absolutePath string) (isImageFile bool, err error) {
+	fileInfo, err := os.Stat(absolutePath)
+	if err != nil {
+		return false, err
+	}
+	if fileInfo.IsDir() {
+		return false, err
+	}
+
+	file, err := os.Open(absolutePath)
+	if err != nil {
+		log.Warn().Err(err).Str("absolutePath", absolutePath).Msg("Failed to open file to check on image")
+		return false, err
+	}
+	defer file.Close()
+
+	head := make([]byte, 261)
+	_, err = file.Read(head)
+	if err != nil {
+		log.Warn().Err(err).Str("absolutePath", absolutePath).Msg("Failed to read file to check on image")
+		return false, err
+	}
+
+	kind, _ := filetype.Match(head)
+	if kind == filetype.Unknown {
+		return false, nil
+	}
+
+	isImageFile = kind.MIME.Value == "image/jpeg" ||
+		kind.MIME.Value == "image/png" ||
+		kind.MIME.Value == "image/gif"
+
+	return isImageFile, nil
 }

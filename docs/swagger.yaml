@@ -1,96 +1,291 @@
-basePath: /api/music-files-service
+basePath: /api
 definitions:
-  cover.readResponse:
-    description: Response structure containing details about a cover.
+  audio_file_handler.getAudioFileResponse:
     properties:
-      coverId:
+      audioFileId:
+        description: Unique identifier for the audioFile
         type: integer
-      format:
-        type: string
-      heightPx:
-        type: integer
-      sizeByte:
-        type: integer
-      widthPx:
-        type: integer
-    type: object
-  directory.createRequest:
-    description: Request structure to create a new directory
-    properties:
-      path:
-        type: string
-    type: object
-  directory.readAllResponse:
-    description: List of directories
-    properties:
-      directories:
-        items:
-          $ref: '#/definitions/directory.readAllResponseItem'
-        type: array
-    type: object
-  directory.readAllResponseItem:
-    description: Directory details
-    properties:
-      dirId:
-        type: integer
-      lastScanned:
-        type: string
-      path:
-        type: string
-    type: object
-  track.readAllResponse:
-    description: Response structure containing details of all tracks.
-    properties:
-      tracks:
-        items:
-          $ref: '#/definitions/track.readAllResponseItem'
-        type: array
-    type: object
-  track.readAllResponseItem:
-    description: Single track item structure in the response of ReadAll endpoint.
-    properties:
-      audioCodec:
-        type: string
-      coverId:
-        type: integer
-      durationMs:
-        type: integer
-      hashSha256:
-        type: string
-      sizeByte:
-        type: integer
-      trackId:
-        type: integer
-    type: object
-  track.readResponse:
-    description: Response structure containing details of a single track.
-    properties:
-      audioCodec:
-        type: string
       bitrateKbps:
+        description: Bitrate in kilobits per second
         type: integer
-      channels:
+      channelsN:
+        description: Number of audio channels
         type: integer
-      coverId:
+      dirId:
+        description: Directory identifier where the audioFile resides
         type: integer
       durationMs:
+        description: Duration of the audioFile in milliseconds
         type: integer
-      hashSha256:
+      extension:
+        description: File extension of the audioFile
+        type: string
+      filename:
+        description: Filename of the audioFile
+        type: string
+      lastContentUpdate:
+        description: Time of the last update to the audioFile's content
         type: string
       sampleRateHz:
+        description: Sample rate in hertz
         type: integer
+      sha256:
+        description: SHA-256 hash of the file
+        type: string
       sizeByte:
-        type: integer
-      trackId:
+        description: File size in bytes
         type: integer
     type: object
-  types.ErrorResponse:
-    description: Standard error response
+  audio_file_handler.getAudioFilesResponse:
     properties:
-      error:
+      audioFiles:
+        description: Array containing audioFile items
+        items:
+          $ref: '#/definitions/audio_file_handler.getAudioFilesResponseItem'
+        type: array
+    type: object
+  audio_file_handler.getAudioFilesResponseItem:
+    properties:
+      audioFileId:
+        description: Unique identifier for the audioFile
+        type: integer
+      bitrateKbps:
+        description: Bitrate in kilobits per second
+        type: integer
+      channelsN:
+        description: Number of audio channels
+        type: integer
+      dirId:
+        description: Directory identifier where the audioFile resides
+        type: integer
+      durationMs:
+        description: Duration of the audioFile in milliseconds
+        type: integer
+      extension:
+        description: File extension of the audioFile
         type: string
-    required:
-    - error
+      filename:
+        description: Filename of the audioFile
+        type: string
+      lastContentUpdate:
+        description: Time of the last update to the audioFile's content
+        type: string
+      sampleRateHz:
+        description: Sample rate in hertz
+        type: integer
+      sha256:
+        description: SHA-256 hash of the file
+        type: string
+      sizeByte:
+        description: File size in bytes
+        type: integer
+    type: object
+  audio_file_handler.getCoverResponse:
+    properties:
+      coverId:
+        description: Unique identifier for the cover.
+        type: integer
+      extension:
+        description: File extension of the cover.
+        type: string
+      heightPx:
+        description: Height of the cover in pixels.
+        type: integer
+      lastContentUpdate:
+        description: Timestamp of the last content update.
+        type: string
+      sha256:
+        description: SHA-256 hash of the cover.
+        type: string
+      sizeByte:
+        description: File size of the cover in bytes.
+        type: integer
+      widthPx:
+        description: Width of the cover in pixels.
+        type: integer
+    type: object
+  audio_file_handler.searchBySha256Response:
+    properties:
+      audioFiles:
+        description: Array of audioFiles that match the search query.
+        items:
+          $ref: '#/definitions/audio_file_handler.searchBySha256ResponseItem'
+        type: array
+    type: object
+  audio_file_handler.searchBySha256ResponseItem:
+    properties:
+      audioFileId:
+        description: Unique identifier for the audioFile.
+        type: integer
+      bitrateKbps:
+        description: Bitrate of the audioFile in Kbps.
+        type: integer
+      channelsN:
+        description: Number of channels in the audioFile.
+        type: integer
+      dirId:
+        description: Directory ID where the audioFile is located.
+        type: integer
+      durationMs:
+        description: Duration of the audioFile in milliseconds.
+        type: integer
+      extension:
+        description: File extension of the audioFile.
+        type: string
+      filename:
+        description: Filename of the audioFile.
+        type: string
+      lastContentUpdate:
+        description: Timestamp of the last content update.
+        type: string
+      sampleRateHz:
+        description: Sample rate of the audioFile in Hz.
+        type: integer
+      sha256:
+        description: SHA-256 hash of the audioFile.
+        type: string
+      sizeByte:
+        description: File size of the audioFile in bytes.
+        type: integer
+    type: object
+  cover_handler.getCoverResponse:
+    properties:
+      coverId:
+        description: Unique identifier for the cover
+        type: integer
+      extension:
+        description: File extension of the cover
+        type: string
+      heightPx:
+        description: Height of the cover in pixels
+        type: integer
+      lastContentUpdate:
+        description: Timestamp of the last content update
+        type: string
+      sha256:
+        description: SHA-256 hash of the cover
+        type: string
+      sizeByte:
+        description: File size of the cover in bytes
+        type: integer
+      widthPx:
+        description: Width of the cover in pixels
+        type: integer
+    type: object
+  dir_handler.addRootToWatchListRequest:
+    properties:
+      path:
+        description: Path to the directory on disk
+        type: string
+    type: object
+  dir_handler.addRootToWatchListResponse:
+    properties:
+      dirId:
+        description: Unique identifier of the directory in the database
+        type: integer
+      name:
+        description: Name of the directory
+        type: string
+    type: object
+  dir_handler.contentResponse:
+    properties:
+      audioFiles:
+        description: Array containing audioFile items
+        items:
+          $ref: '#/definitions/dir_handler.contentResponseAudioFileItem'
+        type: array
+      dirs:
+        description: Array containing directory items
+        items:
+          $ref: '#/definitions/dir_handler.contentResponseDirItem'
+        type: array
+    type: object
+  dir_handler.contentResponseAudioFileItem:
+    properties:
+      audioFileId:
+        description: Unique identifier for the audioFile
+        type: integer
+      bitrateKbps:
+        description: Bitrate in kilobits per second
+        type: integer
+      channelsN:
+        description: Number of audio channels
+        type: integer
+      dirId:
+        description: Directory identifier where the audioFile resides
+        type: integer
+      durationMs:
+        description: Duration of the audioFile in milliseconds
+        type: integer
+      extension:
+        description: File extension of the audioFile
+        type: string
+      filename:
+        description: Filename of the audioFile
+        type: string
+      lastContentUpdate:
+        description: Time of the last update to the audioFile's content
+        type: string
+      sampleRateHz:
+        description: Sample rate in hertz
+        type: integer
+      sha256:
+        description: SHA-256 hash of the file
+        type: string
+      sizeByte:
+        description: File size in bytes
+        type: integer
+    type: object
+  dir_handler.contentResponseDirItem:
+    properties:
+      dirId:
+        description: Unique identifier for the directory
+        type: integer
+      name:
+        description: Name of the directory
+        type: string
+    type: object
+  dir_handler.getDirResponse:
+    properties:
+      absolutePath:
+        description: Absolute path to directory
+        type: string
+      dirId:
+        description: Unique identifier for the directory
+        type: integer
+      lastScanned:
+        description: Last time the directory was scanned
+        type: string
+      name:
+        description: Name of the directory
+        type: string
+    type: object
+  dir_handler.getRootsResponse:
+    properties:
+      dirs:
+        description: Array containing root directories
+        items:
+          $ref: '#/definitions/dir_handler.getRootsResponseItem'
+        type: array
+    type: object
+  dir_handler.getRootsResponseItem:
+    properties:
+      dirId:
+        description: Unique identifier for the directory
+        type: integer
+      lastScanned:
+        description: Last time the directory was scanned
+        type: string
+      name:
+        description: Name of the directory
+        type: string
+    type: object
+  responses.Error:
+    properties:
+      message:
+        type: string
+      reason:
+        type: string
     type: object
 host: localhost:8022
 info:
@@ -101,14 +296,162 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
   title: Wakarimi Music Files API
-  version: "0.2"
+  version: "0.4"
 paths:
+  /audio-files:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all audioFiles in the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/audio_file_handler.getAudioFilesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Retrieve all audioFiles
+      tags:
+      - AudioFiles
+  /audio-files/{audioFileId}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a single audioFile by its ID
+      parameters:
+      - description: AudioFile ID
+        in: path
+        name: audioFileId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/audio_file_handler.getAudioFileResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Retrieve a audioFile by its ID
+      tags:
+      - AudioFiles
+  /audio-files/{audioFileId}/cover:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves detailed information about a cover for a audioFile by
+        its ID.
+      parameters:
+      - description: AudioFile ID
+        in: path
+        name: audioFileId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/audio_file_handler.getCoverResponse'
+        "400":
+          description: Invalid audioFileId format
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "404":
+          description: Cover not found
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Retrieve a cover for a audioFile by ID
+      tags:
+      - Covers
+  /audio-files/{audioFileId}/download:
+    get:
+      consumes:
+      - application/json
+      description: Downloads a audio file identified by the audioFileId
+      parameters:
+      - description: Audio File ID
+        in: path
+        name: audioFileId
+        required: true
+        type: integer
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Audio File
+          headers:
+            Content-Disposition:
+              description: attachment; filename=[name of the file]
+              type: string
+            Content-Type:
+              description: application/octet-stream
+              type: string
+          schema:
+            type: file
+        "400":
+          description: Invalid audioFileId format
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error, Failed to calculate absolute path
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Download a audio file by ID
+      tags:
+      - AudioFiles
+  /audio-files/sha256/{sha256}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of audioFiles that have the specified SHA256 hash.
+      parameters:
+      - description: SHA256 hash
+        in: path
+        name: sha256
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/audio_file_handler.searchBySha256Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Search audioFiles by SHA256 hash
+      tags:
+      - AudioFiles
   /covers/{coverId}:
     get:
       consumes:
       - application/json
+      description: Retrieves detailed information about a cover by its ID
       parameters:
-      - description: Cover Identifier
+      - description: Cover ID
         in: path
         name: coverId
         required: true
@@ -117,24 +460,31 @@ paths:
       - application/json
       responses:
         "200":
-          description: Successfully fetched cover data
+          description: OK
           schema:
-            $ref: '#/definitions/cover.readResponse'
+            $ref: '#/definitions/cover_handler.getCoverResponse'
         "400":
           description: Invalid coverId format
           schema:
-            $ref: '#/definitions/types.ErrorResponse'
-        "500":
-          description: Failed to fetch cover
+            $ref: '#/definitions/responses.Error'
+        "404":
+          description: Cover not found
           schema:
-            $ref: '#/definitions/types.ErrorResponse'
-      summary: Fetch data about a cover by its ID
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Retrieve a cover by ID
       tags:
       - Covers
   /covers/{coverId}/download:
     get:
+      consumes:
+      - application/json
+      description: Downloads a cover image file identified by the coverId
       parameters:
-      - description: Cover Identifier
+      - description: Cover ID
         in: path
         name: coverId
         required: true
@@ -143,72 +493,65 @@ paths:
       - application/octet-stream
       responses:
         "200":
-          description: Successfully downloaded cover file
+          description: Cover File
+          headers:
+            Content-Disposition:
+              description: attachment; filename=[name of the file]
+              type: string
+            Content-Type:
+              description: application/octet-stream
+              type: string
           schema:
             type: file
         "400":
           description: Invalid coverId format
           schema:
-            $ref: '#/definitions/types.ErrorResponse'
+            $ref: '#/definitions/responses.Error'
         "500":
-          description: Failed to fetch cover
+          description: Internal Server Error, Failed to calculate absolute path
           schema:
-            $ref: '#/definitions/types.ErrorResponse'
-      summary: Download a cover by its ID
+            $ref: '#/definitions/responses.Error'
+      summary: Download a cover image by ID
       tags:
       - Covers
-  /dirs:
+  /dirs/{dirId}:
     get:
       consumes:
       - application/json
+      description: Retrieves detailed information about a directory by its ID
+      parameters:
+      - description: Dir ID
+        in: path
+        name: dirId
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: Successfully fetched all directories
+          description: OK
           schema:
-            $ref: '#/definitions/directory.readAllResponse'
-        "500":
-          description: Failed to fetch directories
-          schema:
-            $ref: '#/definitions/types.ErrorResponse'
-      summary: Get all added directories for scanning
-      tags:
-      - Directories
-    post:
-      consumes:
-      - application/json
-      description: Adds a new directory
-      parameters:
-      - description: Details for the new directory
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/directory.createRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Successfully created directory
-          schema:
-            type: string
+            $ref: '#/definitions/dir_handler.getDirResponse'
         "400":
-          description: Failed to encode request or Invalid input
+          description: Invalid dirId format
           schema:
-            $ref: '#/definitions/types.ErrorResponse'
+            $ref: '#/definitions/responses.Error'
+        "404":
+          description: Directory not found
+          schema:
+            $ref: '#/definitions/responses.Error'
         "500":
-          description: Failed to create directory
+          description: Internal Server Error
           schema:
-            $ref: '#/definitions/types.ErrorResponse'
-      summary: Create a directory
+            $ref: '#/definitions/responses.Error'
+      summary: Retrieve a directory by ID
       tags:
       - Directories
-  /dirs/{dirId}:
-    delete:
+  /dirs/{dirId}/content:
+    get:
       consumes:
       - application/json
-      description: Deletes a directory using its unique identifier
+      description: Retrieves a list of subdirectories for a given directory ID
       parameters:
       - description: Directory ID
         in: path
@@ -218,27 +561,33 @@ paths:
       produces:
       - application/json
       responses:
-        "204":
-          description: Successfully deleted directory
+        "200":
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/dir_handler.contentResponse'
         "400":
           description: Invalid dirId format
           schema:
-            $ref: '#/definitions/types.ErrorResponse'
-        "500":
-          description: Failed to delete directory
+            $ref: '#/definitions/responses.Error'
+        "404":
+          description: Directory not found
           schema:
-            $ref: '#/definitions/types.ErrorResponse'
-      summary: Delete a directory
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Retrieve content of a directory by ID
       tags:
       - Directories
   /dirs/{dirId}/scan:
     post:
       consumes:
       - application/json
+      description: Initiates a scan in the specified directory to identify new or
+        updated files.
       parameters:
-      - description: Directory Identifier
+      - description: Directory ID
         in: path
         name: dirId
         required: true
@@ -248,107 +597,124 @@ paths:
       responses:
         "200":
           description: Directory scanned successfully
-          schema:
-            type: string
         "400":
           description: Invalid dirId format
           schema:
-            $ref: '#/definitions/types.ErrorResponse'
-        "500":
-          description: Failed to scan directory
+            $ref: '#/definitions/responses.Error'
+        "404":
+          description: Directory not found
           schema:
-            $ref: '#/definitions/types.ErrorResponse'
-      summary: Scan a directory by its ID
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Scan a directory by ID
       tags:
       - Directories
-  /dirs/scan-all:
+  /dirs/scan:
     post:
       consumes:
       - application/json
+      description: Initiates a scan in all directories to identify new or updated
+        files.
       produces:
       - application/json
       responses:
         "200":
-          description: Directories scanned successfully
-          schema:
-            type: string
+          description: All directories scanned successfully
         "500":
-          description: Failed to scan directories
+          description: Internal Server Error
           schema:
-            $ref: '#/definitions/types.ErrorResponse'
+            $ref: '#/definitions/responses.Error'
       summary: Scan all directories
       tags:
       - Directories
-  /tracks:
+  /roots:
     get:
       consumes:
       - application/json
+      description: Retrieves a list of all root directories that are tracked
       produces:
       - application/json
       responses:
         "200":
-          description: Successfully retrieved all tracks
+          description: OK
           schema:
-            $ref: '#/definitions/track.readAllResponse'
+            $ref: '#/definitions/dir_handler.getRootsResponse'
         "500":
-          description: Failed to fetch all tracks
+          description: Internal Server Error
           schema:
-            $ref: '#/definitions/types.ErrorResponse'
-      summary: Retrieve all tracks
+            $ref: '#/definitions/responses.Error'
+      summary: Retrieve root directories
       tags:
-      - Tracks
-  /tracks/{trackId}:
-    get:
+      - Directories
+    post:
       consumes:
       - application/json
+      description: Adds a new directory to the database for tracking
       parameters:
-      - description: Track ID
+      - description: Directory Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dir_handler.addRootToWatchListRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dir_handler.addRootToWatchListResponse'
+        "400":
+          description: Failed to decode request
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "404":
+          description: Directory not found
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "409":
+          description: Directory already tracked
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Add a new tracked directory
+      tags:
+      - Directories
+  /roots/{dirId}:
+    delete:
+      consumes:
+      - application/json
+      description: Stops tracking a directory with a specified root directory ID
+      parameters:
+      - description: Root Directory ID
         in: path
-        name: trackId
+        name: dirId
         required: true
         type: integer
       produces:
       - application/json
       responses:
-        "200":
-          description: Successfully retrieved the track
-          schema:
-            $ref: '#/definitions/track.readResponse'
+        "204":
+          description: No Content
         "400":
-          description: Invalid trackId format
+          description: Invalid dirId format, The directory is not root
           schema:
-            $ref: '#/definitions/types.ErrorResponse'
+            $ref: '#/definitions/responses.Error'
+        "404":
+          description: Directory not found
+          schema:
+            $ref: '#/definitions/responses.Error'
         "500":
-          description: Failed to fetch track
+          description: Internal Server Error
           schema:
-            $ref: '#/definitions/types.ErrorResponse'
-      summary: Retrieve a single track by its ID
+            $ref: '#/definitions/responses.Error'
+      summary: Remove a tracked root directory
       tags:
-      - Tracks
-  /tracks/{trackId}/download:
-    get:
-      parameters:
-      - description: Track Identifier
-        in: path
-        name: trackId
-        required: true
-        type: integer
-      produces:
-      - application/octet-stream
-      responses:
-        "200":
-          description: Successfully downloaded track file
-          schema:
-            type: file
-        "400":
-          description: Invalid trackId format
-          schema:
-            $ref: '#/definitions/types.ErrorResponse'
-        "500":
-          description: Failed to fetch track
-          schema:
-            $ref: '#/definitions/types.ErrorResponse'
-      summary: Download a track by its ID
-      tags:
-      - Tracks
+      - Directories
 swagger: "2.0"

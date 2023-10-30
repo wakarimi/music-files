@@ -6,16 +6,22 @@ import (
 )
 
 func (s *Service) ScanAll(tx *sqlx.Tx) (err error) {
-	dirs, err := s.DirRepo.ReadAllTx(tx)
+	log.Debug().Msg("Scanning all root directories")
+
+	roots, err := s.DirRepo.ReadRoots(tx)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to get directories")
+		log.Error().Err(err).Msg("Failed to get root directories")
 		return err
 	}
 
-	for _, dir := range dirs {
-		log.Debug().Int("dirId", dir.DirId).Msg("Scanning directory")
-		s.dirScan(tx, dir)
+	for _, root := range roots {
+		err = s.Scan(tx, root.DirId)
+		if err != nil {
+			log.Error().Err(err).Int("rootDirId", root.DirId).Msg("Failed to scan directory")
+			return err
+		}
 	}
 
+	log.Debug().Msg("All root directories scanned successfully")
 	return nil
 }

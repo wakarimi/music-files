@@ -5,6 +5,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/wtolson/go-taglib"
 	"image"
+	"music-files/internal/errors"
 	"music-files/internal/models"
 	"music-files/internal/utils"
 	"os"
@@ -18,259 +19,432 @@ import (
 )
 
 func (s *Service) Scan(tx *sqlx.Tx, dirId int) (err error) {
-	dir, err := s.DirRepo.ReadTx(tx, dirId)
+	log.Debug().Int("dirId", dirId).Msg("Scanning directory")
+
+	existsInDatabase, err := s.DirRepo.IsExists(tx, dirId)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to get directory")
+		log.Error().Int("dirId", dirId).Err(err).Msg("Failed to check directory existence")
 		return err
 	}
-	log.Debug().Str("path", dir.Path).Msg("Directory read successfully")
+	if !existsInDatabase {
+		log.Error().Int("dirId", dirId).Msg("Directory not found")
+		return errors.NotFound{Resource: "directory in database"}
+	}
 
-	s.dirScan(tx, dir)
+	absolutePath, err := s.AbsolutePath(tx, dirId)
+	if err != nil {
+		log.Error().Int("dirId", dirId).Err(err).Msg("Failed to calculate absolute path to directory")
+		return err
+	}
+	existsOnDisk, err := utils.IsDirectoryExistsOnDisk(absolutePath)
+	if err != nil {
+		log.Error().Int("dirId", dirId).Err(err).Msg("Failed to check directory existence on disk")
+		return err
+	}
+	if !existsOnDisk {
+		err = s.DeleteDir(tx, dirId)
+		if err != nil {
+			log.Error().Int("dirId", dirId).Err(err).Msg("Failed to delete directory")
+			return err
+		}
+		return nil
+	}
+
+	err = s.actualizeSubDirs(tx, dirId)
+	if err != nil {
+		log.Error().Int("dirId", dirId).Err(err).Msg("Failed to actualize subdirectories")
+		return err
+	}
+
+	subDirs, err := s.DirRepo.ReadSubDirs(tx, dirId)
+	if err != nil {
+		log.Error().Int("dirId", dirId).Err(err).Msg("Failed to read subdirectories")
+		return err
+	}
+
+	for _, subDir := range subDirs {
+		err = s.Scan(tx, subDir.DirId)
+		if err != nil {
+			log.Error().Int("subDirId", subDir.DirId).Err(err).Msg("Failed to scan subdirectory")
+			return err
+		}
+	}
+	err = s.scanContent(tx, dirId)
+	if err != nil {
+		log.Error().Int("dirId", dirId).Err(err).Msg("Failed to scan directory's content")
+		return err
+	}
+
+	log.Debug().Int("dirId", dirId).Msg("Directory scanned successfully")
 	return nil
 }
 
-func (s *Service) dirScan(tx *sqlx.Tx, dir models.Directory) {
-	foundTracks, err := s.searchTracksFromDirectory(dir)
+func (s *Service) actualizeSubDirs(tx *sqlx.Tx, dirId int) (err error) {
+	absolutePath, err := s.AbsolutePath(tx, dirId)
 	if err != nil {
-		log.Error().Err(err).Int("dirId", dir.DirId).Msg("Failed to get tracks from directory")
-		return
+		log.Error().Int("dirId", dirId).Msg("failed to actualize subdirectories")
+		return err
 	}
-	log.Debug().Int("foundTracksCount", len(foundTracks)).Msg("Tracks read from directory")
 
-	foundCovers, err := s.searchCoversFromDirectory(dir)
+	entries, err := os.ReadDir(absolutePath)
 	if err != nil {
-		log.Error().Err(err).Int("dirId", dir.DirId).Msg("Failed to get covers from directory")
-		return
+		log.Error().Str("absolutePath", absolutePath).Msg("Failed to read directory from disk")
+		return err
 	}
-	log.Debug().Int("foundCoversCount", len(foundCovers)).Msg("Covers read from directory")
 
-	databaseTracks, err := s.TrackRepo.ReadAllByDirIdTx(tx, dir.DirId)
-	if err != nil {
-		log.Error().Err(err).Int("dirId", dir.DirId).Msg("Failed to get tracks from database")
-		return
-	}
-	log.Debug().Int("foundTracksCount", len(databaseTracks)).Msg("Tracks read from database")
-
-	databaseCovers, err := s.CoverRepo.ReadAllByDirIdTx(tx, dir.DirId)
-	if err != nil {
-		log.Error().Err(err).Int("dirId", dir.DirId).Msg("Failed to get covers from database")
-		return
-	}
-	log.Debug().Int("foundCoversCount", len(databaseCovers)).Msg("Covers read from database")
-
-	deletedCoverCount := 0
-	for _, databaseCover := range databaseCovers {
-		analogFound := false
-		for i := range foundCovers {
-			if (databaseCover.HashSha256 == foundCovers[i].HashSha256) ||
-				((databaseCover.DirId == foundCovers[i].DirId) && (databaseCover.RelativePath == foundCovers[i].RelativePath) && (databaseCover.Filename == foundCovers[i].Filename)) {
-				analogFound = true
-				foundCovers[i].CoverId = databaseCover.CoverId
-				break
-			}
-		}
-
-		if !analogFound {
-			err = s.TrackRepo.ResetCoverTx(tx, databaseCover.CoverId)
+	for _, entry := range entries {
+		if entry.IsDir() {
+			alreadyInDatabase, err := s.DirRepo.IsExistsByParentAndName(tx, &dirId, entry.Name())
 			if err != nil {
-				log.Error().Msg("Failed to reset cover for tracks")
-			} else {
-				err = s.CoverRepo.DeleteTx(tx, databaseCover.CoverId)
+				log.Error().Int("dirId", dirId).Msg("Failed to check directory existence")
+				return err
+			}
+			if !alreadyInDatabase {
+				_, err = s.DirRepo.Create(tx, models.Directory{
+					ParentDirId: &dirId,
+					Name:        entry.Name(),
+				})
 				if err != nil {
-					log.Error().Err(err).Int("databaseCoverId", databaseCover.CoverId).Msg("Failed to delete cover")
-				} else {
-					log.Info().Int("trackId", databaseCover.CoverId).Str("databaseCoverFilename", databaseCover.Filename).Msg("Undiscovered cover deleted")
-					deletedCoverCount++
+					log.Error().Int("dirId", dirId).Msg("Failed to create directory")
+					return err
 				}
 			}
 		}
 	}
-	log.Debug().Int("deletedCoversCount", deletedCoverCount).Msg("Undiscovered covers deleted")
 
-	deletedTracksCount := 0
-	for _, databaseTrack := range databaseTracks {
-		analogFound := false
-		for i := range foundTracks {
-			if (databaseTrack.HashSha256 == foundTracks[i].HashSha256) ||
-				((databaseTrack.DirId == foundTracks[i].DirId) && (databaseTrack.RelativePath == foundTracks[i].RelativePath) && (databaseTrack.Filename == foundTracks[i].Filename)) {
-				analogFound = true
-				foundTracks[i].TrackId = databaseTrack.TrackId
-				break
-			}
-		}
-
-		if !analogFound {
-			err = s.TrackRepo.DeleteTx(tx, databaseTrack.TrackId)
-			if err != nil {
-				log.Error().Err(err).Int("databaseTrackId", databaseTrack.TrackId).Msg("Failed to delete track")
-			} else {
-				log.Info().Int("trackId", databaseTrack.TrackId).Str("databaseTrackFilename", databaseTrack.Filename).Msg("Undiscovered track deleted")
-				deletedTracksCount++
-			}
-		}
-	}
-	log.Debug().Int("deletedTracksCount", deletedTracksCount).Msg("Undiscovered tracks deleted")
-
-	newCoversCount := 0
-	modifiedCoversCount := 0
-	for _, foundCover := range foundCovers {
-		if foundCover.CoverId == 0 {
-			coverId, err := s.CoverRepo.CreateTx(tx, foundCover)
-			if err != nil {
-				log.Error().Err(err).Str("relativePath", foundCover.RelativePath).Msg("Failed to create cover")
-			} else {
-				log.Info().Int("coverId", coverId).Str("relativePath", foundCover.RelativePath).Msg("New cover added to database")
-				newCoversCount++
-			}
-		} else {
-			err = s.CoverRepo.UpdateTx(tx, foundCover.CoverId, foundCover)
-			if err != nil {
-				log.Error().Err(err).Str("relativePath", foundCover.RelativePath).Msg("Failed to update cover")
-			} else {
-				log.Info().Int("coverId", foundCover.CoverId).Str("relativePath", foundCover.RelativePath).Msg("Cover updated in database")
-				modifiedCoversCount++
-			}
-		}
-	}
-	log.Debug().Int("newCoversCount", newCoversCount).Msg("New covers added")
-	log.Debug().Int("modifiedCoversCount", modifiedCoversCount).Msg("Covers modified")
-
-	newTracksCount := 0
-	modifiedTracksCount := 0
-	for _, foundTrack := range foundTracks {
-		cover, err := s.CoverRepo.ReadByDirIdAndRelativePathTx(tx, dir.DirId, foundTrack.RelativePath)
-		if err == nil {
-			foundTrack.CoverId = &cover.CoverId
-		}
-
-		if foundTrack.TrackId == 0 {
-			trackId, err := s.TrackRepo.CreateTx(tx, foundTrack)
-			if err != nil {
-				log.Error().Err(err).Str("filename", foundTrack.Filename).Msg("Failed to create track")
-			} else {
-				log.Info().Int("trackId", trackId).Str("filename", foundTrack.Filename).Msg("New track added to database")
-				newTracksCount++
-			}
-		} else {
-			err = s.TrackRepo.UpdateTx(tx, foundTrack.TrackId, foundTrack)
-			if err != nil {
-				log.Error().Err(err).Str("filename", foundTrack.Filename).Str("relativePath", foundTrack.RelativePath).Msg("Failed to update track")
-			} else {
-				log.Info().Int("trackId", foundTrack.TrackId).Str("filename", foundTrack.Filename).Str("relativePath", foundTrack.RelativePath).Msg("Track updated in database")
-				modifiedTracksCount++
-			}
-		}
-	}
-	log.Debug().Int("newTracksCount", newTracksCount).Msg("New tracks added")
-	log.Debug().Int("modifiedTracksCount", modifiedTracksCount).Msg("Tracks Modified")
-
-	err = s.DirRepo.UpdateLastScannedTx(tx, dir.DirId)
+	subDirs, err := s.DirRepo.ReadSubDirs(tx, dirId)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to update date of last scanning")
-		return
+		log.Error().Int("dirId", dirId).Msg("Failed to read subdirectories")
+		return err
 	}
+	for _, subDir := range subDirs {
+		foundDirOnDisk := false
+
+		for _, entry := range entries {
+			if entry.IsDir() {
+				if subDir.Name == entry.Name() {
+					foundDirOnDisk = true
+				}
+			}
+		}
+
+		if !foundDirOnDisk {
+			err = s.DeleteDir(tx, subDir.DirId)
+			if err != nil {
+				log.Error().Int("dirId", dirId).Msg("Failed to delete directory from disk")
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
-func (s *Service) searchTracksFromDirectory(dir models.Directory) (tracks []models.Track, err error) {
-	err = filepath.Walk(dir.Path, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if info.IsDir() {
-			return nil
-		}
-
-		if utils.IsMusicFile(filepath.Ext(path)) {
-			relativeDir := filepath.Dir(strings.TrimPrefix(path, dir.Path))
-			hash, err := utils.CalculateSha256(path)
-			if err != nil {
-				log.Error().Err(err).Str("filepath", path).Msg("Failed to calculate file hash")
-				return err
-			}
-
-			fileDetails, err := taglib.Read(path)
-			if err != nil {
-				log.Error().Err(err).Str("path", path).Msg("Failed to fetch file details")
-				return nil
-			}
-
-			durationMs := int64(fileDetails.Length() / time.Millisecond)
-
-			codec, err := utils.GetAudioCodec(path)
-
-			tracks = append(tracks, models.Track{
-				DirId:        dir.DirId,
-				RelativePath: relativeDir,
-				Filename:     info.Name(),
-				DurationMs:   durationMs,
-				SizeByte:     info.Size(),
-				AudioCodec:   codec,
-				BitrateKbps:  fileDetails.Bitrate(),
-				SampleRateHz: fileDetails.Samplerate(),
-				Channels:     fileDetails.Channels(),
-				HashSha256:   hash,
-			})
-		}
-		return nil
-	})
-
+func (s *Service) scanContent(tx *sqlx.Tx, dirId int) (err error) {
+	err = s.actualizeAudioFiles(tx, dirId)
 	if err != nil {
-		return nil, err
+		log.Error().Int("dirId", dirId).Msg("Failed to actualize audio files")
+		return err
 	}
-	return tracks, nil
+
+	err = s.actualizeCovers(tx, dirId)
+	if err != nil {
+		log.Error().Int("dirId", dirId).Msg("Failed to actualize covers")
+		return err
+	}
+
+	return nil
 }
 
-func (s *Service) searchCoversFromDirectory(dir models.Directory) (covers []models.Cover, err error) {
-	err = filepath.Walk(dir.Path, func(path string, info os.FileInfo, err error) error {
+func (s *Service) actualizeAudioFiles(tx *sqlx.Tx, dirId int) (err error) {
+	absolutePath, err := s.AbsolutePath(tx, dirId)
+	if err != nil {
+		log.Error().Int("dirId", dirId).Msg("Failed to calculate absolute path to directory")
+		return err
+	}
+
+	entries, err := os.ReadDir(absolutePath)
+	if err != nil {
+		log.Error().Int("dirId", dirId).Msg("Failed to read directory from disk")
+		return err
+	}
+
+	for _, entry := range entries {
+		fileAbsolutePath := filepath.Join(absolutePath, entry.Name())
+		isMusicFile, err := utils.IsMusicFile(fileAbsolutePath)
 		if err != nil {
+			log.Error().Int("dirId", dirId).Msg("Failed to check entry's type")
 			return err
 		}
+		if isMusicFile {
+			sha256OnDisk, err := utils.CalculateSha256(fileAbsolutePath)
+			if err != nil {
+				log.Error().Int("dirId", dirId).Msg("Failed to calculate sha256")
+				return err
+			}
 
-		if info.IsDir() {
-			return nil
+			alreadyInDatabase, err := s.AudioFileService.IsExistsByDirAndName(tx, dirId, entry.Name())
+			if err != nil {
+				log.Error().Int("dirId", dirId).Str("entryName", entry.Name()).Msg("Failed to check music file existence")
+				return err
+			}
+
+			if alreadyInDatabase {
+				audioFile, err := s.AudioFileService.GetByDirAndName(tx, dirId, entry.Name())
+				if err != nil {
+					log.Error().Int("dirId", dirId).Str("entryName", entry.Name()).Msg("Failed to check music file existence")
+					return err
+				}
+				sha256InDatabase := audioFile.Sha256
+
+				if sha256OnDisk == sha256InDatabase {
+					continue
+				}
+
+				audioFileToUpdate, err := s.prepareAudioFileByAbsolutePath(absolutePath)
+				if err != nil {
+					log.Error().Int("dirId", dirId).Str("entryName", entry.Name()).Msg("Failed to prepare audio file")
+					return err
+				}
+				audioFileToUpdate.DirId = dirId
+				audioFileToUpdate.Sha256 = sha256OnDisk
+
+				_, err = s.AudioFileService.Update(tx, audioFile.AudioFileId, audioFileToUpdate)
+				if err != nil {
+					log.Error().Int("dirId", dirId).Str("entryName", entry.Name()).Msg("Failed to update audio file")
+					return err
+				}
+			} else {
+				audioFileToCreate, err := s.prepareAudioFileByAbsolutePath(fileAbsolutePath)
+				if err != nil {
+					log.Error().Int("dirId", dirId).Str("entryName", entry.Name()).Msg("Failed to prepare audio file")
+					return err
+				}
+				audioFileToCreate.DirId = dirId
+				audioFileToCreate.Sha256 = sha256OnDisk
+
+				_, err = s.AudioFileService.Create(tx, audioFileToCreate)
+				if err != nil {
+					log.Error().Int("dirId", dirId).Str("entryName", entry.Name()).Msg("Failed to create audio file")
+					return err
+				}
+			}
+
 		}
-
-		if utils.IsImageFile(filepath.Ext(path)) {
-			relativeDir := filepath.Dir(strings.TrimPrefix(path, dir.Path))
-			hash, err := utils.CalculateSha256(path)
-			if err != nil {
-				log.Error().Err(err).Str("filepath", path).Msg("Failed to calculate file hash")
-				return err
-			}
-
-			f, err := os.Open(path)
-			if err != nil {
-				log.Error().Err(err).Str("filepath", path).Msg("Failed to open image file")
-				return err
-			}
-			defer f.Close()
-
-			img, _, err := image.DecodeConfig(f)
-			if err != nil {
-				log.Error().Err(err).Str("filepath", path).Msg("Failed to decode image file")
-				return err
-			}
-
-			widthPx := img.Width
-			heightPx := img.Height
-
-			covers = append(covers, models.Cover{
-				DirId:        dir.DirId,
-				RelativePath: relativeDir,
-				Filename:     info.Name(),
-				Format:       filepath.Ext(path),
-				WidthPx:      widthPx,
-				HeightPx:     heightPx,
-				SizeByte:     info.Size(),
-				HashSha256:   hash,
-			})
-		}
-		return nil
-	})
-
-	if err != nil {
-		return nil, err
 	}
-	return covers, nil
+
+	audioFiles, err := s.AudioFileService.GetAllByDir(tx, dirId)
+	if err != nil {
+		log.Error().Int("dirId", dirId).Msg("Failed to get audio files")
+		return err
+	}
+
+	for _, audioFile := range audioFiles {
+		foundOnDisk := false
+
+		for _, entry := range entries {
+			fileAbsolutePath := filepath.Join(absolutePath, entry.Name())
+			isMusicFile, err := utils.IsMusicFile(fileAbsolutePath)
+			if err != nil {
+				log.Error().Str("fileAbsolutePath", fileAbsolutePath).Msg("Failed to check entry's type")
+				return err
+			}
+
+			if isMusicFile {
+				if audioFile.Filename == entry.Name() {
+					foundOnDisk = true
+				}
+			}
+		}
+
+		if !foundOnDisk {
+			err = s.AudioFileService.Delete(tx, audioFile.AudioFileId)
+			if err != nil {
+				log.Error().Int("dirId", dirId).Msg("Failed to delete audio file")
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (s *Service) prepareAudioFileByAbsolutePath(absolutePath string) (audioFile models.AudioFile, err error) {
+	fileInfo, err := os.Stat(absolutePath)
+	if err != nil {
+		log.Error().Str("absolutePath", absolutePath).Msg("Failed to get file info")
+		return models.AudioFile{}, err
+	}
+
+	fileDetails, err := taglib.Read(absolutePath)
+	if err != nil {
+		log.Error().Str("absolutePath", absolutePath).Msg("Failed to read file details")
+		return models.AudioFile{}, err
+	}
+
+	durationMs := int64(fileDetails.Length() / time.Millisecond)
+
+	audioFile = models.AudioFile{
+		Filename:     fileInfo.Name(),
+		Extension:    filepath.Ext(absolutePath),
+		SizeByte:     fileInfo.Size(),
+		DurationMs:   durationMs,
+		BitrateKbps:  fileDetails.Bitrate(),
+		SampleRateHz: fileDetails.Samplerate(),
+		ChannelsN:    fileDetails.Channels(),
+	}
+
+	return audioFile, nil
+}
+
+func (s *Service) actualizeCovers(tx *sqlx.Tx, dirId int) (err error) {
+	absolutePath, err := s.AbsolutePath(tx, dirId)
+	if err != nil {
+		log.Error().Int("dirId", dirId).Msg("Failed to calculate absolute path to directory")
+		return err
+	}
+
+	entries, err := os.ReadDir(absolutePath)
+	if err != nil {
+		log.Error().Int("dirId", dirId).Msg("Failed to read directory on disk")
+		return err
+	}
+
+	for _, entry := range entries {
+		if !strings.Contains(entry.Name(), "cover") {
+			continue
+		}
+
+		fileAbsolutePath := filepath.Join(absolutePath, entry.Name())
+		isImageFile, err := utils.IsImageFile(fileAbsolutePath)
+		if err != nil {
+			log.Error().Err(err).Str("absolutePath", fileAbsolutePath).Msg("Failed to check on image")
+			return err
+		}
+		if isImageFile {
+			sha256OnDisk, err := utils.CalculateSha256(fileAbsolutePath)
+			if err != nil {
+				log.Error().Str("entryName", entry.Name()).Msg("Failed to calculate sha256")
+				return err
+			}
+
+			alreadyInDatabase, err := s.CoverService.IsExistsByDirAndName(tx, dirId, entry.Name())
+			if err != nil {
+				log.Error().Str("entryName", entry.Name()).Msg("Failed to check directory existence")
+				return err
+			}
+
+			if alreadyInDatabase {
+				cover, err := s.CoverService.GetByDirAndName(tx, dirId, entry.Name())
+				if err != nil {
+					log.Error().Str("entryName", entry.Name()).Msg("Failed to check directory existence")
+					return err
+				}
+				sha256InDatabase := cover.Sha256
+
+				if sha256OnDisk == sha256InDatabase {
+					continue
+				}
+
+				coverToUpdate, err := s.prepareCoverByAbsolutePath(absolutePath)
+				if err != nil {
+					log.Error().Str("entryName", entry.Name()).Msg("Failed to prepare cover")
+					return err
+				}
+				coverToUpdate.DirId = dirId
+				coverToUpdate.Sha256 = sha256OnDisk
+
+				_, err = s.CoverService.Update(tx, cover.CoverId, coverToUpdate)
+				if err != nil {
+					log.Error().Str("entryName", entry.Name()).Msg("Failed to update cover")
+					return err
+				}
+			} else {
+				coverToCreate, err := s.prepareCoverByAbsolutePath(fileAbsolutePath)
+				if err != nil {
+					log.Error().Str("entryName", entry.Name()).Msg("Failed to prepare cover")
+					return err
+				}
+				coverToCreate.DirId = dirId
+				coverToCreate.Sha256 = sha256OnDisk
+
+				_, err = s.CoverService.Create(tx, coverToCreate)
+				if err != nil {
+					log.Error().Str("entryName", entry.Name()).Msg("Failed to create cover")
+					return err
+				}
+			}
+
+		}
+	}
+
+	covers, err := s.CoverService.GetAllByDir(tx, dirId)
+	if err != nil {
+		log.Error().Int("dirId", dirId).Msg("Failed to get covers")
+		return err
+	}
+
+	for _, cover := range covers {
+		foundOnDisk := false
+
+		for _, entry := range entries {
+			if !strings.Contains(entry.Name(), "cover") {
+				continue
+			}
+
+			fileAbsolutePath := filepath.Join(absolutePath, entry.Name())
+			isImageFile, err := utils.IsImageFile(fileAbsolutePath)
+			if err != nil {
+				log.Error().Str("fileAbsolutePath", fileAbsolutePath).Msg("Failed to check file type")
+				return err
+			}
+
+			if isImageFile {
+				if cover.Filename == entry.Name() {
+					foundOnDisk = true
+				}
+			}
+		}
+
+		if !foundOnDisk {
+			err = s.CoverService.Delete(tx, cover.CoverId)
+			if err != nil {
+				log.Error().Err(err).Int("coverId", cover.CoverId).Msg("Failed to delete cover")
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (s *Service) prepareCoverByAbsolutePath(absolutePath string) (audioFile models.Cover, err error) {
+	fileInfo, err := os.Stat(absolutePath)
+	if err != nil {
+		log.Error().Err(err).Str("absolutePath", absolutePath).Msg("Failed to get file info")
+		return models.Cover{}, err
+	}
+
+	f, err := os.Open(absolutePath)
+	if err != nil {
+		log.Error().Err(err).Str("absolutePath", absolutePath).Msg("Failed to open file")
+		return models.Cover{}, err
+	}
+	defer f.Close()
+
+	img, _, err := image.DecodeConfig(f)
+	if err != nil {
+		log.Error().Err(err).Str("absolutePath", absolutePath).Msg("Failed to decode config")
+		return models.Cover{}, err
+	}
+
+	audioFile = models.Cover{
+		Filename:  fileInfo.Name(),
+		Extension: filepath.Ext(absolutePath),
+		SizeByte:  fileInfo.Size(),
+		WidthPx:   img.Width,
+		HeightPx:  img.Height,
+	}
+
+	return audioFile, nil
 }
