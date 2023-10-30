@@ -373,6 +373,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/dirs/{dirId}": {
+            "get": {
+                "description": "Retrieves detailed information about a directory by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Directories"
+                ],
+                "summary": "Retrieve a directory by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Dir ID",
+                        "name": "dirId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dir_handler.getDirResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid dirId format",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Directory not found",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/dirs/{dirId}/content": {
             "get": {
                 "description": "Retrieves a list of subdirectories for a given directory ID",
@@ -937,6 +987,27 @@ const docTemplate = `{
                 "dirId": {
                     "description": "Unique identifier for the directory",
                     "type": "integer"
+                },
+                "name": {
+                    "description": "Name of the directory",
+                    "type": "string"
+                }
+            }
+        },
+        "dir_handler.getDirResponse": {
+            "type": "object",
+            "properties": {
+                "absolutePath": {
+                    "description": "Absolute path to directory",
+                    "type": "string"
+                },
+                "dirId": {
+                    "description": "Unique identifier for the directory",
+                    "type": "integer"
+                },
+                "lastScanned": {
+                    "description": "Last time the directory was scanned",
+                    "type": "string"
                 },
                 "name": {
                     "description": "Name of the directory",

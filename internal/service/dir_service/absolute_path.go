@@ -12,7 +12,7 @@ func (s *Service) AbsolutePath(tx *sqlx.Tx, dirId int) (absolutePath string, err
 	var parts []string
 	currentDir, err := s.DirRepo.Read(tx, dirId)
 	if err != nil {
-		log.Warn().Err(err).Int("dirId", dirId).Msg("Failed to fetch directory from database")
+		log.Error().Err(err).Int("dirId", dirId).Msg("Failed to fetch directory from database")
 		return "", err
 	}
 
@@ -20,7 +20,7 @@ func (s *Service) AbsolutePath(tx *sqlx.Tx, dirId int) (absolutePath string, err
 	for currentDir.ParentDirId != nil {
 		currentDir, err = s.DirRepo.Read(tx, *currentDir.ParentDirId)
 		if err != nil {
-			log.Warn().Err(err).Int("dirId", dirId).Int("currentDirId", currentDir.DirId).Msg("Failed to fetch parent directory from database")
+			log.Error().Err(err).Int("dirId", dirId).Int("currentDirId", currentDir.DirId).Msg("Failed to fetch parent directory from database")
 			return "", err
 		}
 		parts = append([]string{currentDir.Name}, parts...)

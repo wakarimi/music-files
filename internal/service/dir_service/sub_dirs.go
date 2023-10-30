@@ -12,15 +12,17 @@ func (s *Service) SubDirs(tx *sqlx.Tx, dirId int) (roots []models.Directory, err
 
 	exists, err := s.DirRepo.IsExists(tx, dirId)
 	if err != nil {
+		log.Error().Int("dirId", dirId).Err(err).Msg("Failed to check directory existence")
 		return make([]models.Directory, 0), err
 	}
 	if !exists {
+		log.Error().Int("dirId", dirId).Msg("Directory not found")
 		return make([]models.Directory, 0), errors.NotFound{Resource: "directory in database"}
 	}
 
 	roots, err = s.DirRepo.ReadSubDirs(tx, dirId)
 	if err != nil {
-		log.Warn().Int("dirId", dirId).Err(err).Msg("Failed to get subdirectories")
+		log.Error().Err(err).Int("dirId", dirId).Msg("Failed to get subdirectories")
 		return make([]models.Directory, 0), err
 	}
 

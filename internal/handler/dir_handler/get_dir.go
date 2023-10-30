@@ -12,13 +12,30 @@ import (
 	"time"
 )
 
+// getDirResponse is the model for each item in the getRoots response
 type getDirResponse struct {
-	DirId        int        `json:"dirId"`
-	Name         string     `json:"name"`
-	AbsolutePath string     `json:"absolutePath"`
-	LastScanned  *time.Time `json:"lastScanned,omitempty"`
+	// Unique identifier for the directory
+	DirId int `json:"dirId"`
+	// Name of the directory
+	Name string `json:"name"`
+	// Absolute path to directory
+	AbsolutePath string `json:"absolutePath"`
+	// Last time the directory was scanned
+	LastScanned *time.Time `json:"lastScanned,omitempty"`
 }
 
+// GetDir
+// @Summary Retrieve a directory by ID
+// @Description Retrieves detailed information about a directory by its ID
+// @Tags Directories
+// @Accept  json
+// @Produce  json
+// @Param   dirId     path    int     true        "Dir ID"
+// @Success 200 {object} getDirResponse
+// @Failure 400 {object} responses.Error "Invalid dirId format"
+// @Failure 404 {object} responses.Error "Directory not found"
+// @Failure 500 {object} responses.Error "Internal Server Error"
+// @Router /dirs/{dirId} [get]
 func (h *Handler) GetDir(c *gin.Context) {
 	log.Debug().Msg("Getting directory")
 

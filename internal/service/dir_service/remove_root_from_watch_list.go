@@ -35,6 +35,7 @@ func (s *Service) RemoveRootFromWatchList(tx *sqlx.Tx, dirId int) (err error) {
 	err = s.DeleteDir(tx, dirId)
 	if err != nil {
 		log.Error().Err(err).Int("dirId", dirId).Msg("Failed to delete directory from database")
+		return err
 	}
 
 	log.Debug().Int("dirId", dirId).Msg("Directory removed from watch list")

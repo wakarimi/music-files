@@ -10,12 +10,14 @@ func (s *Service) ScanAll(tx *sqlx.Tx) (err error) {
 
 	roots, err := s.DirRepo.ReadRoots(tx)
 	if err != nil {
+		log.Error().Err(err).Msg("Failed to get root directories")
 		return err
 	}
 
 	for _, root := range roots {
-		err := s.Scan(tx, root.DirId)
+		err = s.Scan(tx, root.DirId)
 		if err != nil {
+			log.Error().Err(err).Int("rootDirId", root.DirId).Msg("Failed to scan directory")
 			return err
 		}
 	}

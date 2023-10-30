@@ -13,15 +13,17 @@ func (s *Service) GetCover(tx *sqlx.Tx, coverId int) (cover models.Cover, err er
 
 	exists, err := s.CoverRepo.IsExists(tx, coverId)
 	if err != nil {
+		log.Error().Int("coverId", coverId).Msg("Failed to check cover existence")
 		return models.Cover{}, err
 	}
 	if !exists {
-		err = errors.NotFound{Resource: fmt.Sprintf("cover with id=%d", coverId)}
-		return models.Cover{}, err
+		log.Error().Int("coverId", coverId).Msg("Cover not found")
+		return models.Cover{}, errors.NotFound{Resource: fmt.Sprintf("cover with id=%d", coverId)}
 	}
 
 	cover, err = s.CoverRepo.Read(tx, coverId)
 	if err != nil {
+		log.Error().Err(err).Int("coverId", coverId).Msg("Failed to fetch cover")
 		return models.Cover{}, err
 	}
 
