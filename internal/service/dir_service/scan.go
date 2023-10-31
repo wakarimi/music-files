@@ -201,7 +201,7 @@ func (s *Service) actualizeAudioFiles(tx *sqlx.Tx, dirId int) (err error) {
 					continue
 				}
 
-				audioFileToUpdate, err := s.prepareAudioFileByAbsolutePath(absolutePath)
+				audioFileToUpdate, err := s.prepareAudioFileByAbsolutePath(fileAbsolutePath)
 				if err != nil {
 					log.Error().Int("dirId", dirId).Str("entryName", entry.Name()).Msg("Failed to prepare audio file")
 					return err
