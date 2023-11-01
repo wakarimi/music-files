@@ -67,6 +67,7 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 			audioFiles.GET("/:audioFileId/download", audioFileHandler.Download)
 			audioFiles.GET("/:audioFileId/cover", audioFileHandler.GetCover)
 			audioFiles.GET("/sha256/:sha256", audioFileHandler.SearchBySha256)
+			audioFiles.PUT("/covers-top", audioFileHandler.CalcBestCovers)
 		}
 
 		covers := api.Group("/covers")

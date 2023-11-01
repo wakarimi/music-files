@@ -1,5 +1,21 @@
 basePath: /api
 definitions:
+  audio_file_handler.calcBestCoversRequest:
+    properties:
+      audioFiles:
+        description: List of audio files to find their most suitable covers
+        items:
+          type: integer
+        type: array
+    type: object
+  audio_file_handler.calcBestCoversResponse:
+    properties:
+      coversTop:
+        description: Top suitable covers by frequency of occurrence
+        items:
+          type: integer
+        type: array
+    type: object
   audio_file_handler.getAudioFileResponse:
     properties:
       audioFileId:
@@ -420,6 +436,32 @@ paths:
       summary: Download a audio file by ID
       tags:
       - AudioFiles
+  /audio-files/covers-top:
+    put:
+      consumes:
+      - application/json
+      description: Retrieves a top of covers for audio file
+      parameters:
+      - description: Directory Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/audio_file_handler.calcBestCoversRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/audio_file_handler.calcBestCoversResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Retrieve top of covers for audio file
+      tags:
+      - Covers
   /audio-files/sha256/{sha256}:
     get:
       consumes:
