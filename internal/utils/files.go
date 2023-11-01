@@ -44,6 +44,7 @@ func IsMusicFile(absolutePath string) (isMusicFile bool, err error) {
 	isMusicFile = kind.MIME.Value == "audio/mpeg" ||
 		kind.MIME.Value == "audio/wav" ||
 		kind.MIME.Value == "audio/flac" ||
+		kind.MIME.Value == "audio/x-flac" ||
 		kind.MIME.Value == "audio/aac" ||
 		kind.MIME.Value == "audio/ogg" ||
 		kind.MIME.Value == "audio/x-ms-wma" ||
