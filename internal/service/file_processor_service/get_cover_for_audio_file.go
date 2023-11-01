@@ -44,7 +44,7 @@ func (s *Service) GetCoverForAudioFile(tx *sqlx.Tx, audioFileId int) (cover mode
 	}
 
 	if len(covers) == 0 {
-		log.Error().Err(err).Int("audioFileId", audioFileId).Msg("Cover foa audio file not found")
+		log.Debug().Int("audioFileId", audioFileId).Msg("Cover for audio file not found")
 		return models.Cover{}, errors.NotFound{Resource: fmt.Sprintf("cover for audio_file with id=%d", audioFileId)}
 	}
 

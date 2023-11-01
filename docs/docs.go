@@ -51,6 +51,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/audio-files/covers-top": {
+            "put": {
+                "description": "Retrieves a top of covers for audio file",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Covers"
+                ],
+                "summary": "Retrieve top of covers for audio file",
+                "parameters": [
+                    {
+                        "description": "Directory Data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/audio_file_handler.calcBestCoversRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/audio_file_handler.calcBestCoversResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/audio-files/sha256/{sha256}": {
             "get": {
                 "description": "Retrieves a list of audioFiles that have the specified SHA256 hash.",
@@ -654,6 +694,30 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "audio_file_handler.calcBestCoversRequest": {
+            "type": "object",
+            "properties": {
+                "audioFiles": {
+                    "description": "List of audio files to find their most suitable covers",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "audio_file_handler.calcBestCoversResponse": {
+            "type": "object",
+            "properties": {
+                "coversTop": {
+                    "description": "Top suitable covers by frequency of occurrence",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "audio_file_handler.getAudioFileResponse": {
             "type": "object",
             "properties": {
