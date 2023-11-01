@@ -388,7 +388,7 @@ func (s *Service) actualizeCovers(tx *sqlx.Tx, dirId int) (err error) {
 		foundOnDisk := false
 
 		for _, entry := range entries {
-			if !strings.Contains(entry.Name(), "cover") {
+			if !strings.Contains(strings.ToLower(entry.Name()), "cover") {
 				continue
 			}
 
