@@ -30,7 +30,7 @@ func (s *Service) GetCoverForAudioFile(tx *sqlx.Tx, audioFileId int) (cover mode
 	}
 
 	for (len(covers) == 0) && (dir.ParentDirId != nil) {
-		dir, err = s.DirService.GetDir(tx, audioFile.DirId)
+		dir, err = s.DirService.GetDir(tx, *dir.ParentDirId)
 		if err != nil {
 			log.Error().Err(err).Int("dirId", audioFile.DirId).Msg("Failed to get subdirectories")
 			return models.Cover{}, err
