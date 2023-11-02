@@ -5,8 +5,8 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
 	"music-files/internal/errors"
-	"music-files/internal/handler/responses"
-	"music-files/internal/models"
+	"music-files/internal/handler/response"
+	"music-files/internal/model"
 	"net/http"
 	"strconv"
 	"time"
@@ -62,9 +62,9 @@ type contentResponse struct {
 // @Produce  json
 // @Param   dirId     path    int     true        "Directory ID"
 // @Success 200 {object} contentResponse
-// @Failure 400 {object} responses.Error "Invalid dirId format"
-// @Failure 404 {object} responses.Error "Directory not found"
-// @Failure 500 {object} responses.Error "Internal Server Error"
+// @Failure 400 {object} response.Error "Invalid dirId format"
+// @Failure 404 {object} response.Error "Directory not found"
+// @Failure 500 {object} response.Error "Internal Server Error"
 // @Router /dirs/{dirId}/content [get]
 func (h *Handler) Content(c *gin.Context) {
 	log.Debug().Msg("Getting directory content")
@@ -73,7 +73,7 @@ func (h *Handler) Content(c *gin.Context) {
 	dirId, err := strconv.Atoi(dirIdStr)
 	if err != nil {
 		log.Error().Err(err).Str("dirIdStr", dirIdStr).Msg("Invalid dirId format")
-		c.JSON(http.StatusBadRequest, responses.Error{
+		c.JSON(http.StatusBadRequest, response.Error{
 			Message: "Invalid dirId format",
 			Reason:  err.Error(),
 		})
@@ -81,8 +81,8 @@ func (h *Handler) Content(c *gin.Context) {
 	}
 	log.Debug().Int("dirId", dirId).Msg("Url parameter read successfully")
 
-	var subDirs []models.Directory
-	var audioFiles []models.AudioFile
+	var subDirs []model.Directory
+	var audioFiles []model.AudioFile
 	err = h.TransactionManager.WithTransaction(func(tx *sqlx.Tx) (err error) {
 		subDirs, err = h.DirService.SubDirs(tx, dirId)
 		if err != nil {
@@ -97,12 +97,12 @@ func (h *Handler) Content(c *gin.Context) {
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to get directory content")
 		if _, ok := err.(errors.NotFound); ok {
-			c.JSON(http.StatusNotFound, responses.Error{
+			c.JSON(http.StatusNotFound, response.Error{
 				Message: "Directory not found",
 				Reason:  err.Error(),
 			})
 		} else {
-			c.JSON(http.StatusInternalServerError, responses.Error{
+			c.JSON(http.StatusInternalServerError, response.Error{
 				Message: "Failed to get directory content",
 				Reason:  err.Error(),
 			})

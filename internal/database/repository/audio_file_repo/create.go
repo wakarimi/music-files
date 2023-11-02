@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/models"
+	"music-files/internal/model"
 )
 
-func (r Repository) Create(tx *sqlx.Tx, audioFile models.AudioFile) (audioFileId int, err error) {
+func (r Repository) Create(tx *sqlx.Tx, audioFile model.AudioFile) (audioFileId int, err error) {
 	log.Debug().Interface("audioFile", audioFile).Msg("Creating new audio file in database")
 
 	query := `

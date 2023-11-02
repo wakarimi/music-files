@@ -3,10 +3,10 @@ package audio_file_repo
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/models"
+	"music-files/internal/model"
 )
 
-func (r Repository) ReadAllByDir(tx *sqlx.Tx, dirId int) (audioFiles []models.AudioFile, err error) {
+func (r Repository) ReadAllByDir(tx *sqlx.Tx, dirId int) (audioFiles []model.AudioFile, err error) {
 	log.Debug().Int("dirId", dirId).Msg("Reading audio files by directory from database")
 
 	query := `
@@ -30,7 +30,7 @@ func (r Repository) ReadAllByDir(tx *sqlx.Tx, dirId int) (audioFiles []models.Au
 	}(rows)
 
 	for rows.Next() {
-		var audioFile models.AudioFile
+		var audioFile model.AudioFile
 		if err = rows.StructScan(&audioFile); err != nil {
 			log.Error().Err(err).Int("dirId", dirId).Msg("Failed to get read result")
 			return nil, err

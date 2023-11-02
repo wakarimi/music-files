@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/handler/responses"
-	"music-files/internal/models"
+	"music-files/internal/handler/response"
+	"music-files/internal/model"
 	"net/http"
 	"time"
 )
@@ -50,13 +50,13 @@ type searchBySha256Response struct {
 // @Produce  json
 // @Param   sha256     path    string  true        "SHA256 hash"
 // @Success 200 {object} searchBySha256Response
-// @Failure 500 {object} responses.Error "Internal Server Error"
+// @Failure 500 {object} response.Error "Internal Server Error"
 // @Router /audio-files/sha256/{sha256} [get]
 func (h *Handler) SearchBySha256(c *gin.Context) {
 	sha256 := c.Param("sha256")
 	log.Debug().Str("sha256", sha256).Msg("Url parameter read successfully")
 
-	var audioFiles []models.AudioFile
+	var audioFiles []model.AudioFile
 	err := h.TransactionManager.WithTransaction(func(tx *sqlx.Tx) (err error) {
 		audioFiles, err = h.AudioFileService.SearchBySha256(tx, sha256)
 		if err != nil {
@@ -65,7 +65,7 @@ func (h *Handler) SearchBySha256(c *gin.Context) {
 		return nil
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, responses.Error{
+		c.JSON(http.StatusInternalServerError, response.Error{
 			Message: "Failed to get audioFiles",
 			Reason:  err.Error(),
 		})

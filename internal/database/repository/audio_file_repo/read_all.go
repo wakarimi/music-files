@@ -3,10 +3,10 @@ package audio_file_repo
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/models"
+	"music-files/internal/model"
 )
 
-func (r *Repository) ReadAll(tx *sqlx.Tx) (audioFiles []models.AudioFile, err error) {
+func (r *Repository) ReadAll(tx *sqlx.Tx) (audioFiles []model.AudioFile, err error) {
 	log.Debug().Msg("Reading all audio files")
 
 	query := `

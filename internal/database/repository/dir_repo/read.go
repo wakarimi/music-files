@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/models"
+	"music-files/internal/model"
 )
 
-func (r *Repository) Read(tx *sqlx.Tx, dirId int) (dir models.Directory, err error) {
+func (r *Repository) Read(tx *sqlx.Tx, dirId int) (dir model.Directory, err error) {
 	log.Debug().Int("dirId", dirId).Msg("Fetching directory by id")
 
 	query := `
@@ -21,7 +21,7 @@ func (r *Repository) Read(tx *sqlx.Tx, dirId int) (dir models.Directory, err err
 	rows, err := tx.NamedQuery(query, args)
 	if err != nil {
 		log.Error().Err(err).Int("dirId", dirId)
-		return models.Directory{}, err
+		return model.Directory{}, err
 	}
 	defer func(rows *sqlx.Rows) {
 		err := rows.Close()
@@ -32,12 +32,12 @@ func (r *Repository) Read(tx *sqlx.Tx, dirId int) (dir models.Directory, err err
 	if rows.Next() {
 		if err = rows.StructScan(&dir); err != nil {
 			log.Error().Err(err).Int("dirId", dirId)
-			return models.Directory{}, err
+			return model.Directory{}, err
 		}
 	} else {
 		err := fmt.Errorf("no directory found with dir_id: %d", dirId)
 		log.Error().Err(err)
-		return models.Directory{}, err
+		return model.Directory{}, err
 	}
 
 	log.Debug().Str("name", dir.Name).Msg("Directory fetched by id successfully")

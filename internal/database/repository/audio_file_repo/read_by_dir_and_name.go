@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/models"
+	"music-files/internal/model"
 )
 
-func (r Repository) ReadByDirAndName(tx *sqlx.Tx, dirId int, name string) (audioFile models.AudioFile, err error) {
+func (r Repository) ReadByDirAndName(tx *sqlx.Tx, dirId int, name string) (audioFile model.AudioFile, err error) {
 	log.Debug().Int("dirId", dirId).Str("name", name).Msg("Reading audio file from database")
 
 	query := `
@@ -23,7 +23,7 @@ func (r Repository) ReadByDirAndName(tx *sqlx.Tx, dirId int, name string) (audio
 	rows, err := tx.NamedQuery(query, args)
 	if err != nil {
 		log.Error().Err(err).Int("dirId", dirId).Str("name", name).Str("query", query).Msg("Failed to execute query to read audio file")
-		return models.AudioFile{}, err
+		return model.AudioFile{}, err
 	}
 	defer func(rows *sqlx.Rows) {
 		err := rows.Close()
@@ -34,12 +34,12 @@ func (r Repository) ReadByDirAndName(tx *sqlx.Tx, dirId int, name string) (audio
 	if rows.Next() {
 		if err = rows.StructScan(&audioFile); err != nil {
 			log.Error().Err(err).Int("dirId", dirId).Str("name", name).Msg("Failed to get read result")
-			return models.AudioFile{}, err
+			return model.AudioFile{}, err
 		}
 	} else {
 		err := fmt.Errorf("no audio file found with dir_id: %d and name: %s", dirId, name)
 		log.Error().Err(err).Int("dirId", dirId).Str("name", name).Msg("Audio file not found")
-		return models.AudioFile{}, err
+		return model.AudioFile{}, err
 	}
 
 	log.Debug().Interface("audioFile", audioFile).Msg("Audio file read successfully")

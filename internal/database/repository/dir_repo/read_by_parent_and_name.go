@@ -3,10 +3,10 @@ package dir_repo
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/models"
+	"music-files/internal/model"
 )
 
-func (r *Repository) ReadByParentAndName(tx *sqlx.Tx, parentDirId *int, name string) (dir models.Directory, err error) {
+func (r *Repository) ReadByParentAndName(tx *sqlx.Tx, parentDirId *int, name string) (dir model.Directory, err error) {
 	log.Debug().Interface("parentDirId", parentDirId).Str("name", name).Msg("Fetching directory by parent and name")
 
 	var query string
@@ -34,7 +34,7 @@ func (r *Repository) ReadByParentAndName(tx *sqlx.Tx, parentDirId *int, name str
 	}
 	if err != nil {
 		log.Error().Err(err).Interface("parentDirId", parentDirId).Str("name", name)
-		return models.Directory{}, err
+		return model.Directory{}, err
 	}
 	defer func(row *sqlx.Rows) {
 		err := row.Close()
@@ -46,7 +46,7 @@ func (r *Repository) ReadByParentAndName(tx *sqlx.Tx, parentDirId *int, name str
 	if row.Next() {
 		if err = row.StructScan(&dir); err != nil {
 			log.Error().Interface("parentDirId", parentDirId).Str("name", name)
-			return models.Directory{}, err
+			return model.Directory{}, err
 		}
 	}
 

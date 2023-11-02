@@ -5,8 +5,8 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
 	"music-files/internal/errors"
-	"music-files/internal/handler/responses"
-	"music-files/internal/models"
+	"music-files/internal/handler/response"
+	"music-files/internal/model"
 	"net/http"
 	"strconv"
 	"time"
@@ -38,9 +38,9 @@ type getCoverResponse struct {
 // @Produce  json
 // @Param   coverId     path    int     true        "Cover ID"
 // @Success 200 {object} getCoverResponse
-// @Failure 400 {object} responses.Error "Invalid coverId format"
-// @Failure 404 {object} responses.Error "Cover not found"
-// @Failure 500 {object} responses.Error "Internal Server Error"
+// @Failure 400 {object} response.Error "Invalid coverId format"
+// @Failure 404 {object} response.Error "Cover not found"
+// @Failure 500 {object} response.Error "Internal Server Error"
 // @Router /covers/{coverId} [get]
 func (h *Handler) GetCover(c *gin.Context) {
 	log.Debug().Msg("Getting cover")
@@ -49,7 +49,7 @@ func (h *Handler) GetCover(c *gin.Context) {
 	coverId, err := strconv.Atoi(coverIdStr)
 	if err != nil {
 		log.Error().Err(err).Str("coverIdStr", coverIdStr).Msg("Invalid coverId format")
-		c.JSON(http.StatusBadRequest, responses.Error{
+		c.JSON(http.StatusBadRequest, response.Error{
 			Message: "Invalid coverId format",
 			Reason:  err.Error(),
 		})
@@ -57,7 +57,7 @@ func (h *Handler) GetCover(c *gin.Context) {
 	}
 	log.Debug().Int("coverId", coverId).Msg("Url parameter read successfully")
 
-	var cover models.Cover
+	var cover model.Cover
 	err = h.TransactionManager.WithTransaction(func(tx *sqlx.Tx) (err error) {
 		cover, err = h.CoverService.GetCover(tx, coverId)
 		if err != nil {
@@ -68,12 +68,12 @@ func (h *Handler) GetCover(c *gin.Context) {
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to get cover")
 		if _, ok := err.(errors.NotFound); ok {
-			c.JSON(http.StatusNotFound, responses.Error{
+			c.JSON(http.StatusNotFound, response.Error{
 				Message: "Cover not found",
 				Reason:  err.Error(),
 			})
 		} else {
-			c.JSON(http.StatusInternalServerError, responses.Error{
+			c.JSON(http.StatusInternalServerError, response.Error{
 				Message: "Failed to get cover",
 				Reason:  err.Error(),
 			})

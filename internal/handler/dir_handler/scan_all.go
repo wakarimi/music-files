@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/handler/responses"
+	"music-files/internal/handler/response"
 	"net/http"
 )
 
@@ -15,7 +15,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Success 200 "All directories scanned successfully"
-// @Failure 500 {object} responses.Error "Internal Server Error"
+// @Failure 500 {object} response.Error "Internal Server Error"
 // @Router /dirs/scan [post]
 func (h *Handler) ScanAll(c *gin.Context) {
 	log.Debug().Msg("Scanning directory")
@@ -29,7 +29,7 @@ func (h *Handler) ScanAll(c *gin.Context) {
 	})
 	if err != nil {
 		log.Warn().Err(err).Msg("Failed to scan directories")
-		c.JSON(http.StatusInternalServerError, responses.Error{
+		c.JSON(http.StatusInternalServerError, response.Error{
 			Message: "Failed to scan directories",
 			Reason:  err.Error(),
 		})

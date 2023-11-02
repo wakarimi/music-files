@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/handler/responses"
+	"music-files/internal/handler/response"
 	"net/http"
 )
 
@@ -28,7 +28,7 @@ type calcBestCoversResponse struct {
 // @Produce  json
 // @Param   request body calcBestCoversRequest true "Directory Data"
 // @Success 200 {object} calcBestCoversResponse
-// @Failure 500 {object} responses.Error "Internal Server Error"
+// @Failure 500 {object} response.Error "Internal Server Error"
 // @Router /audio-files/covers-top [put]
 func (h *Handler) CalcBestCovers(c *gin.Context) {
 	log.Debug().Msg("Getting cover for audioFile")
@@ -36,7 +36,7 @@ func (h *Handler) CalcBestCovers(c *gin.Context) {
 	var request calcBestCoversRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		log.Error().Err(err).Msg("Failed to encode request")
-		c.JSON(http.StatusBadRequest, responses.Error{
+		c.JSON(http.StatusBadRequest, response.Error{
 			Message: "Failed to encode request",
 			Reason:  err.Error(),
 		})
@@ -58,7 +58,7 @@ func (h *Handler) CalcBestCovers(c *gin.Context) {
 	})
 	if err != nil {
 		log.Warn().Err(err).Msg("Failed to get cover")
-		c.JSON(http.StatusInternalServerError, responses.Error{
+		c.JSON(http.StatusInternalServerError, response.Error{
 			Message: "Failed to get cover",
 			Reason:  err.Error(),
 		})

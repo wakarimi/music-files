@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/handler/responses"
-	"music-files/internal/models"
+	"music-files/internal/handler/response"
+	"music-files/internal/model"
 	"net/http"
 	"time"
 )
@@ -33,12 +33,12 @@ type getRootsResponse struct {
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} getRootsResponse
-// @Failure 500 {object} responses.Error "Internal Server Error"
+// @Failure 500 {object} response.Error "Internal Server Error"
 // @Router /roots [get]
 func (h *Handler) GetRoots(c *gin.Context) {
 	log.Debug().Msg("Getting root directories")
 
-	var roots []models.Directory
+	var roots []model.Directory
 	err := h.TransactionManager.WithTransaction(func(tx *sqlx.Tx) (err error) {
 		roots, err = h.DirService.GetRoots(tx)
 		if err != nil {
@@ -48,7 +48,7 @@ func (h *Handler) GetRoots(c *gin.Context) {
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to get root directories")
-		c.JSON(http.StatusInternalServerError, responses.Error{
+		c.JSON(http.StatusInternalServerError, response.Error{
 			Message: "Failed to get root directories",
 			Reason:  err.Error(),
 		})
