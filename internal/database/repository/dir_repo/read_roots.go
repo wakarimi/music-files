@@ -3,10 +3,10 @@ package dir_repo
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/models"
+	"music-files/internal/model"
 )
 
-func (r *Repository) ReadRoots(tx *sqlx.Tx) (dirs []models.Directory, err error) {
+func (r *Repository) ReadRoots(tx *sqlx.Tx) (dirs []model.Directory, err error) {
 	log.Debug().Msg("Reading root directories")
 
 	query := `

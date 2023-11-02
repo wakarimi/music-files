@@ -3,10 +3,10 @@ package audio_file_repo
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/models"
+	"music-files/internal/model"
 )
 
-func (r Repository) Update(tx *sqlx.Tx, audioFileId int, audioFile models.AudioFile) (err error) {
+func (r Repository) Update(tx *sqlx.Tx, audioFileId int, audioFile model.AudioFile) (err error) {
 	log.Debug().Int("audioFileId", audioFileId).Interface("audioFile", audioFile).Msg("Updating audio file")
 
 	query := `

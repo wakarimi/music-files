@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/models"
+	"music-files/internal/model"
 )
 
-func (r Repository) Create(tx *sqlx.Tx, cover models.Cover) (coverId int, err error) {
+func (r Repository) Create(tx *sqlx.Tx, cover model.Cover) (coverId int, err error) {
 	log.Debug().Interface("cover", cover).Msg("Creating new cover in database")
 
 	query := `

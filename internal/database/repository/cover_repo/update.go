@@ -3,10 +3,10 @@ package cover_repo
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/models"
+	"music-files/internal/model"
 )
 
-func (r Repository) Update(tx *sqlx.Tx, coverId int, cover models.Cover) (err error) {
+func (r Repository) Update(tx *sqlx.Tx, coverId int, cover model.Cover) (err error) {
 	log.Debug().Int("coverId", coverId).Interface("cover", cover).Msg("Updating cover")
 
 	query := `
