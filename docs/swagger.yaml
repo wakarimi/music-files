@@ -296,11 +296,13 @@ definitions:
         description: Name of the directory
         type: string
     type: object
-  responses.Error:
+  response.Error:
     properties:
       message:
+        description: Human-readable error message
         type: string
       reason:
+        description: Internal error description
         type: string
     type: object
 host: localhost:8022
@@ -329,7 +331,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
       summary: Retrieve all audioFiles
       tags:
       - AudioFiles
@@ -354,15 +356,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
       summary: Retrieve a audioFile by its ID
       tags:
       - AudioFiles
@@ -388,15 +390,15 @@ paths:
         "400":
           description: Invalid audioFileId format
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "404":
           description: Cover not found
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
       summary: Retrieve a cover for a audioFile by ID
       tags:
       - Covers
@@ -428,11 +430,11 @@ paths:
         "400":
           description: Invalid audioFileId format
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "500":
           description: Internal Server Error, Failed to calculate absolute path
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
       summary: Download a audio file by ID
       tags:
       - AudioFiles
@@ -458,7 +460,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
       summary: Retrieve top of covers for audio file
       tags:
       - Covers
@@ -483,7 +485,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
       summary: Search audioFiles by SHA256 hash
       tags:
       - AudioFiles
@@ -508,15 +510,15 @@ paths:
         "400":
           description: Invalid coverId format
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "404":
           description: Cover not found
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
       summary: Retrieve a cover by ID
       tags:
       - Covers
@@ -548,11 +550,11 @@ paths:
         "400":
           description: Invalid coverId format
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "500":
           description: Internal Server Error, Failed to calculate absolute path
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
       summary: Download a cover image by ID
       tags:
       - Covers
@@ -577,15 +579,15 @@ paths:
         "400":
           description: Invalid dirId format
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "404":
           description: Directory not found
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
       summary: Retrieve a directory by ID
       tags:
       - Directories
@@ -610,15 +612,15 @@ paths:
         "400":
           description: Invalid dirId format
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "404":
           description: Directory not found
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
       summary: Retrieve content of a directory by ID
       tags:
       - Directories
@@ -642,15 +644,15 @@ paths:
         "400":
           description: Invalid dirId format
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "404":
           description: Directory not found
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
       summary: Scan a directory by ID
       tags:
       - Directories
@@ -668,7 +670,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
       summary: Scan all directories
       tags:
       - Directories
@@ -687,7 +689,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
       summary: Retrieve root directories
       tags:
       - Directories
@@ -712,19 +714,19 @@ paths:
         "400":
           description: Failed to decode request
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "404":
           description: Directory not found
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "409":
           description: Directory already tracked
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
       summary: Add a new tracked directory
       tags:
       - Directories
@@ -747,15 +749,15 @@ paths:
         "400":
           description: Invalid dirId format, The directory is not root
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "404":
           description: Directory not found
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/responses.Error'
+            $ref: '#/definitions/response.Error'
       summary: Remove a tracked root directory
       tags:
       - Directories

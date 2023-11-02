@@ -5,8 +5,8 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
 	"music-files/internal/errors"
-	"music-files/internal/handler/responses"
-	"music-files/internal/models"
+	"music-files/internal/handler/response"
+	"music-files/internal/model"
 	"net/http"
 	"strconv"
 	"time"
@@ -46,7 +46,7 @@ type getAudioFileResponse struct {
 // @Produce  json
 // @Param   audioFileId path int true "AudioFile ID"
 // @Success 200 {object} getAudioFileResponse
-// @Failure 400,404,500 {object} responses.Error
+// @Failure 400,404,500 {object} response.Error
 // @Router /audio-files/{audioFileId} [get]
 func (h *Handler) GetAudioFile(c *gin.Context) {
 	log.Debug().Msg("Getting audioFile")
@@ -55,7 +55,7 @@ func (h *Handler) GetAudioFile(c *gin.Context) {
 	audioFileId, err := strconv.Atoi(audioFileIdStr)
 	if err != nil {
 		log.Error().Err(err).Str("audioFileIdStr", audioFileIdStr).Msg("Invalid audioFileId format")
-		c.JSON(http.StatusBadRequest, responses.Error{
+		c.JSON(http.StatusBadRequest, response.Error{
 			Message: "Invalid audioFileId format",
 			Reason:  err.Error(),
 		})
@@ -63,7 +63,7 @@ func (h *Handler) GetAudioFile(c *gin.Context) {
 	}
 	log.Debug().Int("audioFileId", audioFileId).Msg("Url parameter read successfully")
 
-	var audioFile models.AudioFile
+	var audioFile model.AudioFile
 	err = h.TransactionManager.WithTransaction(func(tx *sqlx.Tx) (err error) {
 		audioFile, err = h.AudioFileService.GetAudioFile(tx, audioFileId)
 		if err != nil {
@@ -74,12 +74,12 @@ func (h *Handler) GetAudioFile(c *gin.Context) {
 	if err != nil {
 		log.Warn().Err(err).Msg("Failed to get audioFile")
 		if _, ok := err.(errors.NotFound); ok {
-			c.JSON(http.StatusNotFound, responses.Error{
+			c.JSON(http.StatusNotFound, response.Error{
 				Message: "AudioFile not found",
 				Reason:  err.Error(),
 			})
 		} else {
-			c.JSON(http.StatusInternalServerError, responses.Error{
+			c.JSON(http.StatusInternalServerError, response.Error{
 				Message: "Failed to get audioFile",
 				Reason:  err.Error(),
 			})

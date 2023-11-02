@@ -45,7 +45,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     }
                 }
@@ -85,7 +85,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     }
                 }
@@ -123,7 +123,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     }
                 }
@@ -161,19 +161,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     }
                 }
@@ -211,19 +211,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid audioFileId format",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "404": {
                         "description": "Cover not found",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     }
                 }
@@ -271,13 +271,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid audioFileId format",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error, Failed to calculate absolute path",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     }
                 }
@@ -315,19 +315,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid coverId format",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "404": {
                         "description": "Cover not found",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     }
                 }
@@ -375,13 +375,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid coverId format",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error, Failed to calculate absolute path",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     }
                 }
@@ -407,7 +407,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     }
                 }
@@ -445,19 +445,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid dirId format",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "404": {
                         "description": "Directory not found",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     }
                 }
@@ -495,19 +495,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid dirId format",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "404": {
                         "description": "Directory not found",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     }
                 }
@@ -542,19 +542,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid dirId format",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "404": {
                         "description": "Directory not found",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     }
                 }
@@ -583,7 +583,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     }
                 }
@@ -621,25 +621,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Failed to decode request",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "404": {
                         "description": "Directory not found",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "409": {
                         "description": "Directory already tracked",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     }
                 }
@@ -674,19 +674,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid dirId format, The directory is not root",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "404": {
                         "description": "Directory not found",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/responses.Error"
+                            "$ref": "#/definitions/response.Error"
                         }
                     }
                 }
@@ -1108,13 +1108,15 @@ const docTemplate = `{
                 }
             }
         },
-        "responses.Error": {
+        "response.Error": {
             "type": "object",
             "properties": {
                 "message": {
+                    "description": "Human-readable error message",
                     "type": "string"
                 },
                 "reason": {
+                    "description": "Internal error description",
                     "type": "string"
                 }
             }

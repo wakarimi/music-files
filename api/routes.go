@@ -47,8 +47,8 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 
 		roots := api.Group("/roots")
 		{
-			roots.GET("/", dirHandler.GetRoots)
-			roots.POST("/", dirHandler.AddRootToWatchList)
+			roots.GET("", dirHandler.GetRoots)
+			roots.POST("", dirHandler.AddRootToWatchList)
 			roots.DELETE("/:dirId", dirHandler.RemoveRootFromWatchList)
 		}
 
@@ -63,7 +63,7 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 		audioFiles := api.Group("/audio-files")
 		{
 			audioFiles.GET("/:audioFileId", audioFileHandler.GetAudioFile)
-			audioFiles.GET("/", audioFileHandler.GetAll)
+			audioFiles.GET("", audioFileHandler.GetAll)
 			audioFiles.GET("/:audioFileId/download", audioFileHandler.Download)
 			audioFiles.GET("/:audioFileId/cover", audioFileHandler.GetCover)
 			audioFiles.GET("/sha256/:sha256", audioFileHandler.SearchBySha256)

@@ -6,7 +6,7 @@ import (
 	"github.com/wtolson/go-taglib"
 	"image"
 	"music-files/internal/errors"
-	"music-files/internal/models"
+	"music-files/internal/model"
 	"music-files/internal/utils"
 	"os"
 	"path/filepath"
@@ -100,7 +100,7 @@ func (s *Service) actualizeSubDirs(tx *sqlx.Tx, dirId int) (err error) {
 				return err
 			}
 			if !alreadyInDatabase {
-				_, err = s.DirRepo.Create(tx, models.Directory{
+				_, err = s.DirRepo.Create(tx, model.Directory{
 					ParentDirId: &dirId,
 					Name:        entry.Name(),
 				})
@@ -201,7 +201,7 @@ func (s *Service) actualizeAudioFiles(tx *sqlx.Tx, dirId int) (err error) {
 					continue
 				}
 
-				audioFileToUpdate, err := s.prepareAudioFileByAbsolutePath(absolutePath)
+				audioFileToUpdate, err := s.prepareAudioFileByAbsolutePath(fileAbsolutePath)
 				if err != nil {
 					log.Error().Int("dirId", dirId).Str("entryName", entry.Name()).Msg("Failed to prepare audio file")
 					return err
@@ -269,22 +269,22 @@ func (s *Service) actualizeAudioFiles(tx *sqlx.Tx, dirId int) (err error) {
 	return nil
 }
 
-func (s *Service) prepareAudioFileByAbsolutePath(absolutePath string) (audioFile models.AudioFile, err error) {
+func (s *Service) prepareAudioFileByAbsolutePath(absolutePath string) (audioFile model.AudioFile, err error) {
 	fileInfo, err := os.Stat(absolutePath)
 	if err != nil {
 		log.Error().Str("absolutePath", absolutePath).Msg("Failed to get file info")
-		return models.AudioFile{}, err
+		return model.AudioFile{}, err
 	}
 
 	fileDetails, err := taglib.Read(absolutePath)
 	if err != nil {
 		log.Error().Str("absolutePath", absolutePath).Msg("Failed to read file details")
-		return models.AudioFile{}, err
+		return model.AudioFile{}, err
 	}
 
 	durationMs := int64(fileDetails.Length() / time.Millisecond)
 
-	audioFile = models.AudioFile{
+	audioFile = model.AudioFile{
 		Filename:     fileInfo.Name(),
 		Extension:    filepath.Ext(absolutePath),
 		SizeByte:     fileInfo.Size(),
@@ -418,27 +418,27 @@ func (s *Service) actualizeCovers(tx *sqlx.Tx, dirId int) (err error) {
 	return nil
 }
 
-func (s *Service) prepareCoverByAbsolutePath(absolutePath string) (audioFile models.Cover, err error) {
+func (s *Service) prepareCoverByAbsolutePath(absolutePath string) (audioFile model.Cover, err error) {
 	fileInfo, err := os.Stat(absolutePath)
 	if err != nil {
 		log.Error().Err(err).Str("absolutePath", absolutePath).Msg("Failed to get file info")
-		return models.Cover{}, err
+		return model.Cover{}, err
 	}
 
 	f, err := os.Open(absolutePath)
 	if err != nil {
 		log.Error().Err(err).Str("absolutePath", absolutePath).Msg("Failed to open file")
-		return models.Cover{}, err
+		return model.Cover{}, err
 	}
 	defer f.Close()
 
 	img, _, err := image.DecodeConfig(f)
 	if err != nil {
 		log.Error().Err(err).Str("absolutePath", absolutePath).Msg("Failed to decode config")
-		return models.Cover{}, err
+		return model.Cover{}, err
 	}
 
-	audioFile = models.Cover{
+	audioFile = model.Cover{
 		Filename:  fileInfo.Name(),
 		Extension: filepath.Ext(absolutePath),
 		SizeByte:  fileInfo.Size(),

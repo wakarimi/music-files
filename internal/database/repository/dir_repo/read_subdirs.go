@@ -3,10 +3,10 @@ package dir_repo
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/models"
+	"music-files/internal/model"
 )
 
-func (r *Repository) ReadSubDirs(tx *sqlx.Tx, parentDirId int) (dirs []models.Directory, err error) {
+func (r *Repository) ReadSubDirs(tx *sqlx.Tx, parentDirId int) (dirs []model.Directory, err error) {
 	log.Debug().Int("parentDirId", parentDirId).Msg("Fetching subdirectories")
 
 	query := `
@@ -30,7 +30,7 @@ func (r *Repository) ReadSubDirs(tx *sqlx.Tx, parentDirId int) (dirs []models.Di
 	}(rows)
 
 	for rows.Next() {
-		var dir models.Directory
+		var dir model.Directory
 		if err = rows.StructScan(&dir); err != nil {
 			log.Error().Err(err).Int("parentDirId", parentDirId).Msg("Failed to get read result")
 			return nil, err

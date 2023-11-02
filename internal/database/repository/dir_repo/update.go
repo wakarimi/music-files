@@ -3,10 +3,10 @@ package dir_repo
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/models"
+	"music-files/internal/model"
 )
 
-func (r *Repository) Update(tx *sqlx.Tx, dirId int, dir models.Directory) (err error) {
+func (r *Repository) Update(tx *sqlx.Tx, dirId int, dir model.Directory) (err error) {
 	log.Debug().Int("dirId", dirId).Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name).Msg("Updating directory")
 
 	query := `

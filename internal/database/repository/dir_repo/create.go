@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/models"
+	"music-files/internal/model"
 )
 
-func (r *Repository) Create(tx *sqlx.Tx, dir models.Directory) (dirId int, err error) {
+func (r *Repository) Create(tx *sqlx.Tx, dir model.Directory) (dirId int, err error) {
 	log.Debug().Interface("parentDirId", dir.ParentDirId).Str("name", dir.Name).Msg("Creating new directory")
 
 	query := `

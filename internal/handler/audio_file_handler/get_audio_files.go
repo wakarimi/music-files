@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/handler/responses"
-	"music-files/internal/models"
+	"music-files/internal/handler/response"
+	"music-files/internal/model"
 	"net/http"
 	"time"
 )
@@ -49,12 +49,12 @@ type getAudioFilesResponse struct {
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} getAudioFilesResponse
-// @Failure 500 {object} responses.Error "Internal Server Error"
+// @Failure 500 {object} response.Error "Internal Server Error"
 // @Router /audio-files [get]
 func (h *Handler) GetAll(c *gin.Context) {
 	log.Debug().Msg("Getting audioFiles")
 
-	var audioFiles []models.AudioFile
+	var audioFiles []model.AudioFile
 	err := h.TransactionManager.WithTransaction(func(tx *sqlx.Tx) (err error) {
 		audioFiles, err = h.AudioFileService.GetAll(tx)
 		if err != nil {
@@ -64,7 +64,7 @@ func (h *Handler) GetAll(c *gin.Context) {
 	})
 	if err != nil {
 		log.Warn().Err(err).Msg("Failed to get audioFiles")
-		c.JSON(http.StatusInternalServerError, responses.Error{
+		c.JSON(http.StatusInternalServerError, response.Error{
 			Message: "Failed to get audioFiles",
 			Reason:  err.Error(),
 		})

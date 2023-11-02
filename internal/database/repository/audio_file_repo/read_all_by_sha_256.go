@@ -3,10 +3,10 @@ package audio_file_repo
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/models"
+	"music-files/internal/model"
 )
 
-func (r Repository) ReadAllBySha256(tx *sqlx.Tx, sha256 string) (audioFiles []models.AudioFile, err error) {
+func (r Repository) ReadAllBySha256(tx *sqlx.Tx, sha256 string) (audioFiles []model.AudioFile, err error) {
 	log.Debug().Str("sha256", sha256).Msg("Reading audio files by sha256 from database")
 
 	query := `
@@ -30,7 +30,7 @@ func (r Repository) ReadAllBySha256(tx *sqlx.Tx, sha256 string) (audioFiles []mo
 	}(rows)
 
 	for rows.Next() {
-		var audioFile models.AudioFile
+		var audioFile model.AudioFile
 		if err = rows.StructScan(&audioFile); err != nil {
 			log.Error().Err(err).Str("sha256", sha256).Msg("Failed to get read result")
 			return nil, err
