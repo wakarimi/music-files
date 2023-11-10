@@ -26,6 +26,7 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 
 	r = gin.New()
 	r.Use(middleware.ZerologMiddleware(log.Logger))
+	r.Use(middleware.CORSMiddleware())
 
 	coverRepo := cover_repo.NewRepository()
 	audioFileRepo := audio_file_repo.NewRepository()
@@ -64,7 +65,7 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 		{
 			audioFiles.GET("/:audioFileId", audioFileHandler.GetAudioFile)
 			audioFiles.GET("", audioFileHandler.GetAll)
-			audioFiles.GET("/:audioFileId/download", audioFileHandler.Download)
+			audioFiles.GET("/:audioFileId/image", audioFileHandler.Download)
 			audioFiles.GET("/:audioFileId/cover", audioFileHandler.GetCover)
 			audioFiles.GET("/sha256/:sha256", audioFileHandler.SearchBySha256)
 			audioFiles.PUT("/covers-top", audioFileHandler.CalcBestCovers)
@@ -73,7 +74,7 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 		covers := api.Group("/covers")
 		{
 			covers.GET("/:coverId", coverHandler.GetCover)
-			covers.GET("/:coverId/download", coverHandler.Download)
+			covers.GET("/:coverId/image", coverHandler.Download)
 		}
 	}
 
