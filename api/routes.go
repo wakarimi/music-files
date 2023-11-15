@@ -1,10 +1,6 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog/log"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	"music-files/internal/context"
 	"music-files/internal/database/repository/audio_file_repo"
 	"music-files/internal/database/repository/cover_repo"
@@ -18,6 +14,11 @@ import (
 	"music-files/internal/service/cover_service"
 	"music-files/internal/service/dir_service"
 	"music-files/internal/service/file_processor_service"
+
+	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
@@ -65,7 +66,7 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 		{
 			audioFiles.GET("/:audioFileId", audioFileHandler.GetAudioFile)
 			audioFiles.GET("", audioFileHandler.GetAll)
-			audioFiles.GET("/:audioFileId/image", audioFileHandler.Download)
+			audioFiles.GET("/:audioFileId/download", audioFileHandler.Download)
 			audioFiles.GET("/:audioFileId/cover", audioFileHandler.GetCover)
 			audioFiles.GET("/sha256/:sha256", audioFileHandler.SearchBySha256)
 			audioFiles.PUT("/covers-top", audioFileHandler.CalcBestCovers)
