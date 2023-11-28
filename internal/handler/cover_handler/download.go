@@ -58,5 +58,11 @@ func (h *Handler) Download(c *gin.Context) {
 	log.Debug().Msg("Cover sent successfully")
 	c.Header("Content-Type", "application/octet-stream")
 	c.Header("Content-Disposition", "attachment; filename="+filepath.Base(absolutePath))
+	c.Status(http.StatusOK)
+	c.File(absolutePath)
+
+	log.Debug().Msg("Cover sent successfully")
+	c.Header("Content-Type", "application/octet-stream")
+	c.Status(http.StatusOK)
 	c.File(absolutePath)
 }

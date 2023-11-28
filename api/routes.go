@@ -1,10 +1,6 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog/log"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	"music-files/internal/context"
 	"music-files/internal/database/repository/audio_file_repo"
 	"music-files/internal/database/repository/cover_repo"
@@ -18,6 +14,11 @@ import (
 	"music-files/internal/service/cover_service"
 	"music-files/internal/service/dir_service"
 	"music-files/internal/service/file_processor_service"
+
+	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
@@ -26,6 +27,7 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 
 	r = gin.New()
 	r.Use(middleware.ZerologMiddleware(log.Logger))
+	r.Use(middleware.CORSMiddleware())
 
 	coverRepo := cover_repo.NewRepository()
 	audioFileRepo := audio_file_repo.NewRepository()
@@ -73,7 +75,7 @@ func SetupRouter(ac *context.AppContext) (r *gin.Engine) {
 		covers := api.Group("/covers")
 		{
 			covers.GET("/:coverId", coverHandler.GetCover)
-			covers.GET("/:coverId/download", coverHandler.Download)
+			covers.GET("/:coverId/image", coverHandler.Download)
 		}
 	}
 
