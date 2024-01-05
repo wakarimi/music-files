@@ -1,8 +1,0 @@
-version: "3"
-
-services:
-  wakarimi-music-files:
-    container_name: wakarimi-music-files
-    build:
-      context: .
-    image: wakarimi-music-files

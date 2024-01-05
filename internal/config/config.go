@@ -3,49 +3,72 @@ package config
 import (
 	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
-	"strings"
+	"time"
 )
 
-type Configuration struct {
-	*Database
-	*HttpServer
-	*Logger
+type AppConfig struct {
+	LoggingLevel zerolog.Level
 }
 
-type Database struct {
-	ConnectionString string
+type HTTPConfig struct {
+	Port int
 }
 
-type HttpServer struct {
-	Port string
+type DBConfig struct {
+	Host          string
+	Port          int
+	DBName        string
+	User          string
+	Password      string
+	Timeout       time.Duration
+	ReadTimeout   time.Duration
+	WriteTimeout  time.Duration
+	Charset       string
+	MigrationPath string
 }
 
-type Logger struct {
-	Level zerolog.Level
+type Config struct {
+	App  AppConfig
+	HTTP HTTPConfig
+	DB   DBConfig
 }
 
-func LoadConfiguration() (config *Configuration, err error) {
+func New() (config Config, err error) {
+	viper.SetDefault("APP_LOGGING_LEVEL", "INFO")
+	viper.SetDefault("HTTP_PORT", 8021)
+	viper.SetDefault("DB_READ_TIMEOUT", "1s")
+	viper.SetDefault("DB_WRITE_TIMEOUT", "1s")
+	viper.SetDefault("DB_CHARSET", "UTF-8")
+
 	viper.AutomaticEnv()
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
-	config = &Configuration{
-		&Database{
-			ConnectionString: viper.GetString("WAKARIMI_MUSIC_FILES_DB_STRING"),
+	config = Config{
+		App: AppConfig{
+			LoggingLevel: parseLoggingLevel(viper.GetString("APP_LOGGING_LEVEL")),
 		},
-		&HttpServer{
-			Port: viper.GetString("HTTP_SERVER_PORT"),
+
+		HTTP: HTTPConfig{
+			Port: viper.GetInt("HTTP_PORT"),
 		},
-		&Logger{
-			Level: loadLoggingLevel(),
+
+		DB: DBConfig{
+			Host:          viper.GetString("DB_HOST"),
+			Port:          viper.GetInt("DB_PORT"),
+			DBName:        viper.GetString("DB_NAME"),
+			User:          viper.GetString("DB_USER"),
+			Password:      viper.GetString("DB_PASSWORD"),
+			ReadTimeout:   viper.GetDuration("DB_READ_TIMEOUT"),
+			WriteTimeout:  viper.GetDuration("DB_WRITE_TIMEOUT"),
+			Charset:       viper.GetString("DB_CHARSET"),
+			MigrationPath: "internal/storage/migration",
 		},
 	}
 
 	return config, nil
 }
 
-func loadLoggingLevel() zerolog.Level {
-	levelStr := viper.GetString("LOGGING_LEVEL")
-	switch levelStr {
+func parseLoggingLevel(loggingLevel string) zerolog.Level {
+	switch loggingLevel {
 	case "TRACE":
 		return zerolog.TraceLevel
 	case "DEBUG":
