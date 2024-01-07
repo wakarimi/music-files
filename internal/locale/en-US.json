@@ -1,0 +1,17 @@
+{
+  "FailedToEncodeRequest": {
+    "other": "Failed to encode request"
+  },
+  "ValidationFailedForRequest": {
+    "other": "Validation failed for request"
+  },
+  "DirectoryNotFoundOnDisk": {
+    "other": "Directory not found on disk"
+  },
+  "TheDirectoryIsAlreadyBeingTracked": {
+    "other": "The directory is already being tracked"
+  },
+  "FailedToAddMusicRoot": {
+    "other": "Failed to add music root"
+  }
+}

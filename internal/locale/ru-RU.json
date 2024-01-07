@@ -1,0 +1,17 @@
+{
+  "FailedToEncodeRequest": {
+    "other": "Не удалось распознать запрос"
+  },
+  "ValidationFailedForRequest": {
+    "other": "Неверные параметры запроса"
+  },
+  "DirectoryNotFoundOnDisk": {
+    "other": "Директория не найдена на диске"
+  },
+  "TheDirectoryIsAlreadyBeingTracked": {
+    "other": "Директория уже отслеживается"
+  },
+  "FailedToAddMusicRoot": {
+    "other": "Не удалось добавить директорию с музыкой"
+  }
+}
