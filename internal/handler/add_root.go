@@ -89,7 +89,7 @@ func (h Handler) AddRoot(c *gin.Context) {
 			if errLoc != nil {
 				message = h.engLocalizer.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID})
 			}
-			c.JSON(http.StatusConflict, response.Error{
+			c.JSON(http.StatusInternalServerError, response.Error{
 				Message: message,
 				Reason:  err.Error(),
 			})

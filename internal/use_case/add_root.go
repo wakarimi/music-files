@@ -7,6 +7,7 @@ import (
 	"music-files/internal/handler"
 	"music-files/internal/internal_error"
 	"music-files/internal/model/directory"
+	"strings"
 )
 
 func (u UseCase) AddRoot(input handler.AddRootInput) (output handler.AddRootOutput, err error) {
@@ -28,7 +29,11 @@ func (u UseCase) AddRoot(input handler.AddRootInput) (output handler.AddRootOutp
 func (u UseCase) addRoot(tx *sqlx.Tx, input handler.AddRootInput) (handler.AddRootOutput, error) {
 	log.Debug().Msg("Adding root directory")
 
-	alreadyTracked, err := u.dirService.IsAlreadyTracked(input.Path)
+	for strings.HasSuffix(input.Path, "/") {
+		input.Path = strings.TrimSuffix(input.Path, "/")
+	}
+
+	alreadyTracked, err := u.dirService.IsTracked(tx, input.Path)
 	if err != nil {
 		log.Error().Err(err).Msg("Couldn't check if the directory tracked")
 		return handler.AddRootOutput{}, err
@@ -50,6 +55,12 @@ func (u UseCase) addRoot(tx *sqlx.Tx, input handler.AddRootInput) (handler.AddRo
 		return handler.AddRootOutput{}, err
 	}
 
+	containedRoots, err := u.dirService.ContainedRoots(tx, input.Path)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to get contained roots")
+		return handler.AddRootOutput{}, err
+	}
+
 	dirToCreate := directory.Directory{
 		Name: input.Path,
 	}
@@ -64,13 +75,8 @@ func (u UseCase) addRoot(tx *sqlx.Tx, input handler.AddRootInput) (handler.AddRo
 		return handler.AddRootOutput{}, err
 	}
 
-	containedRoots, err := u.dirService.ContainedRoots(tx, input.Path)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to get contained roots")
-		return handler.AddRootOutput{}, err
-	}
 	for _, containedRoot := range containedRoots {
-		err = u.dirService.ConnectDirs(tx, createdDirID, containedRoot.ID)
+		err = u.dirService.MergeRoots(tx, createdDirID, containedRoot.ID)
 		if err != nil {
 			return handler.AddRootOutput{}, err
 		}

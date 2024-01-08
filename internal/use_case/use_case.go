@@ -16,12 +16,12 @@ type coverService interface {
 }
 
 type dirService interface {
-	IsAlreadyTracked(path string) (bool, error)
+	IsTracked(tx *sqlx.Tx, path string) (bool, error)
 	IsExistsOnDisk(path string) (bool, error)
 	Create(tx *sqlx.Tx, dirToCreate directory.Directory) (int, error)
 	Get(tx *sqlx.Tx, dirID int) (directory.Directory, error)
 	ContainedRoots(tx *sqlx.Tx, path string) ([]directory.Directory, error)
-	ConnectDirs(tx *sqlx.Tx, dirID1 int, dirID2 int) error
+	MergeRoots(tx *sqlx.Tx, dirID1 int, dirID2 int) error
 }
 
 type UseCase struct {
