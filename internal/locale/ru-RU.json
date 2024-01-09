@@ -13,5 +13,8 @@
   },
   "FailedToAddMusicRoot": {
     "other": "Не удалось добавить директорию с музыкой"
+  },
+  "InvalidInputFormat": {
+    "other": "Неверный формат входных данных"
   }
 }

@@ -23,7 +23,7 @@ CREATE TABLE covers
     UNIQUE (dir_id, filename)
 );
 
-CREATE TABLE audio
+CREATE TABLE audios
 (
     id                  SERIAL PRIMARY KEY,
     dir_id              INTEGER    NOT NULL,

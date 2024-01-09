@@ -1,6 +1,11 @@
 package cover_service
 
+import (
+	"github.com/jmoiron/sqlx"
+)
+
 type coverRepo interface {
+	DeleteByDir(tx *sqlx.Tx, dirID int) error
 }
 
 type Service struct {

@@ -12,6 +12,10 @@ type dirRepo interface {
 	IsExistsByParentAndName(tx *sqlx.Tx, parentID *int, name string) (bool, error)
 	ReadByParentAndName(tx *sqlx.Tx, parentID *int, name string) (directory.Directory, error)
 	Update(tx *sqlx.Tx, dirID int, directory directory.Directory) error
+	IsExists(tx *sqlx.Tx, dirID int) (bool, error)
+	IsRoot(tx *sqlx.Tx, dirID int) (bool, error)
+	ReadSubDirs(tx *sqlx.Tx, dirID int) ([]directory.Directory, error)
+	Delete(tx *sqlx.Tx, dirID int) error
 }
 
 type Service struct {

@@ -10,9 +10,11 @@ type transactor interface {
 }
 
 type audioService interface {
+	DeleteAllByDir(tx *sqlx.Tx, dirID int) error
 }
 
 type coverService interface {
+	DeleteAllByDir(tx *sqlx.Tx, dirID int) error
 }
 
 type dirService interface {
@@ -22,6 +24,10 @@ type dirService interface {
 	Get(tx *sqlx.Tx, dirID int) (directory.Directory, error)
 	ContainedRoots(tx *sqlx.Tx, path string) ([]directory.Directory, error)
 	MergeRoots(tx *sqlx.Tx, dirID1 int, dirID2 int) error
+	IsExists(tx *sqlx.Tx, dirID int) (bool, error)
+	IsRoot(tx *sqlx.Tx, dirID int) (bool, error)
+	GetSubDirs(tx *sqlx.Tx, dirID int) ([]directory.Directory, error)
+	Delete(tx *sqlx.Tx, dirID int) error
 }
 
 type UseCase struct {

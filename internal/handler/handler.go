@@ -6,6 +6,7 @@ import (
 
 type useCase interface {
 	AddRoot(input AddRootInput) (output AddRootOutput, err error)
+	DeleteRoot(input DeleteRootInput) (err error)
 }
 
 type AddRootInput struct {
@@ -15,6 +16,10 @@ type AddRootInput struct {
 type AddRootOutput struct {
 	DirID int
 	Path  string
+}
+
+type DeleteRootInput struct {
+	DirID int
 }
 
 type Handler struct {

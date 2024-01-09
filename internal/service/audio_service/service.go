@@ -1,6 +1,11 @@
 package audio_service
 
+import (
+	"github.com/jmoiron/sqlx"
+)
+
 type audioRepo interface {
+	DeleteByDir(tx *sqlx.Tx, dirID int) error
 }
 
 type Service struct {

@@ -13,5 +13,14 @@
   },
   "FailedToAddMusicRoot": {
     "other": "Failed to add music root"
+  },
+  "InvalidInputFormat": {
+    "other": "Invalid input format"
+  },
+  "DirectoryIsNotRoot": {
+    "other": "Directory is not root"
+  },
+  "FailedToDeleteRoot": {
+    "other": "Failed to delete root"
   }
 }
