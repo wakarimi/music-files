@@ -26,7 +26,7 @@ func (u UseCase) AddRoot(input handler.AddRootInput) (output handler.AddRootOutp
 	return output, nil
 }
 
-func (u UseCase) addRoot(tx *sqlx.Tx, input handler.AddRootInput) (handler.AddRootOutput, error) {
+func (u UseCase) addRoot(tx *sqlx.Tx, input handler.AddRootInput) (output handler.AddRootOutput, err error) {
 	log.Debug().Msg("Adding root directory")
 
 	for strings.HasSuffix(input.Path, "/") {

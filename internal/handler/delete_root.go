@@ -36,7 +36,7 @@ func (h Handler) DeleteRoot(c *gin.Context) {
 	deleteRootInput := DeleteRootInput{
 		DirID: dirID,
 	}
-	err = h.useCase.DeleteRoot(deleteRootInput)
+	_, err = h.useCase.DeleteRoot(deleteRootInput)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to delete root")
 		if _, ok := err.(internal_error.NotFound); ok {

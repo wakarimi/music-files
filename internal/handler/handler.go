@@ -2,11 +2,13 @@ package handler
 
 import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"time"
 )
 
 type useCase interface {
 	AddRoot(input AddRootInput) (output AddRootOutput, err error)
-	DeleteRoot(input DeleteRootInput) (err error)
+	DeleteRoot(input DeleteRootInput) (output DeleteRootOutput, err error)
+	GetRoots(input GetRootsInput) (output GetRootsOutput, err error)
 }
 
 type AddRootInput struct {
@@ -20,6 +22,22 @@ type AddRootOutput struct {
 
 type DeleteRootInput struct {
 	DirID int
+}
+
+type DeleteRootOutput struct {
+}
+
+type GetRootsInput struct {
+}
+
+type GetRootsOutputDirItem struct {
+	DirID       int
+	Path        string
+	LastScanned *time.Time
+}
+
+type GetRootsOutput struct {
+	Dirs []GetRootsOutputDirItem
 }
 
 type Handler struct {

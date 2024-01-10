@@ -28,6 +28,7 @@ type dirService interface {
 	IsRoot(tx *sqlx.Tx, dirID int) (bool, error)
 	GetSubDirs(tx *sqlx.Tx, dirID int) ([]directory.Directory, error)
 	Delete(tx *sqlx.Tx, dirID int) error
+	GetRoots(tx *sqlx.Tx) ([]directory.Directory, error)
 }
 
 type UseCase struct {

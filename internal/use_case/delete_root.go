@@ -8,9 +8,9 @@ import (
 	"music-files/internal/internal_error"
 )
 
-func (u UseCase) DeleteRoot(input handler.DeleteRootInput) (err error) {
+func (u UseCase) DeleteRoot(input handler.DeleteRootInput) (output handler.DeleteRootOutput, err error) {
 	err = u.transactor.WithTransaction(func(tx *sqlx.Tx) (err error) {
-		err = u.deleteRoot(tx, input)
+		output, err = u.deleteRoot(tx, input)
 		if err != nil {
 			return err
 		}
@@ -18,44 +18,44 @@ func (u UseCase) DeleteRoot(input handler.DeleteRootInput) (err error) {
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to add root")
-		return err
+		return handler.DeleteRootOutput{}, err
 	}
 
-	return nil
+	return output, err
 }
 
-func (u UseCase) deleteRoot(tx *sqlx.Tx, input handler.DeleteRootInput) error {
+func (u UseCase) deleteRoot(tx *sqlx.Tx, input handler.DeleteRootInput) (output handler.DeleteRootOutput, err error) {
 	log.Debug().Msg("Deleting root directory")
 
 	exists, err := u.dirService.IsExists(tx, input.DirID)
 	if err != nil {
 		log.Error().Err(err).Int("dirId", input.DirID).Msg("Failed to check dir existence")
-		return err
+		return handler.DeleteRootOutput{}, err
 	}
 	if !exists {
 		err := internal_error.NotFound{fmt.Sprintf("directory with id=%d", input.DirID)}
 		log.Error().Err(err).Int("dirId", input.DirID).Msg("Directory not found")
-		return err
+		return handler.DeleteRootOutput{}, err
 	}
 
 	isRoot, err := u.dirService.IsRoot(tx, input.DirID)
 	if err != nil {
 		log.Error().Err(err).Int("dirId", input.DirID).Msg("Could not check whether the directory is the root")
-		return err
+		return handler.DeleteRootOutput{}, err
 	}
 	if !isRoot {
 		err := internal_error.BadRequest{fmt.Sprintf("directory with id=%d is not root", input.DirID)}
 		log.Error().Err(err).Int("dirId", input.DirID).Msg("Directory is not root")
-		return err
+		return handler.DeleteRootOutput{}, err
 	}
 
 	err = u.deleteRootDeleteDirRecursive(tx, input.DirID)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to delete dir recursive")
-		return err
+		return handler.DeleteRootOutput{}, err
 	}
 
-	return nil
+	return output, err
 }
 
 func (u UseCase) deleteRootDeleteDirRecursive(tx *sqlx.Tx, dirID int) (err error) {
