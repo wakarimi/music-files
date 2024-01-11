@@ -16,5 +16,8 @@
   },
   "InvalidInputFormat": {
     "other": "Неверный формат входных данных"
+  },
+  "FailedToScanDir": {
+    "other": "Не удалось сканировать директорию"
   }
 }

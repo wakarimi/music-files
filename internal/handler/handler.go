@@ -9,6 +9,7 @@ type useCase interface {
 	AddRoot(input AddRootInput) (output AddRootOutput, err error)
 	DeleteRoot(input DeleteRootInput) (output DeleteRootOutput, err error)
 	GetRoots(input GetRootsInput) (output GetRootsOutput, err error)
+	ScanDir(input ScanDirInput) (output ScanDirOutput, err error)
 }
 
 type AddRootInput struct {
@@ -39,6 +40,12 @@ type GetRootsOutputDirItem struct {
 type GetRootsOutput struct {
 	Dirs []GetRootsOutputDirItem
 }
+
+type ScanDirInput struct {
+	DirID int
+}
+
+type ScanDirOutput struct{}
 
 type Handler struct {
 	useCase      useCase

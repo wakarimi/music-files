@@ -22,5 +22,8 @@
   },
   "FailedToDeleteRoot": {
     "other": "Failed to delete root"
+  },
+  "FailedToScanDir": {
+    "other": "Failed to scan dir"
   }
 }
