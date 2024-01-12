@@ -8,6 +8,7 @@ import (
 	"music-files/internal/internal_error"
 	"music-files/internal/model/directory"
 	"os"
+	"path/filepath"
 )
 
 func (u UseCase) ScanDir(input handler.ScanDirInput) (output handler.ScanDirOutput, err error) {
@@ -55,7 +56,7 @@ func (u UseCase) scanDir(dirID int) {
 		if err != nil {
 			return err
 		}
-		subDirs, err = u.scanDirReadSubDirs(tx, dirID)
+		subDirs, err = u.dirService.GetSubDirs(tx, dirID)
 		if err != nil {
 			return err
 		}
@@ -209,10 +210,236 @@ func (u UseCase) scanDirDeleteDirRecursive(tx *sqlx.Tx, dirID int) (err error) {
 	return nil
 }
 
-func (u UseCase) scanDirReadSubDirs(tx *sqlx.Tx, dirID int) ([]directory.Directory, error) {
+func (u UseCase) scanDirScanContent(tx *sqlx.Tx, dirID int) (err error) {
+	err = u.actualizeAudios(tx, dirID)
+	if err != nil {
+		log.Error().Int("dirId", dirID).Msg("Failed to actualize audio files")
+		return err
+	}
 
+	err = u.actualizeCovers(tx, dirID)
+	if err != nil {
+		log.Error().Int("dirId", dirID).Msg("Failed to actualize covers")
+		return err
+	}
+
+	return nil
 }
 
-func (u UseCase) scanDirScanContent(tx *sqlx.Tx, dirID int) error {
+func (u UseCase) actualizeAudios(tx *sqlx.Tx, dirID int) (err error) {
+	dirPath, err := u.dirService.CalcAbsolutePath(tx, dirID)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to calculate absolute path")
+		return err
+	}
 
+	entries, err := os.ReadDir(dirPath)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to read dir's entries")
+		return err
+	}
+
+	for _, entry := range entries {
+		filePath := filepath.Join(dirPath, entry.Name())
+		isAudio, err := u.audioService.IsAudioByPath(filePath)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to check entry's type")
+			return err
+		}
+		if !isAudio {
+			continue
+		}
+
+		sha256OnDisk, err := u.audioService.CalculateSHA256(filePath)
+		if err != nil {
+			log.Error().Int("dirId", dirID).Msg("Failed to calculate sha256")
+			return err
+		}
+
+		alreadyInDatabase, err := u.audioService.IsExistsByDirAndName(tx, dirID, entry.Name())
+		if err != nil {
+			log.Error().Int("dirId", dirID).Str("entryName", entry.Name()).Msg("Failed to check audio existence")
+			return err
+		}
+
+		if alreadyInDatabase {
+			audio, err := u.audioService.GetByDirAndName(tx, dirID, entry.Name())
+			if err != nil {
+				log.Error().Int("dirId", dirID).Str("entryName", entry.Name()).Msg("Failed to check audio existence")
+				return err
+			}
+			if sha256OnDisk == audio.SHA256 {
+				continue
+			}
+
+			audioToUpdate, err := u.audioService.ConstructByPath(filePath)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to construct audio by path")
+				return err
+			}
+			audioToUpdate.DirID = dirID
+			audioToUpdate.SHA256 = sha256OnDisk
+
+			err = u.audioService.Update(tx, audio.ID, audioToUpdate)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to update audio")
+				return err
+			}
+		} else {
+			audioToCreate, err := u.audioService.ConstructByPath(filePath)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to construct audio by path")
+				return err
+			}
+			audioToCreate.DirID = dirID
+			audioToCreate.SHA256 = sha256OnDisk
+
+			_, err = u.audioService.Create(tx, audioToCreate)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to create audio")
+				return err
+			}
+		}
+	}
+
+	audios, err := u.audioService.GetAllByDir(tx, dirID)
+	if err != nil {
+		log.Error().Int("dirId", dirID).Msg("Failed to get audio")
+		return err
+	}
+
+	for _, audio := range audios {
+		foundOnDisk := false
+
+		for _, entry := range entries {
+			filePath := filepath.Join(dirPath, entry.Name())
+			isAudio, err := u.audioService.IsAudioByPath(filePath)
+			if err != nil {
+				return err
+			}
+
+			if isAudio && audio.Filename == entry.Name() {
+				foundOnDisk = true
+			}
+		}
+
+		if !foundOnDisk {
+			err = u.audioService.Delete(tx, audio.ID)
+			if err != nil {
+				log.Error().Int("dirId", dirID).Msg("Failed to delete audio file")
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (u UseCase) actualizeCovers(tx *sqlx.Tx, dirID int) (err error) {
+	dirPath, err := u.dirService.CalcAbsolutePath(tx, dirID)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to calculate absolute path")
+		return err
+	}
+
+	entries, err := os.ReadDir(dirPath)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to read dir's entries")
+		return err
+	}
+
+	for _, entry := range entries {
+		filePath := filepath.Join(dirPath, entry.Name())
+		isCover, err := u.coverService.IsCoverByPath(filePath)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to check entry's type")
+			return err
+		}
+		if !isCover {
+			continue
+		}
+
+		sha256OnDisk, err := u.coverService.CalculateSHA256(filePath)
+		if err != nil {
+			log.Error().Int("dirId", dirID).Msg("Failed to calculate sha256")
+			return err
+		}
+
+		alreadyInDatabase, err := u.coverService.IsExistsByDirAndName(tx, dirID, entry.Name())
+		if err != nil {
+			log.Error().Int("dirId", dirID).Str("entryName", entry.Name()).Msg("Failed to check cover existence")
+			return err
+		}
+
+		if alreadyInDatabase {
+			cover, err := u.coverService.GetByDirAndName(tx, dirID, entry.Name())
+			if err != nil {
+				log.Error().Int("dirId", dirID).Str("entryName", entry.Name()).Msg("Failed to check cover existence")
+				return err
+			}
+			if sha256OnDisk == cover.SHA256 {
+				continue
+			}
+
+			coverToUpdate, err := u.coverService.ConstructByPath(filePath)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to construct cover by path")
+				return err
+			}
+			coverToUpdate.DirID = dirID
+			coverToUpdate.SHA256 = sha256OnDisk
+
+			err = u.coverService.Update(tx, cover.ID, coverToUpdate)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to update cover")
+				return err
+			}
+		} else {
+			coverToCreate, err := u.coverService.ConstructByPath(filePath)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to construct cover by path")
+				return err
+			}
+			coverToCreate.DirID = dirID
+			coverToCreate.SHA256 = sha256OnDisk
+
+			_, err = u.coverService.Create(tx, coverToCreate)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to create cover")
+				return err
+			}
+		}
+	}
+
+	covers, err := u.coverService.GetAllByDir(tx, dirID)
+	if err != nil {
+		log.Error().Int("dirId", dirID).Msg("Failed to get cover")
+		return err
+	}
+
+	for _, cover := range covers {
+		foundOnDisk := false
+
+		for _, entry := range entries {
+			filePath := filepath.Join(dirPath, entry.Name())
+			isCover, err := u.coverService.IsCoverByPath(filePath)
+			if err != nil {
+				return err
+			}
+
+			if isCover && cover.Filename == entry.Name() {
+				foundOnDisk = true
+			}
+		}
+
+		if !foundOnDisk {
+			err = u.coverService.Delete(tx, cover.ID)
+			if err != nil {
+				log.Error().Int("dirId", dirID).Msg("Failed to delete cover file")
+				return err
+			}
+		}
+	}
+
+	return nil
 }
