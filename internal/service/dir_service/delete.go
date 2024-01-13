@@ -14,6 +14,6 @@ func (s Service) Delete(tx *sqlx.Tx, dirID int) (err error) {
 		return err
 	}
 
-	log.Debug().Int("dirId", dirID).Msg("Audio by directory ")
+	log.Debug().Int("dirId", dirID).Msg("Directory deleted")
 	return nil
 }
