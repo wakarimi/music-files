@@ -20,10 +20,22 @@
   "FailedToScanDir": {
     "other": "Не удалось сканировать директорию"
   },
+  "DirNotFound": {
+    "other": "Директория не найдена"
+  },
+  "FailedToGetDirContent": {
+    "other": "Не удалось получить директорию"
+  },
   "AudioNotFound": {
     "other": "Аудиофайл не найден"
   },
   "FailedToGetStaticLinkToAudio": {
     "other": "Не удалось получить статическую ссылку на аудио"
+  },
+  "CoverNotFound": {
+    "other": "Обложка не найдена"
+  },
+  "FailedToGetStaticLinkToCover": {
+    "other": "Не удалось получить статическую ссылку на обложку"
   }
 }

@@ -15,7 +15,7 @@ type addRootRequest struct {
 }
 
 type addRootResponse struct {
-	DirId int    `json:"dirId"`
+	DirID int    `json:"dirId"`
 	Path  string `json:"path"`
 }
 
@@ -99,7 +99,7 @@ func (h Handler) AddRoot(c *gin.Context) {
 
 	log.Debug().Msg("Music root added")
 	c.JSON(http.StatusOK, addRootResponse{
-		DirId: addRootOutput.DirID,
+		DirID: addRootOutput.DirID,
 		Path:  addRootOutput.Path,
 	})
 }

@@ -26,10 +26,22 @@
   "FailedToScanDir": {
     "other": "Failed to scan dir"
   },
+  "DirNotFound": {
+    "other": "Directory not found"
+  },
+  "FailedToGetDirContent": {
+    "other": "Failed to get dir content"
+  },
   "AudioNotFound": {
     "other": "Audio not found"
   },
   "FailedToGetStaticLinkToAudio": {
     "other": "Failed to get static link to audio"
+  },
+  "CoverNotFound": {
+    "other": "Cover not found"
+  },
+  "FailedToGetStaticLinkToCover": {
+    "other": "Failed to get static link to cover"
   }
 }

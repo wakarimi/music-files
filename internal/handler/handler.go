@@ -12,6 +12,7 @@ type useCase interface {
 	ScanDir(input ScanDirInput) (output ScanDirOutput, err error)
 	StaticAudio(input StaticAudioInput) (output StaticAudioOutput, err error)
 	StaticCover(input StaticCoverInput) (output StaticCoverOutput, err error)
+	GetDirContent(input GetDirContentInput) (output GetDirContentOutput, err error)
 }
 
 type AddRootInput struct {
@@ -71,6 +72,29 @@ type Handler struct {
 	useCase      useCase
 	bundle       i18n.Bundle
 	engLocalizer i18n.Localizer
+}
+
+type GetDirContentInput struct {
+	DirID int
+}
+
+type GetDirContentOutputDirs struct {
+	ID          int
+	Name        string
+	LastScanned *time.Time
+}
+
+type GetDirContentOutputAudios struct {
+	ID                int
+	DirID             int
+	DurationMs        int64
+	SHA256            string
+	LastContentUpdate time.Time
+}
+
+type GetDirContentOutput struct {
+	Dirs   []GetDirContentOutputDirs
+	Audios []GetDirContentOutputAudios
 }
 
 func New(useCase useCase,
