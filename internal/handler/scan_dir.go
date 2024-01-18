@@ -6,6 +6,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"music-files/internal/handler/response"
 	"music-files/internal/internal_error"
+	"music-files/internal/use_case"
 	"net/http"
 	"strconv"
 )
@@ -33,7 +34,7 @@ func (h Handler) ScanDir(c *gin.Context) {
 	}
 	log.Debug().Int("dirId", dirID).Msg("Url parameter read successfully")
 
-	scanDirInput := ScanDirInput{
+	scanDirInput := use_case.ScanDirInput{
 		DirID: dirID,
 	}
 	_, err = h.useCase.ScanDir(scanDirInput)

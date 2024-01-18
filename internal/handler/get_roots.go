@@ -5,6 +5,7 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/rs/zerolog/log"
 	"music-files/internal/handler/response"
+	"music-files/internal/use_case"
 	"net/http"
 	"time"
 )
@@ -25,7 +26,7 @@ func (h Handler) GetRoots(c *gin.Context) {
 	lang := c.MustGet("lang").(string)
 	localizer := i18n.NewLocalizer(&h.bundle, lang)
 
-	getRootsInput := GetRootsInput{}
+	getRootsInput := use_case.GetRootsInput{}
 	getRootsOutput, err := h.useCase.GetRoots(getRootsInput)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to get roots")

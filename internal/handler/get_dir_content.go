@@ -6,6 +6,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"music-files/internal/handler/response"
 	"music-files/internal/internal_error"
+	"music-files/internal/use_case"
 	"net/http"
 	"strconv"
 	"time"
@@ -53,7 +54,7 @@ func (h Handler) GetDirContent(c *gin.Context) {
 	}
 	log.Debug().Int("dirId", dirID).Msg("Url parameter read successfully")
 
-	getDirContentInput := GetDirContentInput{
+	getDirContentInput := use_case.GetDirContentInput{
 		DirID: dirID,
 	}
 	getDirContentOutput, err := h.useCase.GetDirContent(getDirContentInput)

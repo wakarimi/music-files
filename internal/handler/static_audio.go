@@ -6,6 +6,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"music-files/internal/handler/response"
 	"music-files/internal/internal_error"
+	"music-files/internal/use_case"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -34,7 +35,7 @@ func (h Handler) StaticAudio(c *gin.Context) {
 	}
 	log.Debug().Int("audioId", audioID).Msg("Url parameter read successfully")
 
-	staticAudioInput := StaticAudioInput{
+	staticAudioInput := use_case.StaticAudioInput{
 		AudioID: audioID,
 	}
 	staticAudioOutput, err := h.useCase.StaticAudio(staticAudioInput)

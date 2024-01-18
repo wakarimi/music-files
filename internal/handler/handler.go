@@ -2,99 +2,23 @@ package handler
 
 import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"time"
+	"music-files/internal/use_case"
 )
 
 type useCase interface {
-	AddRoot(input AddRootInput) (output AddRootOutput, err error)
-	DeleteRoot(input DeleteRootInput) (output DeleteRootOutput, err error)
-	GetRoots(input GetRootsInput) (output GetRootsOutput, err error)
-	ScanDir(input ScanDirInput) (output ScanDirOutput, err error)
-	StaticAudio(input StaticAudioInput) (output StaticAudioOutput, err error)
-	StaticCover(input StaticCoverInput) (output StaticCoverOutput, err error)
-	GetDirContent(input GetDirContentInput) (output GetDirContentOutput, err error)
-}
-
-type AddRootInput struct {
-	Path string
-}
-
-type AddRootOutput struct {
-	DirID int
-	Path  string
-}
-
-type DeleteRootInput struct {
-	DirID int
-}
-
-type DeleteRootOutput struct {
-}
-
-type GetRootsInput struct {
-}
-
-type GetRootsOutputDirItem struct {
-	DirID       int
-	Path        string
-	LastScanned *time.Time
-}
-
-type GetRootsOutput struct {
-	Dirs []GetRootsOutputDirItem
-}
-
-type ScanDirInput struct {
-	DirID int
-}
-
-type ScanDirOutput struct{}
-
-type StaticAudioInput struct {
-	AudioID int
-}
-
-type StaticAudioOutput struct {
-	AbsolutePath string
-	Mime         string
-}
-
-type StaticCoverInput struct {
-	CoverID int
-}
-
-type StaticCoverOutput struct {
-	AbsolutePath string
-	Mime         string
+	AddRoot(input use_case.AddRootInput) (output use_case.AddRootOutput, err error)
+	DeleteRoot(input use_case.DeleteRootInput) (output use_case.DeleteRootOutput, err error)
+	GetRoots(input use_case.GetRootsInput) (output use_case.GetRootsOutput, err error)
+	ScanDir(input use_case.ScanDirInput) (output use_case.ScanDirOutput, err error)
+	StaticAudio(input use_case.StaticAudioInput) (output use_case.StaticAudioOutput, err error)
+	StaticCover(input use_case.StaticCoverInput) (output use_case.StaticCoverOutput, err error)
+	GetDirContent(input use_case.GetDirContentInput) (output use_case.GetDirContentOutput, err error)
 }
 
 type Handler struct {
 	useCase      useCase
 	bundle       i18n.Bundle
 	engLocalizer i18n.Localizer
-}
-
-type GetDirContentInput struct {
-	DirID int
-}
-
-type GetDirContentOutputDirs struct {
-	ID          int
-	Name        string
-	LastScanned *time.Time
-}
-
-type GetDirContentOutputAudios struct {
-	ID                int
-	DirID             int
-	DurationMs        int64
-	SHA256            string
-	LastContentUpdate time.Time
-}
-
-type GetDirContentOutput struct {
-	Dirs   []GetDirContentOutputDirs
-	Audios []GetDirContentOutputAudios
 }
 
 func New(useCase useCase,

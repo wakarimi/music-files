@@ -4,14 +4,19 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/handler"
 	"music-files/internal/internal_error"
 	"music-files/internal/model/directory"
 	"os"
 	"path/filepath"
 )
 
-func (u UseCase) ScanDir(input handler.ScanDirInput) (output handler.ScanDirOutput, err error) {
+type ScanDirInput struct {
+	DirID int
+}
+
+type ScanDirOutput struct{}
+
+func (u UseCase) ScanDir(input ScanDirInput) (output ScanDirOutput, err error) {
 	log.Debug().Msg("Scanning directory")
 
 	err = u.transactor.WithTransaction(func(tx *sqlx.Tx) (err error) {
@@ -41,12 +46,12 @@ func (u UseCase) ScanDir(input handler.ScanDirInput) (output handler.ScanDirOutp
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to scan dir")
-		return handler.ScanDirOutput{}, err
+		return ScanDirOutput{}, err
 	}
 
 	go u.scanDir(input.DirID)
 
-	return handler.ScanDirOutput{}, nil
+	return ScanDirOutput{}, nil
 }
 
 func (u UseCase) scanDir(dirID int) {

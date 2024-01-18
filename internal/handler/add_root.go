@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"music-files/internal/handler/response"
 	"music-files/internal/internal_error"
+	"music-files/internal/use_case"
 	"net/http"
 )
 
@@ -55,7 +56,7 @@ func (h Handler) AddRoot(c *gin.Context) {
 		return
 	}
 
-	addRootInput := AddRootInput{
+	addRootInput := use_case.AddRootInput{
 		Path: request.Path,
 	}
 	addRootOutput, err := h.useCase.AddRoot(addRootInput)

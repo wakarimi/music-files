@@ -4,11 +4,34 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
-	"music-files/internal/handler"
 	"music-files/internal/internal_error"
+	"time"
 )
 
-func (u UseCase) GetDirContent(input handler.GetDirContentInput) (output handler.GetDirContentOutput, err error) {
+type GetDirContentInput struct {
+	DirID int
+}
+
+type GetDirContentOutputDirs struct {
+	ID          int
+	Name        string
+	LastScanned *time.Time
+}
+
+type GetDirContentOutputAudios struct {
+	ID                int
+	DirID             int
+	DurationMs        int64
+	SHA256            string
+	LastContentUpdate time.Time
+}
+
+type GetDirContentOutput struct {
+	Dirs   []GetDirContentOutputDirs
+	Audios []GetDirContentOutputAudios
+}
+
+func (u UseCase) GetDirContent(input GetDirContentInput) (output GetDirContentOutput, err error) {
 	err = u.transactor.WithTransaction(func(tx *sqlx.Tx) (err error) {
 		output, err = u.getDirContent(tx, input)
 		if err != nil {
@@ -18,49 +41,49 @@ func (u UseCase) GetDirContent(input handler.GetDirContentInput) (output handler
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to add root")
-		return handler.GetDirContentOutput{}, err
+		return GetDirContentOutput{}, err
 	}
 
 	return output, nil
 }
-func (u UseCase) getDirContent(tx *sqlx.Tx, input handler.GetDirContentInput) (handler.GetDirContentOutput, error) {
+func (u UseCase) getDirContent(tx *sqlx.Tx, input GetDirContentInput) (GetDirContentOutput, error) {
 	log.Debug().Msg("Getting dir's content")
 
 	exists, err := u.dirService.IsExists(tx, input.DirID)
 	if err != nil {
 		log.Error().Err(err).Int("dirId", input.DirID).Msg("Failed to check dir existence")
-		return handler.GetDirContentOutput{}, err
+		return GetDirContentOutput{}, err
 	}
 	if !exists {
 		err := internal_error.NotFound{fmt.Sprintf("directory with id=%d", input.DirID)}
 		log.Error().Err(err).Int("dirId", input.DirID).Msg("Directory not found")
-		return handler.GetDirContentOutput{}, err
+		return GetDirContentOutput{}, err
 	}
 
 	dirs, err := u.dirService.GetSubDirs(tx, input.DirID)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to get subdirectories")
-		return handler.GetDirContentOutput{}, err
+		return GetDirContentOutput{}, err
 	}
 
 	audios, err := u.audioService.GetAllByDir(tx, input.DirID)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to get dir's audios")
-		return handler.GetDirContentOutput{}, err
+		return GetDirContentOutput{}, err
 	}
 
-	dirsResponse := make([]handler.GetDirContentOutputDirs, len(dirs))
+	dirsResponse := make([]GetDirContentOutputDirs, len(dirs))
 	for i, dir := range dirs {
-		dirsResponse[i] = handler.GetDirContentOutputDirs{
+		dirsResponse[i] = GetDirContentOutputDirs{
 			ID:          dir.ID,
 			Name:        dir.Name,
 			LastScanned: dir.LastScanned,
 		}
 	}
 
-	audiosResponse := make([]handler.GetDirContentOutputAudios, len(audios))
+	audiosResponse := make([]GetDirContentOutputAudios, len(audios))
 	for i, aud := range audios {
-		audiosResponse[i] = handler.GetDirContentOutputAudios{
+		audiosResponse[i] = GetDirContentOutputAudios{
 			ID:                aud.ID,
 			DirID:             aud.DirID,
 			DurationMs:        aud.DurationMs,
@@ -69,7 +92,7 @@ func (u UseCase) getDirContent(tx *sqlx.Tx, input handler.GetDirContentInput) (h
 		}
 	}
 
-	return handler.GetDirContentOutput{
+	return GetDirContentOutput{
 		Dirs:   dirsResponse,
 		Audios: audiosResponse,
 	}, nil

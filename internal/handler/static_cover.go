@@ -6,6 +6,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"music-files/internal/handler/response"
 	"music-files/internal/internal_error"
+	"music-files/internal/use_case"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -34,7 +35,7 @@ func (h Handler) StaticCover(c *gin.Context) {
 	}
 	log.Debug().Int("coverId", coverID).Msg("Url parameter read successfully")
 
-	staticCoverInput := StaticCoverInput{
+	staticCoverInput := use_case.StaticCoverInput{
 		CoverID: coverID,
 	}
 	staticCoverOutput, err := h.useCase.StaticCover(staticCoverInput)
