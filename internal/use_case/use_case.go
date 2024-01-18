@@ -22,6 +22,10 @@ type audioService interface {
 	Create(tx *sqlx.Tx, audioToCreate audio.Audio) (int, error)
 	GetAllByDir(tx *sqlx.Tx, dirID int) ([]audio.Audio, error)
 	Delete(tx *sqlx.Tx, audioID int) error
+	IsExists(tx *sqlx.Tx, audioID int) (bool, error)
+	Get(tx *sqlx.Tx, audioID int) (audio.Audio, error)
+	IsExistsOnDisk(path string) (bool, error)
+	GetMimeValue(absolutePath string) (string, error)
 }
 
 type coverService interface {

@@ -21,7 +21,7 @@ func (u UseCase) DeleteRoot(input handler.DeleteRootInput) (output handler.Delet
 		return handler.DeleteRootOutput{}, err
 	}
 
-	return output, err
+	return output, nil
 }
 
 func (u UseCase) deleteRoot(tx *sqlx.Tx, input handler.DeleteRootInput) (output handler.DeleteRootOutput, err error) {

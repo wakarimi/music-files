@@ -85,26 +85,26 @@ func (u UseCase) scanDir(dirID int) {
 func (u UseCase) scanDirExists(tx *sqlx.Tx, dirID int) (exists bool, err error) {
 	dirExistsInDatabase, err := u.dirService.IsExists(tx, dirID)
 	if err != nil {
-		log.Error().Err(err).Int("dirID", dirID).Msg("Failed to check directory existence in database")
+		log.Error().Err(err).Int("dirId", dirID).Msg("Failed to check directory existence in database")
 		return false, err
 	}
 	if !dirExistsInDatabase {
-		log.Error().Err(err).Int("dirID", dirID).Msg("Directory not found in database")
+		log.Error().Err(err).Int("dirId", dirID).Msg("Directory not found in database")
 		return false, err
 	}
 
 	absolutePath, err := u.dirService.CalcAbsolutePath(tx, dirID)
 	if err != nil {
-		log.Error().Err(err).Int("dirID", dirID).Msg("Failed to calculate absolute path")
+		log.Error().Err(err).Int("dirId", dirID).Msg("Failed to calculate absolute path")
 		return false, err
 	}
 	existOnDisk, err := u.dirService.IsExistsOnDisk(absolutePath)
 	if err != nil {
-		log.Error().Err(err).Int("dirID", dirID).Msg("Failed to check directory existence on disk")
+		log.Error().Err(err).Int("dirId", dirID).Msg("Failed to check directory existence on disk")
 		return false, err
 	}
 	if !existOnDisk {
-		log.Error().Err(err).Int("dirID", dirID).Msg("Directory not found on disk")
+		log.Error().Err(err).Int("dirId", dirID).Msg("Directory not found on disk")
 		return false, nil
 	}
 

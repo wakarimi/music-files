@@ -25,5 +25,11 @@
   },
   "FailedToScanDir": {
     "other": "Failed to scan dir"
+  },
+  "AudioNotFound": {
+    "other": "Audio not found"
+  },
+  "FailedToGetStaticLinkToAudio": {
+    "other": "Failed to get static link to audio"
   }
 }

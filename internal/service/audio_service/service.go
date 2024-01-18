@@ -13,6 +13,8 @@ type audioRepo interface {
 	ReadByDirAndName(tx *sqlx.Tx, dirID int, name string) (audio.Audio, error)
 	IsExistsByDirAndName(tx *sqlx.Tx, dirID int, name string) (bool, error)
 	Update(tx *sqlx.Tx, audioID int, update audio.Audio) error
+	Read(tx *sqlx.Tx, audioID int) (audio.Audio, error)
+	IsExists(tx *sqlx.Tx, audioID int) (bool, error)
 }
 
 type Service struct {

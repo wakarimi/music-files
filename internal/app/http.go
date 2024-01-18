@@ -27,7 +27,7 @@ func (a *App) RegisterRoutes() {
 		{
 			audios.GET("", a.handler.GetAudios)
 			audios.GET("/all", a.handler.GetAllAudios)
-			audios.GET("/:audioId/download", a.handler.DownloadAudio)
+			audios.GET("/:audioId/static-file", a.handler.StaticAudio)
 			audios.GET("/best-covers", a.handler.GetBestCovers)
 			audios.GET("/sha256/:sha256", a.handler.SearchBySHA256)
 		}
@@ -35,7 +35,7 @@ func (a *App) RegisterRoutes() {
 		covers := api.Group("/covers")
 		{
 			covers.GET("", a.handler.GetCovers)
-			covers.GET("/:coverId/image", a.handler.GetStaticImage)
+			covers.GET("/:coverId/static-file", a.handler.StaticImage)
 		}
 	}
 }

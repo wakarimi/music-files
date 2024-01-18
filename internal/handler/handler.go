@@ -10,6 +10,7 @@ type useCase interface {
 	DeleteRoot(input DeleteRootInput) (output DeleteRootOutput, err error)
 	GetRoots(input GetRootsInput) (output GetRootsOutput, err error)
 	ScanDir(input ScanDirInput) (output ScanDirOutput, err error)
+	StaticAudio(input StaticAudioInput) (output StaticAudioOutput, err error)
 }
 
 type AddRootInput struct {
@@ -46,6 +47,15 @@ type ScanDirInput struct {
 }
 
 type ScanDirOutput struct{}
+
+type StaticAudioInput struct {
+	AudioID int
+}
+
+type StaticAudioOutput struct {
+	AbsolutePath string
+	Mime         string
+}
 
 type Handler struct {
 	useCase      useCase

@@ -19,5 +19,11 @@
   },
   "FailedToScanDir": {
     "other": "Не удалось сканировать директорию"
+  },
+  "AudioNotFound": {
+    "other": "Аудиофайл не найден"
+  },
+  "FailedToGetStaticLinkToAudio": {
+    "other": "Не удалось получить статическую ссылку на аудио"
   }
 }
