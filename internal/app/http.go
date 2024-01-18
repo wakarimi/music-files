@@ -20,7 +20,6 @@ func (a *App) RegisterRoutes() {
 			dirs.GET("/:dirId", a.handler.GetDir)
 			dirs.GET("/:dirId/content", a.handler.GetDirContent)
 			dirs.POST("/:dirId/scan", a.handler.ScanDir)
-			dirs.POST("/scan", a.handler.ScanDirs)
 		}
 
 		audios := api.Group("/audios")
@@ -35,7 +34,7 @@ func (a *App) RegisterRoutes() {
 		covers := api.Group("/covers")
 		{
 			covers.GET("", a.handler.GetCovers)
-			covers.GET("/:coverId/static-file", a.handler.StaticImage)
+			covers.GET("/:coverId/static-file", a.handler.StaticCover)
 		}
 	}
 }

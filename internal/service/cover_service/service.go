@@ -13,6 +13,8 @@ type coverRepo interface {
 	ReadByDirAndName(tx *sqlx.Tx, dirID int, name string) (cover.Cover, error)
 	IsExistsByDirAndName(tx *sqlx.Tx, dirID int, name string) (bool, error)
 	Update(tx *sqlx.Tx, coverID int, coverToUpdate cover.Cover) error
+	Read(tx *sqlx.Tx, coverID int) (cover.Cover, error)
+	IsExists(tx *sqlx.Tx, coverID int) (bool, error)
 }
 
 type Service struct {

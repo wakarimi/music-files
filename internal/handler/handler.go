@@ -11,6 +11,7 @@ type useCase interface {
 	GetRoots(input GetRootsInput) (output GetRootsOutput, err error)
 	ScanDir(input ScanDirInput) (output ScanDirOutput, err error)
 	StaticAudio(input StaticAudioInput) (output StaticAudioOutput, err error)
+	StaticCover(input StaticCoverInput) (output StaticCoverOutput, err error)
 }
 
 type AddRootInput struct {
@@ -53,6 +54,15 @@ type StaticAudioInput struct {
 }
 
 type StaticAudioOutput struct {
+	AbsolutePath string
+	Mime         string
+}
+
+type StaticCoverInput struct {
+	CoverID int
+}
+
+type StaticCoverOutput struct {
 	AbsolutePath string
 	Mime         string
 }

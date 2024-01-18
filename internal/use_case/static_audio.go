@@ -64,7 +64,7 @@ func (u UseCase) staticAudio(tx *sqlx.Tx, input handler.StaticAudioInput) (handl
 
 	mime, err := u.audioService.GetMimeValue(absolutePath)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to get type")
+		log.Error().Err(err).Msg("Failed to get mime type")
 		return handler.StaticAudioOutput{}, err
 	}
 

@@ -39,6 +39,10 @@ type coverService interface {
 	Create(tx *sqlx.Tx, coverToCreate cover.Cover) (int, error)
 	GetAllByDir(tx *sqlx.Tx, dirID int) ([]cover.Cover, error)
 	Delete(tx *sqlx.Tx, coverID int) error
+	IsExists(tx *sqlx.Tx, coverID int) (bool, error)
+	Get(tx *sqlx.Tx, coverID int) (cover.Cover, error)
+	IsExistsOnDisk(path string) (bool, error)
+	GetMimeValue(absolutePath string) (string, error)
 }
 
 type dirService interface {

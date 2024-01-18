@@ -11,16 +11,16 @@ import (
 	"strconv"
 )
 
-func (h Handler) StaticAudio(c *gin.Context) {
-	log.Debug().Msg("Getting a static url to an audio file")
+func (h Handler) StaticCover(c *gin.Context) {
+	log.Debug().Msg("Getting a static url to an cover file")
 
 	lang := c.MustGet("lang").(string)
 	localizer := i18n.NewLocalizer(&h.bundle, lang)
 
-	audioIDStr := c.Param("audioId")
-	audioID, err := strconv.Atoi(audioIDStr)
+	coverIDStr := c.Param("coverId")
+	coverID, err := strconv.Atoi(coverIDStr)
 	if err != nil {
-		log.Error().Err(err).Str("audioIdStr", audioIDStr).Msg("Invalid audioId format")
+		log.Error().Err(err).Str("coverIdStr", coverIDStr).Msg("Invalid coverId format")
 		messageID := "InvalidInputFormat"
 		message, errLoc := localizer.Localize(&i18n.LocalizeConfig{MessageID: messageID})
 		if errLoc != nil {
@@ -32,16 +32,16 @@ func (h Handler) StaticAudio(c *gin.Context) {
 		})
 		return
 	}
-	log.Debug().Int("audioId", audioID).Msg("Url parameter read successfully")
+	log.Debug().Int("coverId", coverID).Msg("Url parameter read successfully")
 
-	staticAudioInput := StaticAudioInput{
-		AudioID: audioID,
+	staticCoverInput := StaticCoverInput{
+		CoverID: coverID,
 	}
-	staticAudioOutput, err := h.useCase.StaticAudio(staticAudioInput)
+	staticCoverOutput, err := h.useCase.StaticCover(staticCoverInput)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to get static link to an audio file")
+		log.Error().Err(err).Msg("Failed to get static link to an cover file")
 		if _, ok := err.(internal_error.NotFound); ok {
-			messageID := "AudioNotFound"
+			messageID := "CoverNotFound"
 			message, errLoc := localizer.Localize(&i18n.LocalizeConfig{MessageID: messageID})
 			if errLoc != nil {
 				message = h.engLocalizer.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID})
@@ -52,7 +52,7 @@ func (h Handler) StaticAudio(c *gin.Context) {
 			})
 			return
 		} else {
-			messageID := "FailedToGetStaticLinkToAudio"
+			messageID := "FailedToGetStaticLinkToCover"
 			message, errLoc := localizer.Localize(&i18n.LocalizeConfig{MessageID: messageID})
 			if errLoc != nil {
 				message = h.engLocalizer.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID})
@@ -65,9 +65,9 @@ func (h Handler) StaticAudio(c *gin.Context) {
 		}
 	}
 
-	log.Debug().Msg("Audio file sent")
-	c.Header("Content-Disposition", "inline; filename=\""+filepath.Base(staticAudioOutput.AbsolutePath)+"\"")
-	c.Header("Content-Type", staticAudioOutput.Mime)
+	log.Debug().Msg("Cover file sent")
+	c.Header("Content-Disposition", "inline; filename=\""+filepath.Base(staticCoverOutput.AbsolutePath)+"\"")
+	c.Header("Content-Type", staticCoverOutput.Mime)
 	c.Status(http.StatusOK)
-	c.File(staticAudioOutput.AbsolutePath)
+	c.File(staticCoverOutput.AbsolutePath)
 }
