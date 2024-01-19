@@ -15,14 +15,11 @@ import (
 type getDirContentResponseDirItem struct {
 	ID          int        `json:"id"`
 	Name        string     `json:"name"`
-	ParentDirID *int       `json:"parentDirId,omitempty"`
 	LastScanned *time.Time `json:"lastScanned,omitempty"`
 }
 
 type getDirContentResponseAudioItem struct {
 	ID                int       `json:"id"`
-	DirID             int       `json:"dirId"`
-	DurationMs        int64     `json:"durationMs"`
 	SHA256            string    `json:"sha256"`
 	LastContentUpdate time.Time `json:"lastContentUpdate"`
 }
@@ -99,8 +96,6 @@ func (h Handler) GetDirContent(c *gin.Context) {
 	for i, audio := range getDirContentOutput.Audios {
 		responseAudioItems[i] = getDirContentResponseAudioItem{
 			ID:                audio.ID,
-			DirID:             audio.DirID,
-			DurationMs:        audio.DurationMs,
 			SHA256:            audio.SHA256,
 			LastContentUpdate: audio.LastContentUpdate,
 		}

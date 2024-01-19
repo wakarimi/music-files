@@ -14,7 +14,7 @@ type StaticCoverInput struct {
 
 type StaticCoverOutput struct {
 	AbsolutePath string
-	Mime         string
+	ContentType  string
 }
 
 func (u UseCase) StaticCover(input StaticCoverInput) (output StaticCoverOutput, err error) {
@@ -79,6 +79,6 @@ func (u UseCase) staticCover(tx *sqlx.Tx, input StaticCoverInput) (StaticCoverOu
 	log.Debug().Msg("Static link to cover got")
 	return StaticCoverOutput{
 		AbsolutePath: absolutePath,
-		Mime:         mime,
+		ContentType:  mime,
 	}, nil
 }

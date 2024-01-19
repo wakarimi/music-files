@@ -68,7 +68,7 @@ func (h Handler) StaticCover(c *gin.Context) {
 
 	log.Debug().Msg("Cover file sent")
 	c.Header("Content-Disposition", "inline; filename=\""+filepath.Base(staticCoverOutput.AbsolutePath)+"\"")
-	c.Header("Content-Type", staticCoverOutput.Mime)
+	c.Header("Content-Type", staticCoverOutput.ContentType)
 	c.Status(http.StatusOK)
 	c.File(staticCoverOutput.AbsolutePath)
 }

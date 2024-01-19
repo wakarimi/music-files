@@ -14,7 +14,7 @@ type StaticAudioInput struct {
 
 type StaticAudioOutput struct {
 	AbsolutePath string
-	Mime         string
+	ContentType  string
 }
 
 func (u UseCase) StaticAudio(input StaticAudioInput) (output StaticAudioOutput, err error) {
@@ -79,6 +79,6 @@ func (u UseCase) staticAudio(tx *sqlx.Tx, input StaticAudioInput) (StaticAudioOu
 	log.Debug().Msg("Static link to audio got")
 	return StaticAudioOutput{
 		AbsolutePath: absolutePath,
-		Mime:         mime,
+		ContentType:  mime,
 	}, nil
 }

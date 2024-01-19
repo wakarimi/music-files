@@ -20,8 +20,6 @@ type GetDirContentOutputDirs struct {
 
 type GetDirContentOutputAudios struct {
 	ID                int
-	DirID             int
-	DurationMs        int64
 	SHA256            string
 	LastContentUpdate time.Time
 }
@@ -85,8 +83,6 @@ func (u UseCase) getDirContent(tx *sqlx.Tx, input GetDirContentInput) (GetDirCon
 	for i, aud := range audios {
 		audiosResponse[i] = GetDirContentOutputAudios{
 			ID:                aud.ID,
-			DirID:             aud.DirID,
-			DurationMs:        aud.DurationMs,
 			SHA256:            aud.SHA256,
 			LastContentUpdate: aud.LastContentUpdate,
 		}

@@ -68,7 +68,7 @@ func (h Handler) StaticAudio(c *gin.Context) {
 
 	log.Debug().Msg("Audio file sent")
 	c.Header("Content-Disposition", "inline; filename=\""+filepath.Base(staticAudioOutput.AbsolutePath)+"\"")
-	c.Header("Content-Type", staticAudioOutput.Mime)
+	c.Header("Content-Type", staticAudioOutput.ContentType)
 	c.Status(http.StatusOK)
 	c.File(staticAudioOutput.AbsolutePath)
 }

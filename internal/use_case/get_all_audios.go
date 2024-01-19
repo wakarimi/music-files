@@ -8,7 +8,6 @@ type GetAllAudiosInput struct {
 type GetAllAudiosOutputAudios struct {
 	ID                int
 	DirID             int
-	DurationMs        int64
 	SHA256            string
 	LastContentUpdate time.Time
 }
