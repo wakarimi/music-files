@@ -17,7 +17,7 @@ type addRootRequest struct {
 
 type addRootResponse struct {
 	DirID int    `json:"dirId"`
-	Path  string `json:"path"`
+	Path  string `json:"absolutePath"`
 }
 
 func (h Handler) AddRoot(c *gin.Context) {

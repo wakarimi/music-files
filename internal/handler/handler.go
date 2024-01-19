@@ -13,6 +13,7 @@ type useCase interface {
 	StaticAudio(input use_case.StaticAudioInput) (output use_case.StaticAudioOutput, err error)
 	StaticCover(input use_case.StaticCoverInput) (output use_case.StaticCoverOutput, err error)
 	GetDirContent(input use_case.GetDirContentInput) (output use_case.GetDirContentOutput, err error)
+	GetAllAudios(input use_case.GetAllAudiosInput) (output use_case.GetAllAudiosOutput, err error)
 }
 
 type Handler struct {

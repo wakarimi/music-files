@@ -15,7 +15,8 @@ import (
 type getDirContentResponseDirItem struct {
 	ID          int        `json:"id"`
 	Name        string     `json:"name"`
-	LastScanned *time.Time `json:"lastScanned"`
+	ParentDirID *int       `json:"parentDirId,omitempty"`
+	LastScanned *time.Time `json:"lastScanned,omitempty"`
 }
 
 type getDirContentResponseAudioItem struct {
@@ -66,7 +67,7 @@ func (h Handler) GetDirContent(c *gin.Context) {
 			if errLoc != nil {
 				message = h.engLocalizer.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID})
 			}
-			c.JSON(http.StatusBadRequest, response.Error{
+			c.JSON(http.StatusNotFound, response.Error{
 				Message: message,
 				Reason:  err.Error(),
 			})
@@ -77,7 +78,7 @@ func (h Handler) GetDirContent(c *gin.Context) {
 			if errLoc != nil {
 				message = h.engLocalizer.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID})
 			}
-			c.JSON(http.StatusBadRequest, response.Error{
+			c.JSON(http.StatusInternalServerError, response.Error{
 				Message: message,
 				Reason:  err.Error(),
 			})

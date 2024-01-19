@@ -12,7 +12,7 @@ import (
 
 type getRootsResponseItem struct {
 	DirID       int        `json:"dirId"`
-	Path        string     `json:"path"`
+	Path        string     `json:"absolutePath"`
 	LastScanned *time.Time `json:"lastScanned,omitempty"`
 }
 
