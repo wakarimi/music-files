@@ -1,13 +1,11 @@
 # Build the binary
-FROM golang:1.19 AS build
+FROM golang:1.22 AS build
 
 RUN useradd -u 10001 gopher
 
 ENV NAME "wakarimi-files"
 RUN mkdir /${NAME}
 WORKDIR /opt/${NAME}
-
-ENV GOPROXY="https://proxy.golang.org,direct"
 
 COPY go.mod .
 COPY go.sum .

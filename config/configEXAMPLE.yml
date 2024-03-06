@@ -1,0 +1,13 @@
+logger:
+  level: "info"
+
+database:
+  host: "postgres"
+  port: 5432
+  username: "postgres"
+  password: "password"
+  name: "wakarimi_files_db"
+
+http:
+  host: "localhost"
+  port: 8080
