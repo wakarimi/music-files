@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  postgres:
+    container_name: wakarimi_files_db
+    image: "postgres:16.2"
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: wakarimi_files_db
+    volumes:
+      - wakarimi_files_db_data:/var/lib/postgresql/data
+    networks:
+      - wakarimi_network
+    ports:
+      - "5434:5432"
+  files:
+    container_name: wakarimi_files
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8082:8080"
+    networks:
+      - wakarimi_network
+    depends_on:
+      - postgres
+
+volumes:
+  wakarimi_files_db_data:
+
+networks:
+  wakarimi_network:
+    driver: bridge
