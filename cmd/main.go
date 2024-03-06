@@ -1,15 +1,20 @@
 package main
 
 import (
-	"fmt"
-	"github.com/rs/zerolog/log"
+	"log"
 	"music-files/internal/config"
+	pkglogger "music-files/pkg/logger"
 )
 
 func main() {
 	cfg, err := config.Parse()
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to get config")
+		log.Fatalf("Failed to get config. %v", err)
 	}
-	fmt.Println(cfg)
+
+	logger, err := pkglogger.NewZerologLogger(&cfg.Logger)
+	if err != nil {
+		log.Fatalf("Failed to create logger. %v", err)
+	}
+	logger.Info("Logger initialized")
 }
