@@ -3,7 +3,7 @@ package app
 import (
 	"log"
 	"music-files/internal/config"
-	pkglogger "music-files/pkg/logger"
+	"music-files/pkg/lgr/zerolgr"
 )
 
 func Run() {
@@ -12,7 +12,7 @@ func Run() {
 		log.Fatalf("Failed to get config. %v", err)
 	}
 
-	logger, err := pkglogger.NewZerologLogger(&cfg.Logger)
+	logger, err := zerolgr.NewZerologLogger(&cfg.Logger)
 	if err != nil {
 		log.Fatalf("Failed to create logger. %v", err)
 	}
