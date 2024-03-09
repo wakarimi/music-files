@@ -6,9 +6,15 @@ import (
 )
 
 type Config struct {
+	App    AppConfig    `mapstructure:"app"`
 	Logger LoggerConfig `mapstructure:"logger"`
 	DB     DBConfig     `mapstructure:"database"`
 	HTTP   HTTPConfig   `mapstructure:"http"`
+}
+
+type AppConfig struct {
+	Name        string `mapstructure:"name" default:"files"`
+	Environment string `mapstructure:"environment" required:"yes"`
 }
 
 type LoggerConfig struct {
