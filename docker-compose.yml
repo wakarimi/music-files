@@ -1,20 +1,6 @@
 version: "3.8"
 
 services:
-  postgres:
-    container_name: wakarimi_files_db
-    image: "postgres:16.2"
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: wakarimi_files_db
-    volumes:
-      - wakarimi_files_db_data:/var/lib/postgresql/data
-    ports:
-      - "5434:5432"
-    networks:
-      - wakarimi_network
   files:
     container_name: wakarimi_files
     build:
@@ -27,11 +13,6 @@ services:
       - "8082:8080"
     networks:
       - wakarimi_network
-    depends_on:
-      - postgres
-
-volumes:
-  wakarimi_files_db_data:
 
 networks:
   wakarimi_network:
