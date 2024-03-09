@@ -2,6 +2,4 @@ DROP TABLE IF EXISTS files;
 
 DROP TABLE IF EXISTS extensions;
 
-DROP TYPE IF EXISTS extension_type;
-
 DROP TABLE IF EXISTS directories;

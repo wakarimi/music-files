@@ -9,15 +9,11 @@ CREATE TABLE directories
 );
 CREATE INDEX idx_directories_parent ON directories (parent_dir_id);
 
-CREATE TYPE extension_type AS ENUM ('unknown', 'audio', 'video', 'image', 'document');
-
 CREATE TABLE extensions
 (
     id   SERIAL PRIMARY KEY,
-    name TEXT UNIQUE    NOT NULL,
-    type extension_type NOT NULL
+    name TEXT UNIQUE    NOT NULL
 );
-CREATE INDEX idx_extensions_type ON extensions (type);
 
 CREATE TABLE files
 (
