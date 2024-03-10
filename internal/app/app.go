@@ -1,14 +1,18 @@
 package app
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/rs/zerolog"
+	"golang.org/x/text/language"
 	"music-files/internal/api/http/controller"
 	"music-files/internal/api/http/router"
 	"music-files/internal/config"
 	"music-files/internal/repository/postgres"
 	"music-files/internal/usecase"
 	"music-files/pkg/core"
+	"music-files/pkg/loclzr"
 	"music-files/pkg/logging"
 	"os"
 )
@@ -40,7 +44,13 @@ func Run() {
 
 	useCases := usecase.New(log)
 
-	httpController := controller.New(useCases, log)
+	bundle := i18n.NewBundle(language.English)
+	bundle.RegisterUnmarshalFunc("toml", json.Unmarshal)
+	bundle.MustLoadMessageFile("internal/api/locale/en-US.json")
+	bundle.MustLoadMessageFile("internal/api/locale/ru-RU.json")
+	localizer := loclzr.New(bundle)
+
+	httpController := controller.New(useCases, localizer, log)
 
 	httpRouter := router.New(httpController, log)
 	httpRouter.RegisterRoutes()

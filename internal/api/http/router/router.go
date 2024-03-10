@@ -6,6 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"music-files/internal/api/http/controller"
+	"music-files/internal/api/http/middleware"
 	"music-files/internal/config"
 )
 
@@ -18,6 +19,8 @@ type Router struct {
 func New(controller *controller.Controller, log *zerolog.Logger) *Router {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
+	router.Use(middleware.ZerologMiddleware(*log))
+	router.Use(middleware.ProduceLanguageMiddleware())
 	return &Router{
 		router:     router,
 		controller: controller,
@@ -26,9 +29,12 @@ func New(controller *controller.Controller, log *zerolog.Logger) *Router {
 }
 
 func (r *Router) RegisterRoutes() {
-	_ = r.router.Group("/api")
+	api := r.router.Group("/api")
 	{
-
+		roots := api.Group("/roots")
+		{
+			roots.POST("", r.controller.AddRoot)
+		}
 	}
 }
 
