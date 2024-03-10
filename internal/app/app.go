@@ -3,8 +3,11 @@ package app
 import (
 	"fmt"
 	"github.com/rs/zerolog"
+	"music-files/internal/api/http/controller"
+	"music-files/internal/api/http/router"
 	"music-files/internal/config"
 	"music-files/internal/repository/postgres"
+	"music-files/internal/usecase"
 	"music-files/pkg/core"
 	"music-files/pkg/logging"
 	"os"
@@ -16,24 +19,36 @@ func Run() {
 		panic(fmt.Sprintf("failed to get config: %v", err))
 	}
 
-	logger, err := createLogger(*cfg)
+	log, err := createLogger(*cfg)
 	if err != nil {
 		panic(fmt.Sprintf("failed to create logger: %v", err))
 	}
-	logger.Debug().Msg("Logger initialized")
+	log.Debug().Msg("Logger initialized")
 
 	db, err := postgres.New(cfg.DB)
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to connect database")
+		log.Error().Err(err).Msg("Failed to connect database")
 		return
 	}
-	logger.Debug().Msg("Database connected")
+	log.Debug().Msg("Database connected")
 	defer func() {
 		err = db.Close()
 		if err != nil {
-			logger.Error().Err(err).Msg("Failed to close database connection")
+			log.Error().Err(err).Msg("Failed to close database connection")
 		}
 	}()
+
+	useCases := usecase.New(log)
+
+	httpController := controller.New(useCases, log)
+
+	httpRouter := router.New(httpController, log)
+	httpRouter.RegisterRoutes()
+	err = httpRouter.StartHTTPServer(cfg.HTTP)
+	if err != nil {
+		log.Error().Msg("Failed to start http server")
+		return
+	}
 }
 
 func createLogger(cfg config.Config) (*zerolog.Logger, error) {
