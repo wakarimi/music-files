@@ -27,6 +27,5 @@ COPY --from=build /etc/passwd /etc/passwd
 USER gopher
 
 COPY --from=build /opt/${NAME}/bin/${NAME} /${NAME}
-COPY --from=build /opt/${NAME}/migration /migration
 
 CMD ["./wakarimi-files"]

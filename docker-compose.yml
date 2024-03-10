@@ -9,6 +9,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./config:/config
+      - ./internal/repository/postgres/migration:/migration
     ports:
       - "8082:8080"
     networks:
@@ -16,4 +17,4 @@ services:
 
 networks:
   wakarimi_network:
-    driver: bridge
+    external: true

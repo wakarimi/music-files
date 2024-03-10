@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/rs/zerolog"
 	"music-files/internal/config"
+	"music-files/internal/repository/postgres"
 	"music-files/pkg/core"
 	"music-files/pkg/logging"
 	"os"
@@ -20,9 +21,19 @@ func Run() {
 		panic(fmt.Sprintf("failed to create logger: %v", err))
 	}
 	logger.Debug().Msg("Logger initialized")
-	logger.Info().Msg("Logger initialized")
-	logger.Warn().Msg("Logger initialized")
-	logger.Error().Msg("Logger initialized")
+
+	db, err := postgres.New(cfg.DB)
+	if err != nil {
+		logger.Error().Err(err).Msg("Failed to connect database")
+		return
+	}
+	logger.Debug().Msg("Database connected")
+	defer func() {
+		err = db.Close()
+		if err != nil {
+			logger.Error().Err(err).Msg("Failed to close database connection")
+		}
+	}()
 }
 
 func createLogger(cfg config.Config) (*zerolog.Logger, error) {

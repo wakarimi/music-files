@@ -1,8 +1,8 @@
 package config
 
 import (
+	"github.com/pkg/errors"
 	"github.com/spf13/viper"
-	"music-files/pkg/util"
 )
 
 type Config struct {
@@ -22,11 +22,12 @@ type LoggerConfig struct {
 }
 
 type DBConfig struct {
-	Host     string `mapstructure:"host" required:"yes"`
-	Port     int    `mapstructure:"port" required:"yes"`
-	Username string `mapstructure:"username" required:"yes"`
-	Password string `mapstructure:"password" required:"yes"`
-	Name     string `mapstructure:"name" required:"yes"`
+	Host          string `mapstructure:"host" required:"yes"`
+	Port          int    `mapstructure:"port" required:"yes"`
+	Username      string `mapstructure:"username" required:"yes"`
+	Password      string `mapstructure:"password" required:"yes"`
+	Name          string `mapstructure:"name" required:"yes"`
+	MigrationPath string `mapstructure:"migration-path" required:"yes"`
 }
 
 type HTTPConfig struct {
@@ -43,13 +44,13 @@ func Parse() (*Config, error) {
 
 	err := viper.ReadInConfig()
 	if err != nil {
-		return nil, util.WrapError(err, "failed to read config file")
+		return nil, errors.Wrap(err, "failed to read config file")
 	}
 
 	var config Config
 	err = viper.Unmarshal(&config)
 	if err != nil {
-		return nil, util.WrapError(err, "failed to unmarshal config")
+		return nil, errors.Wrap(err, "failed to unmarshal config")
 	}
 
 	return &config, nil
